@@ -1,0 +1,12 @@
+{
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "http-server": "^14.1.1"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm start --prefix server\" \"http-server client -p 8080\""
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2"
+  }
+}
