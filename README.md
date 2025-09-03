@@ -1,9 +1,6 @@
 ﻿# UTE Library Management
-
 Hệ thống quản lý thư viện cho Đại học Sư phạm Kỹ thuật, gồm client (frontend) và server (backend).
-
 [Cấu trúc thư mục](structure.txt)
-# UTE Library Management - Quick Start
 
 ## Yêu cầu
 - Node.js >= 18
@@ -17,12 +14,10 @@ cd ute-library-management
 npm install
 cd server
 npm install
-cd ..
-npm install http-server --save-dev
+cd..
 ```
 
 ## Cấu hình biến môi trường
-
 Copy file `.env.example` trong folder `server` thành `.env`.
 sửa lại cấu hình theo máy của bạn
 
@@ -32,5 +27,6 @@ npm run dev
 ```
 Backend Express chạy ở /server (port 3000)<br />
 Frontend tĩnh chạy ở /client (port 8080)
+
 
 
