@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <h1>📚 Dashboard</h1>
+    <p id="welcome"></p>
+
+    <nav>
+        <ul id="menu"></ul>
+    </nav>
+
+    <script>
+        // Kiểm tra login
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+        const username = localStorage.getItem("username");
+
+        if (!token) {
+            window.location.href = "/pages/auth/login.html";
+        }
+
+        document.getElementById("welcome").textContent = `Xin chào, ${username} (${role})`;
+
+        const menu = document.getElementById("menu");
+        if (role === "Admin") {
+            menu.innerHTML = `
+        <li><a href="/pages/admin/users.html">Quản lý người dùng</a></li>
+        <li><a href="/pages/admin/books.html">Quản lý sách</a></li>
+        <li><a href="/pages/admin/borrow.html">Quản lý mượn trả</a></li>
+      `;
+        } else if (role === "NhanVien") {
+            menu.innerHTML = `
+        <li><a href="/pages/staff/books.html">Quản lý sách</a></li>
+        <li><a href="/pages/staff/borrow.html">Quản lý mượn trả</a></li>
+      `;
+        } else {
+            menu.innerHTML = `
+        <li><a href="/pages/reader/books.html">Xem sách</a></li>
+        <li><a href="/pages/reader/history.html">Lịch sử mượn</a></li>
+      `;
+        }
+    </script>
+</body>
+
+</html>

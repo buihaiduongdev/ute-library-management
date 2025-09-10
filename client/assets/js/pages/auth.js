@@ -15,8 +15,11 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
         if (res.ok) {
             localStorage.setItem('token', data.token);
+            localStorage.setItem('role', data.role);
+            localStorage.setItem('username', data.username);
             alert('Đăng nhập thành công!');
-            window.location.href = '/pages/admin/dashboard.html';
+            window.location.href = '/pages/dashboard.html';
+
         } else {
             alert(data.message || 'Đăng nhập thất bại');
         }

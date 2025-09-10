@@ -39,7 +39,9 @@ async function login(req, res) {
 
         return res.json({
             message: 'Đăng nhập thành công',
-            token
+            token,
+            role: user.VaiTro,
+            username: user.TenDangNhap
         });
 
     } catch (err) {
