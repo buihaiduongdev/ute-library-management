@@ -1,17 +1,15 @@
-# Node modules
-node_modules/
+# IDX specific
+.idx/
 
-# Logs
-logs
-*.log
-npm-debug.log*
+# Node.js dependencies
+/node_modules
+/client/node_modules
+/server/node_modules
 
-# Env files
+# Environment variables
 .env
+/server/.env
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Optional: build folders
-dist/
+# Build outputs
+/dist
+/build
