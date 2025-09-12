@@ -10,7 +10,7 @@
 -- =============================================
 -- In a real app, this hash is generated when a user registers.
 -- This is a sample bcrypt hash for the password "123456".
-DECLARE @hashedPassword VARCHAR(255) = '$2b$10$fV/T2L8F7Z5C6B7A8D9E0FuY.AdXg.jYkZp3i4n5o6p7q8r9s0t1u';
+DECLARE @hashedPassword VARCHAR(255) = '$2b$10$8bRUoqdYILblfQL.u/jATOUxD0lHGetItzV0d4W/vHEvENlBEtV0C';
 
 BEGIN TRANSACTION;
 
