@@ -1,53 +1,107 @@
-const sql = require('mssql');
-const bcrypt = require('bcrypt');
+const prisma = require('../models/db.js');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const dbConfig = require('../../config/db.config');
 
-async function login(req, res) {
-    try {
+class AuthController {
+    // [POST] /api/auth/login
+    async login(req, res) {
         const { username, password } = req.body;
+
         if (!username || !password) {
-            return res.status(400).json({ message: 'Vui lòng nhập đầy đủ username và password' });
+            return res.status(400).json({ message: 'Vui lòng nhập tên đăng nhập và mật khẩu.' });
         }
 
-        // Kết nối DB
-        let pool = await sql.connect(dbConfig);
+        try {
+            const user = await prisma.taiKhoan.findUnique({
+                where: { TenDangNhap: username },
+            });
 
-        // Tìm user trong DB
-        const result = await pool.request()
-            .input('username', sql.VarChar, username)
-            .query('SELECT * FROM TaiKhoan WHERE TenDangNhap = @username');
+            if (!user) {
+                return res.status(401).json({ message: 'Tên đăng nhập không tồn tại.' });
+            }
 
-        if (result.recordset.length === 0) {
-            return res.status(401).json({ message: 'Tài Khoản không tồn tại' });
+            const isPasswordValid = await bcrypt.compare(password, user.MatKhauMaHoa);
+
+            if (!isPasswordValid) {
+                return res.status(401).json({ message: 'Mật khẩu không chính xác.' });
+            }
+
+            if (user.TrangThai !== 1) {
+                return res.status(403).json({ message: 'Tài khoản của bạn đã bị khóa hoặc chưa được kích hoạt.' });
+            }
+
+            const token = jwt.sign(
+                { id: user.MaTK, role: user.VaiTro },
+                process.env.JWT_SECRET,
+                { expiresIn: process.env.JWT_EXPIRES_IN }
+            );
+
+            res.status(200).json({
+                message: 'Đăng nhập thành công',
+                token,
+                username: user.TenDangNhap,
+                role: user.VaiTro
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Lỗi hệ thống.', error: error.message });
+        }
+    }
+
+    // [POST] /api/auth/register
+    async register(req, res) {
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Vui lòng cung cấp đủ tên đăng nhập và mật khẩu.' });
         }
 
-        const user = result.recordset[0];
+        try {
+            const userExists = await prisma.taiKhoan.findUnique({
+                where: { TenDangNhap: username },
+            });
 
-        // So sánh password
-        const match = await bcrypt.compare(password, user.MatKhauMaHoa);
-        if (!match) {
-            return res.status(401).json({ message: 'Sai mật khẩu' });
+            if (userExists) {
+                return res.status(409).json({ message: 'Tên đăng nhập đã tồn tại.' });
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const READER_ROLE = 2; // 2=ĐG (Độc giả)
+            const ACTIVE_STATUS = 1; // 1=Hoạt động
+
+            const result = await prisma.$transaction(async (prisma) => {
+                const newUser = await prisma.taiKhoan.create({
+                    data: {
+                        TenDangNhap: username,
+                        MatKhauMaHoa: hashedPassword,
+                        VaiTro: READER_ROLE,
+                        TrangThai: ACTIVE_STATUS,
+                    },
+                });
+
+                const tenDocGia = 'New User';
+                const ngayHetHan = new Date();
+                ngayHetHan.setFullYear(ngayHetHan.getFullYear() + 1);
+
+                await prisma.docGia.create({
+                    data: {
+                        MaTK: newUser.MaTK,
+                        HoTen: tenDocGia,
+                        NgayHetHan: ngayHetHan,
+                        TrangThai: 'ConHan',
+                    },
+                });
+
+                return newUser;
+            });
+
+            res.status(201).json({ message: 'Đăng ký tài khoản độc giả thành công.', userId: result.MaTK });
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Lỗi hệ thống.', error: error.message });
         }
-
-        // Tạo JWT
-        const token = jwt.sign(
-            { id: user.MaTK, role: user.VaiTro },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN || '2h' }
-        );
-
-        return res.json({
-            message: 'Đăng nhập thành công',
-            token,
-            role: user.VaiTro,
-            username: user.TenDangNhap
-        });
-
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Lỗi server' });
     }
 }
 
-module.exports = { login };
+module.exports = new AuthController();
