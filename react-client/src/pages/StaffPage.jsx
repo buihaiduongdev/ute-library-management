@@ -1,16 +1,14 @@
 import React from 'react';
+import Navbar from '../components/Navbar';
 
 function StaffPage() {
-    const handleLogout = () => {
-        localStorage.clear();
-        window.location.href = '/';
-    };
-
     return (
         <div>
-            <h1>Trang Nhân Viên Thư viện(Staff)</h1>
-            <p>Đây là khu vực dành cho nhân viên thư viện.</p>
-            <button onClick={handleLogout}>Đăng xuất</button>
+            <Navbar />
+            <div style={{ padding: '1rem' }}>
+                <h1>Trang Nhân Viên Thư Viện (Staff)</h1>
+                <p>Đây là khu vực dành cho nhân viên thư viện.</p>
+            </div>
         </div>
     );
 }

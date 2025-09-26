@@ -8,6 +8,7 @@ import AdminPage from './pages/AdminPage';
 import StaffPage from './pages/StaffPage';
 import ReaderPage from './pages/ReaderPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import BookSearchPage from './pages/BookSearchPage';
 
 import './App.css';
 
@@ -43,6 +44,16 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['2']}>
               <ReaderPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Route chung cho tra cứu sách, bảo vệ cho cả 3 vai trò */}
+        <Route 
+          path="/search-books" 
+          element={
+            <ProtectedRoute allowedRoles={['0', '1', '2']}>
+              <BookSearchPage />
             </ProtectedRoute>
           }
         />

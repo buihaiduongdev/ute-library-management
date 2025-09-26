@@ -1,16 +1,14 @@
 import React from 'react';
+import Navbar from '../components/Navbar';
 
 function AdminPage() {
-    const handleLogout = () => {
-        localStorage.clear();
-        window.location.href = '/';
-    };
-
     return (
         <div>
-            <h1>Trang Quản Trị Viên (Admin)</h1>
-            <p>Đây là khu vực chỉ dành cho Admin.</p>
-            <button onClick={handleLogout}>Đăng xuất</button>
+            <Navbar />
+            <div style={{ padding: '1rem' }}>
+                <h1>Trang Quản Trị Viên (Admin)</h1>
+                <p>Đây là khu vực chỉ dành cho Admin.</p>
+            </div>
         </div>
     );
 }
