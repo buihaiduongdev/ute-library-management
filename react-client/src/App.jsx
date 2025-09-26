@@ -1,14 +1,15 @@
 // Import các công cụ cần thiết từ react-router-dom
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// Import các component trang của chúng ta
+// Import các component trang và layout của chúng ta
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AdminPage from './pages/AdminPage';
 import StaffPage from './pages/StaffPage';
 import ReaderPage from './pages/ReaderPage';
-import ProtectedRoute from './components/ProtectedRoute';
 import BookSearchPage from './pages/BookSearchPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import AppLayout from './components/AppLayout';
 
 import './App.css';
 
@@ -16,49 +17,54 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Route cho trang đăng nhập */}
+        {/* === Các Route công khai không có Navbar === */}
+        {/* Cả hai đường dẫn / và /login đều dẫn đến trang đăng nhập */}
         <Route path="/" element={<LoginPage />} />
-
-        {/* Route cho trang đăng ký */}
+        <Route path="/login" element={<LoginPage />} /> 
         <Route path="/register" element={<RegisterPage />} />
-        
-        {/* Các routes được bảo vệ - 0 admin - 1 staff - 2 reader */}
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute allowedRoles={['0']}>
-              <AdminPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route 
-          path="/staff" 
-          element={
-            <ProtectedRoute allowedRoles={['0', '1']}> {/* Admin cũng có thể vào trang staff */}
-              <StaffPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route 
-          path="/reader" 
-          element={
-            <ProtectedRoute allowedRoles={['2']}>
-              <ReaderPage />
-            </ProtectedRoute>
-          }
-        />
 
-        {/* Route chung cho tra cứu sách, bảo vệ cho cả 3 vai trò */}
+        {/* === Nhóm các Route được bảo vệ sử dụng chung AppLayout === */}
         <Route 
-          path="/search-books" 
           element={
+            // Lớp bảo vệ đầu tiên: chỉ cần đăng nhập là được
             <ProtectedRoute allowedRoles={['0', '1', '2']}>
-              <BookSearchPage />
+              <AppLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Các route con này sẽ được render bên trong <Outlet /> của AppLayout */}
+          <Route 
+            path="/admin" 
+            element={
+              // Lớp bảo vệ thứ hai: kiểm tra vai trò cụ thể
+              <ProtectedRoute allowedRoles={['0']}>
+                <AdminPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/staff" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}> {/* Admin cũng có thể vào */}
+                <StaffPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/reader" 
+            element={
+              <ProtectedRoute allowedRoles={['2']}>
+                <ReaderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/search-books" 
+            element={<BookSearchPage />} // Route này chỉ cần đăng nhập, đã được bảo vệ ở lớp ngoài
+          />
+        </Route>
 
-        {/* Có thể thêm một route "*" ở đây để xử lý trang 404 Not Found */}
+        {/* Bạn có thể thêm một route "*" ở đây để xử lý trang 404 Not Found */}
       </Routes>
     </BrowserRouter>
   );

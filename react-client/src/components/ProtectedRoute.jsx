@@ -7,13 +7,14 @@ function ProtectedRoute({ children, allowedRoles }) {
 
     // 1. Kiểm tra token đăng nhập
     if (!token) {
-        return <Navigate to="/" replace />;
+        // Nếu không có token, chuyển hướng đến trang đăng nhập
+        return <Navigate to="/login" replace />;
     }
 
     // 2. Kiểm tra vai trò
     if (!allowedRoles.includes(userRole)) {
         alert('Bạn không có quyền truy cập trang này!');
-        return <Navigate to="/" replace />;
+        return <Navigate to="/search-books" replace />;
     }
 
     return children;
