@@ -174,6 +174,62 @@ CREATE TABLE ChiTietMuon (
 );
 
 -- =======================
+CREATE TABLE TraSach (
+    MaTraSach INT PRIMARY KEY IDENTITY(1,1),
+    MaPM INT NOT NULL,   -- Gắn với Phiếu Mượn
+    IdNV INT NULL,       -- Nhân viên thực hiện
+    NgayTra DATE NOT NULL,   -- Ngày thực hiện trả
+    GhiChu NVARCHAR(255) NULL,
+    DaThongBao BIT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_TraSach_PM FOREIGN KEY (MaPM) REFERENCES PhieuMuon(MaPM) ON DELETE CASCADE,
+    CONSTRAINT FK_TraSach_NV FOREIGN KEY (IdNV) REFERENCES NhanVien(IdNV) ON DELETE SET NULL
+);
+
+-- =======================
+-- Bảng Chi Tiết Trả Sách
+-- =======================
+CREATE TABLE ChiTietTraSach (
+    MaTraSach INT NOT NULL,
+    MaSach INT NOT NULL,
+    SoLuongTra INT NOT NULL CHECK (SoLuongTra > 0),
+    ChatLuongSach VARCHAR(20) NOT NULL CHECK (ChatLuongSach IN ('Tot','HuHong','Mat')),
+    PRIMARY KEY (MaTraSach, MaSach),
+    CONSTRAINT FK_CTTra_TraSach FOREIGN KEY (MaTraSach) REFERENCES TraSach(MaTraSach) ON DELETE CASCADE,
+    CONSTRAINT FK_CTTra_Sach FOREIGN KEY (MaSach) REFERENCES Sach(MaSach) ON DELETE CASCADE
+);
+
+-- =======================
+-- Bảng Thẻ Phạt
+-- =======================
+CREATE TABLE ThePhat (
+    MaPhat INT PRIMARY KEY IDENTITY(1,1),
+    MaTraSach INT NOT NULL,
+    MaSach INT NOT NULL,
+    SoTienPhat DECIMAL(10,2) NOT NULL CHECK (SoTienPhat >= 0),
+    LyDoPhat NVARCHAR(100) NOT NULL,
+    TrangThaiThanhToan VARCHAR(20) NOT NULL 
+        CHECK (TrangThaiThanhToan IN ('DaThanhToan','ChuaThanhToan','MienPhi')),
+    NgayThanhToan DATE NULL,
+    GhiChu NVARCHAR(255) NULL,
+    CONSTRAINT FK_ThePhat_TraSach FOREIGN KEY (MaTraSach) REFERENCES TraSach(MaTraSach) ON DELETE CASCADE,
+    CONSTRAINT FK_ThePhat_Sach FOREIGN KEY (MaSach) REFERENCES Sach(MaSach) ON DELETE CASCADE
+);
+
+-- =======================
+-- 15. Bảng Cấu Hình Hệ Thống (Bảng 4-16)
+-- =======================
+CREATE TABLE CauHinhHeThong (
+    MaCH         INT IDENTITY(1,1) PRIMARY KEY,      -- Mã tham số
+    Nhom         NVARCHAR(50) NOT NULL,              -- Nhóm cấu hình (VD: 'Phat', 'HeThong')
+    TenThamSo    NVARCHAR(100) NOT NULL,             -- Tên tham số
+    GiaTri       NVARCHAR(255) NOT NULL,             -- Giá trị (dạng chuỗi, CAST khi cần)
+    KieuDuLieu   NVARCHAR(50) NOT NULL,              -- Kiểu dữ liệu gốc (INT, DECIMAL, BIT…)
+    MoTa         NVARCHAR(255) NULL,                 -- Mô tả thêm
+    NgayCapNhat  DATETIME NOT NULL DEFAULT GETDATE(),
+    NguoiCapNhat NVARCHAR(50) NULL,
+    CONSTRAINT UQ_CauHinh UNIQUE (Nhom, TenThamSo)   -- Không cho trùng trong cùng 1 nhóm
+)
+
 -- 14. Bảng Phiếu Phạt (Bảng 4-15)
 -- =======================
 CREATE TABLE ThePhat (
@@ -183,16 +239,4 @@ CREATE TABLE ThePhat (
     LyDo          NVARCHAR(255) NULL,
     NgayPhat      DATE NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_ThePhat_PM FOREIGN KEY (MaPM) REFERENCES PhieuMuon(MaPM)
-);
-
--- =======================
--- 15. Bảng Cấu Hình Hệ Thống (Bảng 4-16)
--- =======================
-CREATE TABLE CauHinhHeThong (
-    MaCH        INT IDENTITY(1,1) PRIMARY KEY,
-    TenThamSo   NVARCHAR(100) NOT NULL UNIQUE,
-    GiaTri      NVARCHAR(255) NOT NULL,
-    MoTa        NVARCHAR(255) NULL,
-    NgayCapNhat DATETIME NOT NULL DEFAULT GETDATE(),
-    NguoiCapNhat NVARCHAR(50) NULL
 );
