@@ -161,17 +161,17 @@ CREATE TABLE PhieuMuon (
 -- =======================
 CREATE TABLE ChiTietMuon (
     MaPM       INT NOT NULL,
-    MaSach     INT NOT NULL,
-    SoLuong    INT NOT NULL,
+    MaCuonSach INT NOT NULL,
     NgayMuon   DATE NOT NULL,
     NgayHenTra DATE NOT NULL,
     NgayTra    DATE NULL,
-    TrangThai  VARCHAR(50) NOT NULL, -- DangMuon, DaTra, TreHan
-    PRIMARY KEY (MaPM, MaSach),
+    TrangThai  VARCHAR(50) NOT NULL 
+              CHECK (TrangThai IN ('DangMuon','DaTra','TreHan')),
+    PRIMARY KEY (MaPM, MaCuonSach),
     CONSTRAINT FK_CTM_PM FOREIGN KEY (MaPM) REFERENCES PhieuMuon(MaPM),
-    CONSTRAINT FK_CTM_Sach FOREIGN KEY (MaSach) REFERENCES Sach(MaSach),
-    CONSTRAINT CK_CTM_TrangThai CHECK (TrangThai IN ('DangMuon','DaTra','TreHan'))
+    CONSTRAINT FK_CTM_CuonSach FOREIGN KEY (MaCuonSach) REFERENCES CuonSach(MaCuonSach)
 );
+
 
 -- =======================
 CREATE TABLE TraSach (
@@ -190,12 +190,12 @@ CREATE TABLE TraSach (
 -- =======================
 CREATE TABLE ChiTietTraSach (
     MaTraSach INT NOT NULL,
-    MaSach INT NOT NULL,
-    SoLuongTra INT NOT NULL CHECK (SoLuongTra > 0),
-    ChatLuongSach VARCHAR(20) NOT NULL CHECK (ChatLuongSach IN ('Tot','HuHong','Mat')),
-    PRIMARY KEY (MaTraSach, MaSach),
+    MaCuonSach INT NOT NULL,
+    ChatLuongSach VARCHAR(20) NOT NULL 
+                 CHECK (ChatLuongSach IN ('Tot','HuHong','Mat')),
+    PRIMARY KEY (MaTraSach, MaCuonSach),
     CONSTRAINT FK_CTTra_TraSach FOREIGN KEY (MaTraSach) REFERENCES TraSach(MaTraSach) ON DELETE CASCADE,
-    CONSTRAINT FK_CTTra_Sach FOREIGN KEY (MaSach) REFERENCES Sach(MaSach) ON DELETE CASCADE
+    CONSTRAINT FK_CTTra_CuonSach FOREIGN KEY (MaCuonSach) REFERENCES CuonSach(MaCuonSach) ON DELETE CASCADE
 );
 
 -- =======================
@@ -204,15 +204,16 @@ CREATE TABLE ChiTietTraSach (
 CREATE TABLE ThePhat (
     MaPhat INT PRIMARY KEY IDENTITY(1,1),
     MaTraSach INT NOT NULL,
-    MaSach INT NOT NULL,
+    MaCuonSach INT NOT NULL,
     SoTienPhat DECIMAL(10,2) NOT NULL CHECK (SoTienPhat >= 0),
-    LyDoPhat NVARCHAR(100) NOT NULL,
+    LyDoPhat NVARCHAR(20) NOT NULL 
+             CHECK (LyDoPhat IN ('TreHan','HuHong','Mat')),
     TrangThaiThanhToan VARCHAR(20) NOT NULL 
-        CHECK (TrangThaiThanhToan IN ('DaThanhToan','ChuaThanhToan','MienPhi')),
+             CHECK (TrangThaiThanhToan IN ('DaThanhToan','ChuaThanhToan','MienPhi')),
     NgayThanhToan DATE NULL,
     GhiChu NVARCHAR(255) NULL,
     CONSTRAINT FK_ThePhat_TraSach FOREIGN KEY (MaTraSach) REFERENCES TraSach(MaTraSach) ON DELETE CASCADE,
-    CONSTRAINT FK_ThePhat_Sach FOREIGN KEY (MaSach) REFERENCES Sach(MaSach) ON DELETE CASCADE
+    CONSTRAINT FK_ThePhat_CuonSach FOREIGN KEY (MaCuonSach) REFERENCES CuonSach(MaCuonSach) ON DELETE CASCADE
 );
 
 -- =======================
