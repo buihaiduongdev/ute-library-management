@@ -231,13 +231,4 @@ CREATE TABLE CauHinhHeThong (
     CONSTRAINT UQ_CauHinh UNIQUE (Nhom, TenThamSo)   -- Không cho trùng trong cùng 1 nhóm
 )
 
--- 14. Bảng Phiếu Phạt (Bảng 4-15)
--- =======================
-CREATE TABLE ThePhat (
-    MaPhat        INT IDENTITY(1,1) PRIMARY KEY,
-    MaPM          INT NOT NULL,
-    SoTien        DECIMAL(10,2) NOT NULL,
-    LyDo          NVARCHAR(255) NULL,
-    NgayPhat      DATE NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_ThePhat_PM FOREIGN KEY (MaPM) REFERENCES PhieuMuon(MaPM)
-);
+
