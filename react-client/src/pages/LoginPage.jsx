@@ -71,7 +71,7 @@ function LoginPage() {
         <Container size={420} my={40}>
             <Title ta="center">Hệ Thống Quản Lý Thư Viện</Title>
             
-            <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+            <Paper ta="left" withBorder shadow="md" p={30} mt={30} radius="md">
                 <form onSubmit={handleSubmit}>
                     <TextInput
                         label="Tên đăng nhập"
