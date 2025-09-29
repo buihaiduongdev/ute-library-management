@@ -14,9 +14,6 @@ import {
 
 import { DatePickerInput } from '@mantine/dates'
 
-import '@mantine/core/styles.css';
-import '@mantine/dates/styles.css';
-
 const RegisterPage = () => {
     // Reader specific fields
     const [hoTen, setHoTen] = useState('');
