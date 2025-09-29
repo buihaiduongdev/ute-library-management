@@ -14,6 +14,7 @@ app.use(cors());
 
 app.use(express.json());
 
+//main app
 routes(app);
 
 app.listen(PORT, () => console.log(`SERVER http://127.0.0.1:${PORT}`));

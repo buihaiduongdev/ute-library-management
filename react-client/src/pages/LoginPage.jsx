@@ -15,6 +15,8 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 
+import {post} from '../utils/api';
+
 function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -26,18 +28,9 @@ function LoginPage() {
         setLoading(true);
 
         try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Đăng nhập thất bại.');
-            }
             
+            const data = await post('/api/auth/login',{username, password});
+
             notifications.show({
                 title: `Chào mừng, ${data.username}!`,
                 message: 'Đăng nhập thành công, đang chuyển hướng...',
@@ -68,10 +61,10 @@ function LoginPage() {
     };
 
     return (
-        <Container size={420} my={40}>
+        <Container size={500} my={40}>
             <Title ta="center">Hệ Thống Quản Lý Thư Viện</Title>
             
-            <Paper ta="left" withBorder shadow="md" p={30} mt={30} radius="md">
+            <Paper ta="left" withBorder shadow="md" p={30} mt={120} radius="md">
                 <form onSubmit={handleSubmit}>
                     <TextInput
                         label="Tên đăng nhập"
