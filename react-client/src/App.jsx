@@ -2,12 +2,15 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Import các component trang và layout của chúng ta
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import AdminPage from './pages/AdminPage';
-import StaffPage from './pages/StaffPage';
-import ReaderPage from './pages/ReaderPage';
-import BookSearchPage from './pages/BookSearchPage';
+import {
+  AdminPage,
+  BookSearchPage,
+  HomePage,
+  LoginPage,
+  ReaderPage,
+  RegisterPage,
+  StaffPage,
+} from './pages';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
 
@@ -17,26 +20,18 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* === Các Route công khai không có Navbar === */}
-        {/* Cả hai đường dẫn / và /login đều dẫn đến trang đăng nhập */}
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/login" element={<LoginPage />} /> 
-        <Route path="/register" element={<RegisterPage />} />
+        {/* Sử dụng AppLayout làm layout chung cho tất cả các trang */}
+        <Route element={<AppLayout />}>
 
-        {/* === Nhóm các Route được bảo vệ sử dụng chung AppLayout === */}
-        <Route 
-          element={
-            // Lớp bảo vệ đầu tiên: chỉ cần đăng nhập là được
-            <ProtectedRoute allowedRoles={['0', '1', '2']}>
-              <AppLayout />
-            </ProtectedRoute>
-          }
-        >
-          {/* Các route con này sẽ được render bên trong <Outlet /> của AppLayout */}
+          {/* === Các Route công khai === */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} /> 
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* === Các Route được bảo vệ === */}
           <Route 
             path="/admin" 
             element={
-              // Lớp bảo vệ thứ hai: kiểm tra vai trò cụ thể
               <ProtectedRoute allowedRoles={['0']}>
                 <AdminPage />
               </ProtectedRoute>
@@ -45,7 +40,7 @@ function App() {
           <Route 
             path="/staff" 
             element={
-              <ProtectedRoute allowedRoles={['0', '1']}> {/* Admin cũng có thể vào */}
+              <ProtectedRoute allowedRoles={['0', '1']}> 
                 <StaffPage />
               </ProtectedRoute>
             }
@@ -60,11 +55,14 @@ function App() {
           />
           <Route 
             path="/search-books" 
-            element={<BookSearchPage />} // Route này chỉ cần đăng nhập, đã được bảo vệ ở lớp ngoài
+            element={
+              <ProtectedRoute allowedRoles={['0', '1', '2']}> {/* Bất kỳ ai đã đăng nhập */}
+                <BookSearchPage />
+              </ProtectedRoute>
+            }
           />
-        </Route>
 
-        {/* Bạn có thể thêm một route "*" ở đây để xử lý trang 404 Not Found */}
+        </Route>
       </Routes>
     </BrowserRouter>
   );
