@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-    Container, 
-    Group, 
-    Button, 
+import {
+    Group,
+    Button,
     Menu,
     Text,
     Avatar,
@@ -13,53 +12,85 @@ import { IconLogout, IconUserCircle } from '@tabler/icons-react';
 
 function Navbar() {
     const navigate = useNavigate();
+    const token = localStorage.getItem('token');
     const username = localStorage.getItem('username') || 'User';
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('role');
         localStorage.removeItem('username');
-        navigate('/');
+        navigate('/'); // Điều hướng về trang chủ sau khi đăng xuất
+        window.location.reload(); // Tải lại để Navbar cập nhật trạng thái mới nhất
     };
 
-    // Component này bây giờ chỉ render nội dung bên trong Header
-    // Thẻ <AppShell.Header> đã được khai báo ở AppLayout.jsx
-    return (
-        <Container fluid sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
-            {/* Logo và Link chính */}
-            <Button component={Link} to="/search-books" variant="subtle" size="md">
-                Tra Cứu Sách
+    // Menu dành cho người dùng ĐÃ ĐĂNG NHẬP
+    const LoggedInMenu = () => (
+        <Menu shadow="md" width={200}>
+            <Menu.Target>
+                <Button variant="outline">
+                    <Group>
+                        <Avatar color="cyan" radius="xl" size="sm">
+                            {username.charAt(0).toUpperCase()}
+                        </Avatar>
+                        <Text size="sm" weight={500}>{username}</Text>
+                    </Group>
+                </Button>
+            </Menu.Target>
+
+            <Menu.Dropdown>
+                <Menu.Label>Tài khoản</Menu.Label>
+                <Menu.Item leftSection={<IconUserCircle />}>
+                    Hồ sơ của tôi (sắp có)
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item
+                    color="red"
+                    leftSection={<IconLogout />}
+                    onClick={handleLogout}
+                >
+                    Đăng Xuất
+                </Menu.Item>
+            </Menu.Dropdown>
+        </Menu>
+    );
+
+    // Các nút dành cho khách CHƯA ĐĂNG NHẬP
+    const LoggedOutButtons = () => (
+        <Group h="100%">
+            <Button  component={Link} to="/login">
+                Đăng nhập
             </Button>
+            <Button component={Link} to="/register" variant="default">
+                Đăng ký
+            </Button>
+        </Group>
+    );
 
-            {/* Menu người dùng */}
-            <Menu shadow="md" width={200}>
-                <Menu.Target>
-                    <Button variant="outline">
-                        <Group>
-                            <Avatar color="cyan" radius="xl" size="sm">
-                                {username.charAt(0).toUpperCase()}
-                            </Avatar>
-                            <Text size="sm" weight={500}>{username}</Text>
-                        </Group>
-                    </Button>
-                </Menu.Target>
-
-                <Menu.Dropdown>
-                    <Menu.Label>Tài khoản</Menu.Label>
-                    <Menu.Item icon={<IconUserCircle size={rem(14)} />}>
-                        Hồ sơ của tôi (sắp có)
-                    </Menu.Item>
-                    <Menu.Divider />
-                    <Menu.Item 
-                        color="red" 
-                        icon={<IconLogout size={rem(14)} />} 
-                        onClick={handleLogout}
-                    >
-                        Đăng Xuất
-                    </Menu.Item>
-                </Menu.Dropdown>
-            </Menu>
-        </Container>
+    return (
+        <Group h="100%" px="md" justify="space-between">
+            <Group>
+                <Button 
+                    component={Link} 
+                    to={"/"}
+                    variant="subtle" 
+                    size="md"
+                >
+                    Hệ Thống Thư Viện
+                </Button>
+                <Button 
+                    component={Link} 
+                    to={token ? "/search-books" : "/"} // Nếu đã đăng nhập thì link tới search, nếu không thì về trang chủ
+                    variant="subtle" 
+                    size="md"
+                >
+                    Tra cứu sách
+                </Button>
+            </Group>
+            {/* Dựa vào token để hiển thị UI phù hợp */}
+            <Group>
+                {token ? <LoggedInMenu /> : <LoggedOutButtons />}
+            </Group>
+        </Group>
     );
 }
 
