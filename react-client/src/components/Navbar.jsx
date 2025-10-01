@@ -14,7 +14,7 @@ function Navbar() {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username') || 'User';
-
+    const role = localStorage.getItem('role');
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('role');
@@ -85,6 +85,16 @@ function Navbar() {
                 >
                     Tra cứu sách
                 </Button>
+                {(role === '0' || role === '1') && (
+                    <Button 
+                        component={Link} 
+                        to="/borrow-books"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        Mượn-Trả sách
+                    </Button>
+                )}
             </Group>
             {/* Dựa vào token để hiển thị UI phù hợp */}
             <Group>

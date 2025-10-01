@@ -1,4 +1,6 @@
 
+const API_URL = '/api';
+
 const handleResponse = async (response) => {
     const data = await response.json();
     if (!response.ok) {
@@ -6,6 +8,14 @@ const handleResponse = async (response) => {
     }
     return data;
 };
+
+export const get = async (url) => {
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return handleResponse(response);
+}
 
 export const post = async (url, body) => {
     const response = await fetch(url, {
@@ -16,3 +26,4 @@ export const post = async (url, body) => {
     return handleResponse(response);
 };
 
+export const createBorrow = (borrowData) => post(`${API_URL}/borrow`, borrowData);

@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import {
   AdminPage,
   BookSearchPage,
+  BorrowBooks,
   HomePage,
   LoginPage,
   ReaderPage,
@@ -58,6 +59,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['0', '1', '2']}> {/* Bất kỳ ai đã đăng nhập */}
                 <BookSearchPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/borrow-books" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <BorrowBooks />
               </ProtectedRoute>
             }
           />
