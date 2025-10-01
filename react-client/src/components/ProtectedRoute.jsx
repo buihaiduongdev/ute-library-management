@@ -7,8 +7,7 @@ function ProtectedRoute({ children, allowedRoles }) {
 
     // 1. Kiểm tra token đăng nhập
     if (!token) {
-        // Nếu không có token, chuyển hướng đến trang đăng nhập
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/" replace />;
     }
 
     // 2. Kiểm tra vai trò
