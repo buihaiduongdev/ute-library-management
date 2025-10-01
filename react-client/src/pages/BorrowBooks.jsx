@@ -36,7 +36,7 @@ export default function BorrowBooks() {
         className="bg-blue-600 text-white px-4 py-2 rounded"
         onClick={handleBorrow}
       >
-        ✅ Xác nhận mượn
+        ✅ Xác nhận mượn hello 
       </button>
     </div>
   );
