@@ -14,6 +14,7 @@ function Navbar() {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username') || 'User';
+    const role = localStorage.getItem('role'); // Lấy vai trò của người dùng
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -85,6 +86,18 @@ function Navbar() {
                 >
                     Tra cứu sách
                 </Button>
+                
+                {/* THÊM MỚI: Chỉ hiển thị nút này cho Admin (0) hoặc Staff (1) */}
+                {(role === '0' || role === '1') && (
+                    <Button 
+                        component={Link} 
+                        to="/reader"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        Quản lý Độc giả
+                    </Button>
+                )}
             </Group>
             {/* Dựa vào token để hiển thị UI phù hợp */}
             <Group>

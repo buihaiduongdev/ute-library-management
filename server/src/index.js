@@ -8,9 +8,17 @@ const routes = require('./app/routes');
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-app.use(express.static(path.join(__dirname, '../public')));
+// Cấu hình CORS một cách rõ ràng
+const corsOptions = {
+  origin: '*', // Cho phép tất cả các origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
 
-app.use(cors());
+app.use(cors(corsOptions));
+
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(express.json());
 

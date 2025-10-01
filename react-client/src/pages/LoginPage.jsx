@@ -15,7 +15,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 
-import {post} from '../utils/api';
+import { api } from '../utils/api'; // Sửa lỗi import ở đây
 
 function LoginPage() {
     const [username, setUsername] = useState('');
@@ -29,7 +29,8 @@ function LoginPage() {
 
         try {
             
-            const data = await post('/api/auth/login',{username, password});
+            // Sửa lỗi sử dụng ở đây
+            const data = await api.post('/api/auth/login', { username, password });
 
             notifications.show({
                 title: `Chào mừng, ${data.username}!`,

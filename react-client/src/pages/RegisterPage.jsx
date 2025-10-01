@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { post } from '../utils/api';
+import { api } from '../utils/api'; // Sửa lỗi import
 import { 
     Container,
     Title,
@@ -9,40 +9,93 @@ import {
     PasswordInput,
     Button,
     Center,
-    Anchor
+    Anchor,
+    Text,
+    LoadingOverlay
  } from '@mantine/core';
-
-import { DatePickerInput } from '@mantine/dates'
+import { notifications } from '@mantine/notifications';
+import { DatePickerInput } from '@mantine/dates';
 
 const RegisterPage = () => {
-    // Reader specific fields
+    // Form fields
     const [hoTen, setHoTen] = useState('');
     const [ngaySinh, setNgaySinh] = useState(null);
     const [diaChi, setDiaChi] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
-
-    // Account specific fields
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmedPassword, setConfirmedPassword] = useState('');
 
+    // State
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        
+        // Validation
+        if (password !== confirmedPassword) {
+            setError('Mật khẩu xác nhận không khớp!');
+            return;
+        }
+        if (!ngaySinh) {
+            setError('Vui lòng chọn ngày sinh.');
+            return;
+        }
+
+        setError('');
+        setLoading(true);
+
+        const payload = {
+            // Reader info
+            HoTen: hoTen,
+            NgaySinh: ngaySinh.toISOString(), // Chuyển đổi sang string để gửi API
+            DiaChi: diaChi,
+            Email: email,
+            SoDienThoai: phone,
+            // Account info
+            username: username,
+            password: password,
+        };
+
+        try {
+            // Sửa lỗi sử dụng API
+            await api.post('/api/auth/register', payload);
+
+            notifications.show({
+                title: 'Đăng ký thành công!',
+                message: 'Tài khoản của bạn đã được tạo. Vui lòng đăng nhập.',
+                color: 'green',
+            });
+
+            navigate('/login');
+
+        } catch (err) {
+            const errorMessage = err.response?.data?.msg || err.message || 'Đã có lỗi xảy ra';
+            setError(errorMessage);
+            notifications.show({
+                title: 'Đăng ký thất bại',
+                message: errorMessage,
+                color: 'red',
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <Container size={500} my={40}>
-            <Title ta="center">Đăng ký tài khoản đọc giả</Title>
+            <Title ta="center">Đăng ký tài khoản độc giả</Title>
 
-            <Paper ta="left" withBorder shadow="md" p={30} mt={20} mb={40} radius="medium">
+            <Paper ta="left" withBorder shadow="md" p={30} mt={20} mb={40} radius="medium" style={{ position: 'relative' }}>
+                <LoadingOverlay visible={loading} zIndex={1000} />
                 <form onSubmit={handleSubmit}>
+                    {error && <Text c="red" size="sm" ta="center" mb="md">{error}</Text>}
+                    
                     <TextInput
-                        label="Họ tên"
+                        label="Họ tên"
                         required
                         value={hoTen}
                         onChange={(e) => setHoTen(e.currentTarget.value)}
@@ -58,9 +111,9 @@ const RegisterPage = () => {
                         valueFormat="DD/MM/YYYY"
                         required
                     />        
-                      <TextInput
+                    <TextInput
                         mt="md"
-                        label="Địa chỉ"
+                        label="Địa chỉ"
                         required
                         value={diaChi}
                         onChange={(e) => setDiaChi(e.currentTarget.value)}
@@ -70,13 +123,14 @@ const RegisterPage = () => {
                         mt="md"
                         label="Email"
                         required
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.currentTarget.value)}
                         size="md"
                     />
                     <TextInput
                         mt="md"
-                        label="Số điện thoại"
+                        label="Số điện thoại"
                         required
                         value={phone}
                         onChange={(e) => setPhone(e.currentTarget.value)}
@@ -84,7 +138,7 @@ const RegisterPage = () => {
                     />          
                     <TextInput
                         mt="md"
-                        label="Tên đăng nhập"
+                        label="Tên đăng nhập"
                         required
                         value={username}
                         onChange={(e) => setUsername(e.currentTarget.value)}
@@ -99,21 +153,21 @@ const RegisterPage = () => {
                         size="md"
                     />
                     <PasswordInput
-                        label="Xác nhận mật khẩu"
+                        label="Xác nhận mật khẩu"
                         required
                         mt="md"
                         value={confirmedPassword}
                         onChange={(event) => setConfirmedPassword(event.currentTarget.value)}
                         size="md"
                     />
-                    <Button fullWidth mt="xl" type="submit">
+                    <Button fullWidth mt="xl" type="submit" loading={loading}>
                         Đăng ký
                     </Button>
                 </form>
             </Paper>
             <Center>
                 <Anchor component={Link} to="/login" c="dimmed" size="sm">
-                    Đã có tài khoản? Đăng nhập tại đây
+                    Đã có tài khoản? Đăng nhập tại đây
                 </Anchor>
             </Center>
        </Container>

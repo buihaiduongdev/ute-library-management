@@ -45,10 +45,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+          {/* SỬA ĐỔI: Cho phép Admin (0) và Nhân viên (1) truy cập trang quản lý độc giả */}
           <Route 
             path="/reader" 
             element={
-              <ProtectedRoute allowedRoles={['2']}>
+              <ProtectedRoute allowedRoles={['0', '1']}>
                 <ReaderPage />
               </ProtectedRoute>
             }
