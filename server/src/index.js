@@ -10,7 +10,7 @@ const app = express();
 
 // Cấu hình CORS một cách rõ ràng
 const corsOptions = {
-  origin: '*', // Cho phép tất cả các origin
+  origin: '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   preflightContinue: false,
   optionsSuccessStatus: 204

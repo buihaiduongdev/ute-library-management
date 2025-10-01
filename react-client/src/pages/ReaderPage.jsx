@@ -35,7 +35,7 @@ function ReaderPage() {
     // Hàm để lấy danh sách độc giả
     const fetchReaders = async () => {
         try {
-            const data = await api.get('/api/readers');
+            const data = await api.get('/readers');
             setReaders(data);
         } catch (error) {
             notifications.show({
@@ -54,7 +54,7 @@ function ReaderPage() {
     // Hàm xử lý khi submit form
     const handleSubmit = async (values) => {
         try {
-            await api.post('/api/readers', values);
+            await api.post('/readers', values);
             notifications.show({
                 title: 'Thành công',
                 message: 'Đã tạo độc giả mới thành công!',

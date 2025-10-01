@@ -1,7 +1,7 @@
-// const BASE_URL = 'http://localhost:3000'; 
+const BASE_URL = '/api';
 
 const fetchApi = async (endpoint, options = {}) => {
-    const url = endpoint;
+    const url = `${BASE_URL}${endpoint}`;
     const token = localStorage.getItem('token');
 
     const headers = {
@@ -39,7 +39,7 @@ const fetchApi = async (endpoint, options = {}) => {
         return response.json();
 
     } catch (error) {
-        console.error(`API call to ${endpoint} failed:`, error.message);
+        console.error(`API call to ${url} failed:`, error.message);
         throw error;
     }
 };
@@ -51,6 +51,4 @@ export const api = {
     delete: (endpoint) => fetchApi(endpoint, { method: 'DELETE' }),
 };
 
-const API_URL = '/api';
-
-export const createBorrow = (borrowData) => api.post(`${API_URL}/borrow`, borrowData);
+export const createBorrow = (borrowData) => api.post('/borrow', borrowData);

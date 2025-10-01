@@ -109,17 +109,32 @@ const updateReader = async (req, res) => {
 const deleteReader = async (req, res) => {
     const { id } = req.params;
     try {
-        // Lưu ý: schema.prisma cần có `onDelete: Cascade` từ TaiKhoan đến DocGia
-        // Hoặc chúng ta phải xóa TaiKhoan liên quan thủ công.
-        // Giả sử chỉ xóa DocGia ở đây, hoặc tài khoản sẽ bị xóa theo nếu có cascade.
-        await prisma.docGia.delete({
+        // Step 1: Find the reader to get their associated account ID (MaTK) and check for borrowing history.
+        const reader = await prisma.docGia.findUnique({
             where: { IdDG: parseInt(id) },
+            include: { PhieuMuonTra: true }, // Include borrowing slips
         });
-        res.json({ msg: 'Reader deleted successfully' });
-    } catch (err) {
-        // Lỗi P2025: Record to delete does not exist.
-        if (err.code === 'P2025') {
+
+        if (!reader) {
             return res.status(404).json({ msg: 'Reader not found' });
+        }
+
+        // Step 2: Check if the reader has any borrowing history.
+        if (reader.PhieuMuonTra && reader.PhieuMuonTra.length > 0) {
+            return res.status(400).json({ msg: 'Cannot delete reader with borrowing history.' });
+        }
+
+        // Step 3: Delete the associated TaiKhoan (Account).
+        // The `onDelete: Cascade` in schema.prisma will automatically delete the DocGia.
+        await prisma.taiKhoan.delete({
+            where: { MaTK: reader.MaTK },
+        });
+
+        res.json({ msg: 'Reader and associated account deleted successfully' });
+    } catch (err) {
+        // Handle cases where the record to delete might not exist (e.g., if deleted in another request)
+        if (err.code === 'P2025') {
+            return res.status(404).json({ msg: 'Reader or associated account not found for deletion.' });
         }
         console.error(err.message);
         res.status(500).send('Server error');
