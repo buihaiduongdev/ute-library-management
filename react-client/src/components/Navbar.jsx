@@ -6,7 +6,6 @@ import {
     Menu,
     Text,
     Avatar,
-    rem
 } from '@mantine/core';
 import { IconLogout, IconUserCircle } from '@tabler/icons-react';
 
@@ -14,17 +13,16 @@ function Navbar() {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username') || 'User';
-    const role = localStorage.getItem('role'); // Lấy vai trò của người dùng
+    const role = localStorage.getItem('role');
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('role');
         localStorage.removeItem('username');
-        navigate('/'); // Điều hướng về trang chủ sau khi đăng xuất
-        window.location.reload(); // Tải lại để Navbar cập nhật trạng thái mới nhất
+        navigate('/'); 
+        window.location.reload(); 
     };
 
-    // Menu dành cho người dùng ĐÃ ĐĂNG NHẬP
     const LoggedInMenu = () => (
         <Menu shadow="md" width={200}>
             <Menu.Target>
@@ -55,7 +53,6 @@ function Navbar() {
         </Menu>
     );
 
-    // Các nút dành cho khách CHƯA ĐĂNG NHẬP
     const LoggedOutButtons = () => (
         <Group h="100%">
             <Button  component={Link} to="/login">
@@ -80,26 +77,35 @@ function Navbar() {
                 </Button>
                 <Button 
                     component={Link} 
-                    to={token ? "/search-books" : "/"} // Nếu đã đăng nhập thì link tới search, nếu không thì về trang chủ
+                    to={token ? "/search-books" : "/"}
                     variant="subtle" 
                     size="md"
                 >
                     Tra cứu sách
                 </Button>
                 
-                {/* THÊM MỚI: Chỉ hiển thị nút này cho Admin (0) hoặc Staff (1) */}
                 {(role === '0' || role === '1') && (
-                    <Button 
-                        component={Link} 
-                        to="/reader"
-                        variant="subtle" 
-                        size="md"
-                    >
-                        Quản lý Độc giả
-                    </Button>
+                    <>
+                        <Button 
+                            component={Link} 
+                            to="/reader"
+                            variant="subtle" 
+                            size="md"
+                        >
+                            Quản lý Độc giả
+                        </Button>
+                        <Button 
+                            component={Link} 
+                            to="/borrow-books"
+                            variant="subtle" 
+                            size="md"
+                        >
+                            Mượn-Trả sách
+                        </Button>
+                    </>
                 )}
             </Group>
-            {/* Dựa vào token để hiển thị UI phù hợp */}
+
             <Group>
                 {token ? <LoggedInMenu /> : <LoggedOutButtons />}
             </Group>
