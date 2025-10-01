@@ -42,8 +42,8 @@ INSERT INTO NhaXuatBan (TenNXB, DiaChi, SoDienThoai, Email) VALUES
 (N'NXB Kim Đồng', N'Hà Nội', '0922222222', 'nxbkimdong@vn.com');
 
 -- 8. Sách
-INSERT INTO Sach (TieuDe, NamXuatBan, GiaSach, MaNXB, SoLuong, ViTriKe, TrangThai) VALUES
-(N'Tôi thấy hoa vàng trên cỏ xanh', 2015, 50000, 1, 10, N'K1', 'Con'),
+INSERT INTO Sach (TieuDe, NamXuatBan, GiaSach, MaNXB, SoLuong, ViTriKe, AnhBia, TrangThai) VALUES
+(N'Book Title 1', 2020, 100000, 1, 5, N'A1', NULL, 'Con');
 (N'Kafka bên bờ biển', 2002, 120000, 2, 5, N'K2', 'Con');
 
 -- 9. Cuốn Sách
