@@ -11,14 +11,8 @@ import '@mantine/dates/styles.css';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     {/* Bọc toàn bộ App trong MantineProvider */}
-    <MantineProvider
-      theme={{
-        /* Bạn có thể tùy chỉnh theme ở đây, ví dụ:
-        primaryColor: 'cyan',
-        */
-      }}
-    >
-        <Notifications /> {/* Component để hiển thị thông báo */}
+    <MantineProvider >
+        <Notifications />
         <App />
     </MantineProvider>
   </StrictMode>,

@@ -12,72 +12,112 @@ INSERT INTO TaiKhoan (TenDangNhap, MatKhauMaHoa, VaiTro, TrangThai) VALUES
 
 -- 2. Admin
 INSERT INTO Admin (MaTK, HoTen, NgaySinh, Email, SoDienThoai) VALUES
-(1, N'Nguyễn Văn A', '1980-01-01', 'admin@utelms.com', '0901111111');
+(1, N'Quản trị viên', '1990-01-01', 'admin@test.com', '0901111111');
 
 -- 3. Nhân Viên
-INSERT INTO NhanVien (MaTK, MaNV, HoTen, NgaySinh, Email, SoDienThoai, DiaChi, ChucVu) VALUES
-(2, 'NV001', N'Trần Thị B', '1990-02-02', 'nv1@utelms.com', '0902222222', N'Hà Nội', N'ThuThu'),
-(3, 'NV002', N'Lê Văn C', '1992-03-03', 'nv2@utelms.com', '0903333333', N'Hồ Chí Minh', N'FullTime');
+INSERT INTO NhanVien (MaTK, MaNV, HoTen, NgaySinh, Email, SoDienThoai, DiaChi, ChucVu)
+VALUES (2, 'NV001', N'Nhân viên thư viện', '1995-05-15', 'staff@test.com', '0902222222', N'Hà Nội', N'ThuThu');
 
 -- 4. Độc Giả
-INSERT INTO DocGia (MaTK, MaDG, HoTen, NgaySinh, DiaChi, Email, SoDienThoai, NgayDangKy, NgayHetHan, TrangThai) VALUES
-(4, 'DG001', N'Phạm Thị D', '2000-04-04', N'Đà Nẵng', 'dg1@utelms.com', '0904444444', GETDATE(), DATEADD(YEAR,1,GETDATE()), 'ConHan'),
-(5, 'DG002', N'Hoàng Văn E', '2001-05-05', N'Cần Thơ', 'dg2@utelms.com', '0905555555', GETDATE(), DATEADD(MONTH,6,GETDATE()), 'ConHan'),
-(6, 'DG003', N'Đỗ Thị F', '1999-06-06', N'Huế', 'dg3@utelms.com', '0906666666', GETDATE(), DATEADD(MONTH,-1,GETDATE()), 'HetHan');
+INSERT INTO DocGia (MaTK, MaDG, HoTen, NgaySinh, DiaChi, Email, SoDienThoai, NgayDangKy, NgayHetHan, TrangThai)
+VALUES
+(3, 'DG001', N'Nguyễn Văn A', '2000-03-20', N'123 ABC Street', 'reader1@test.com', '0903333333', GETDATE(), DATEADD(YEAR,1,GETDATE()), 'ConHan'),
+(4, 'DG002', N'Trần Thị B', '1999-07-10', N'456 XYZ Street', 'reader2@test.com', '0904444444', GETDATE(), DATEADD(YEAR,1,GETDATE()), 'ConHan');
 
--- 5. Tác Giả
 INSERT INTO TacGia (TenTacGia, TieuSu, QuocTich) VALUES
-(N'Nguyễn Nhật Ánh', N'Nhà văn chuyên viết truyện thiếu nhi', N'Việt Nam'),
-(N'Haruki Murakami', N'Nhà văn nổi tiếng Nhật Bản', N'Nhật Bản');
+(N'Nguyễn Nhật Ánh', N'Nhà văn nổi tiếng Việt Nam', N'Việt Nam'),
+(N'J.K. Rowling', N'Tác giả Harry Potter', N'Anh'),
+(N'Stephen King', N'Vua truyện kinh dị', N'Mỹ');
 
--- 6. Thể Loại
 INSERT INTO TheLoai (TenTheLoai, MoTa) VALUES
-(N'Thiếu nhi', N'Sách cho trẻ em và tuổi học trò'),
-(N'Tiểu thuyết', N'Tác phẩm văn học dài'),
-(N'Khoa học', N'Sách nghiên cứu, tham khảo');
+(N'Văn học', N'Sách văn học trong nước và ngoài nước'),
+(N'Khoa học viễn tưởng', N'Tiểu thuyết khoa học viễn tưởng'),
+(N'Kinh dị', N'Truyện kinh dị'),
+(N'Thiếu nhi', N'Sách cho trẻ em');
 
--- 7. Nhà Xuất Bản
 INSERT INTO NhaXuatBan (TenNXB, DiaChi, SoDienThoai, Email) VALUES
-(N'NXB Trẻ', N'HCM', '0911111111', 'nxbtre@vn.com'),
-(N'NXB Kim Đồng', N'Hà Nội', '0922222222', 'nxbkimdong@vn.com');
+(N'NXB Trẻ', N'TP.HCM', '0281234567', 'tre@nxb.vn'),
+(N'NXB Kim Đồng', N'Hà Nội', '0241234567', 'kimdong@nxb.vn'),
+(N'Bloomsbury', N'London, UK', NULL, 'info@bloomsbury.com');
 
+<<<<<<< HEAD
 -- 8. Sách
 INSERT INTO Sach (TieuDe, NamXuatBan, GiaSach, MaNXB, SoLuong, ViTriKe, TrangThai) VALUES
-(N'Tôi thấy hoa vàng trên cỏ xanh', 2015, 50000, 1, 10, N'K1', 'Con'),
-(N'Kafka bên bờ biển', 2002, 120000, 2, 5, N'K2', 'Con');
+(N'Tôi thấy hoa vàng trên cỏ xanh', 2010, 85000, 1, 5, N'A1-001', 'Con'),
+(N'Harry Potter và Hòn đá phù thủy', 1997, 150000, 3, 3, N'B2-045', 'Con'),
+(N'IT - Gã hề ma quỷ', 1986, 200000, 1, 2, N'C3-012', 'Con'),
+(N'Dế Mèn phiêu lưu ký', 1941, 45000, 2, 4, N'D1-008', 'Con');
+=======
+-- =======================
+-- Sách và cuốn sách
+-- =======================
 
--- 9. Cuốn Sách
-INSERT INTO CuonSach (MaSach, TrangThaiCS) VALUES
-(1, 'Con'),
-(1, 'DangMuon'),
-(2, 'Con');
 
--- 10. Sách_Tác Giả
-INSERT INTO Sach_TacGia (MaSach, MaTG, VaiTro) VALUES
-(1, 1, N'Tác giả chính'),
-(2, 2, N'Tác giả chính');
+-- Cuốn sách cho từng đầu sách
+INSERT INTO CuonSach (MaSach, TrangThaiCS)
+VALUES (1,'Con'),(1,'Con'),(1,'Con'),(1,'DangMuon'),(1,'Con'),
+(2,'Con'),(2,'DangMuon'),(2,'Con'),
+(3,'Con'),(3,'Con'),
+(4,'Con'),(4,'Con'),(4,'Con'),(4,'Con');
 
--- 11. Sách_Thể Loại
+-- Liên kết sách - tác giả
+INSERT INTO Sach_TacGia VALUES
+(1,1,N'Tác giả chính'),(2,2,N'Tác giả chính'),(3,3,N'Tác giả chính'),(4,1,N'Tác giả chính');
+INSERT INTO Sach_TheLoai VALUES (1,1),(1,4),(2,2),(3,3),(4,4);
+
+-- Liên kết sách - thể loại
 INSERT INTO Sach_TheLoai (MaSach, MaTL) VALUES
-(1, 1),
-(1, 2),
-(2, 2);
+(1, 1), (1, 2),
+(2, 2),
+(3, 2);
 
--- 12. Phiếu Mượn
-INSERT INTO PhieuMuon (IdDG, IdNV) VALUES
-(1, 1),
-(2, 2);
+-- =======================
+-- Phiếu mượn & chi tiết mượn
+-- Giả sử DocGia.IdDG = 1, NhanVien.IdNV = 1 đã tồn tại
+-- =======================
+INSERT INTO PhieuMuon (IdDG, IdNV) VALUES (1, 1); -- Độc giả 1 mượn sách từ nhân viên 1
 
--- 13. Chi Tiết Mượn
-INSERT INTO ChiTietMuon (MaPM, MaSach, SoLuong, NgayMuon, NgayHenTra, NgayTra, TrangThai) VALUES
-(1, 1, 1, GETDATE(), DATEADD(DAY,7,GETDATE()), NULL, 'DangMuon'),
-(2, 2, 1, DATEADD(DAY,-10,GETDATE()), DATEADD(DAY,-3,GETDATE()), NULL, 'TreHan');
+-- Mượn 2 cuốn: Mắt Biếc (cuốn 1), Harry Potter (cuốn 4)
+INSERT INTO ChiTietMuon (MaPM, MaCuonSach, NgayMuon, NgayHenTra, TrangThai, SoLanGiaHan) VALUES
+(1, 4, GETDATE(), DATEADD(DAY, 14, GETDATE()), 'DangMuon', 0), -- Cuốn "Tôi thấy hoa vàng trên cỏ xanh" số 4
+(1, 7, GETDATE(), DATEADD(DAY, 14, GETDATE()), 'DangMuon', 1); -- Cuốn "Harry Potter" số 7 (đã gia hạn 1 lần)
 
--- 14. Thẻ Phạt
-INSERT INTO ThePhat (MaPM, SoTien, LyDo) VALUES
-(2, 50000, N'Trễ hạn 3 ngày');
+--Yêu cầu mượn 
+INSERT INTO YeuCauMuon (IdDG, MaCuonSach, NgayHenTra, TrangThai, GhiChu) VALUES
+(1, 9, DATEADD(DAY, 10, GETDATE()), 'ChoXuLy', N'Muốn mượn sách IT để đọc cuối tuần'), -- Độc giả 1 yêu cầu mượn cuốn IT số 9
+(2, 11, DATEADD(DAY, 7, GETDATE()), 'ChoXuLy', N'Mượn cho con đọc');                  -- Độc giả 2 yêu cầu mượn Dế Mèn số 11
 
--- 15. Cấu Hình Hệ Thống
-INSERT INTO CauHinhHeThong (TenThamSo, GiaTri, MoTa, NguoiCapNhat) VALUES
-(N'SoNgayMuonToiDa', '14', N'Tối đa 14 ngày mượn sách', N'Admin'),
-(N'SoSachMuonToiDa', '5', N'Mỗi độc giả được mượn tối đa 5 cuốn', N'Admin');
+-- =======================
+-- Trả sách
+-- =======================
+INSERT INTO TraSach (MaPM, IdNV, NgayTra, GhiChu, DaThongBao) VALUES
+(1, 1, '2025-09-25', N'Trái hẹn 1 cuốn', 1);
+
+-- Trả 2 cuốn, 1 tốt, 1 hư hỏng
+INSERT INTO ChiTietTraSach (MaTraSach, MaCuonSach, ChatLuongSach) VALUES
+(1, 1, 'Tot'),
+(1, 4, 'HuHong');
+
+-- =======================
+-- Thẻ phạt (cho cuốn bị hư hỏng)
+-- =======================
+INSERT INTO ThePhat (MaTraSach, MaCuonSach, SoTienPhat, LyDoPhat, TrangThaiThanhToan, GhiChu) VALUES
+(1, 4, 50000, N'HuHong', 'ChuaThanhToan', N'Bìa sách bị rách');
+
+
+-- Cấu hình về mượn sách
+INSERT INTO CauHinhHeThong (Nhom, TenThamSo, GiaTri, KieuDuLieu, MoTa, NguoiCapNhat)
+VALUES 
+-- Cấu hình mượn sách cơ bản
+('MuonSach', 'MaxSachMuon', '5', 'INT', N'Số sách tối đa một độc giả có thể mượn cùng lúc', 'System'),
+('MuonSach', 'SoNgayMuonMacDinh', '14', 'INT', N'Số ngày mượn mặc định', 'System'),
+-- CẤU HÌNH GIA HẠN
+('GiaHan', 'MaxLanGiaHan', '2', 'INT', N'Số lần gia hạn tối đa cho mỗi cuốn sách', 'System'),
+('GiaHan', 'SoNgayGiaHanMoiLan', '7', 'INT', N'Số ngày gia hạn mỗi lần', 'System'),
+('GiaHan', 'PhiGiaHan', '5000', 'DECIMAL', N'Phí gia hạn mỗi lần (VNĐ)', 'System'),
+-- CẤU HÌNH YÊU CẦU MƯỢN('YeuCauMuon', 'MaxYeuCauChoXuLy', '5', 'INT', N'Số yêu cầu tối đa đang chờ xử lý của một độc giả', 'System'),
+('YeuCauMuon', 'TuDongDuyetYeuCau', '0', 'BIT', N'Tự động duyệt yêu cầu (0=Không, 1=Có)', 'System'),
+--Cấu hình phạt
+('Phat', 'PhiTreHanMoiNgay', '5000', 'DECIMAL', N'Phí phạt trễ hạn mỗi ngày (VNĐ)', 'System'),
+('Phat', 'PhiHuHong', '50000', 'DECIMAL', N'Phí phạt sách hư hỏng (VNĐ)', 'System'),
+('Phat', 'PhiMat', '200000', 'DECIMAL', N'Phí phạt sách mất (VNĐ)', 'System');

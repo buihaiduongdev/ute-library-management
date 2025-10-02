@@ -1,51 +1,40 @@
-// Import các công cụ cần thiết từ react-router-dom
+// src/App.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-// Import các component trang và layout của chúng ta
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import AdminPage from './pages/AdminPage';
-import StaffPage from './pages/StaffPage';
-import ReaderPage from './pages/ReaderPage';
-import BookSearchPage from './pages/BookSearchPage';
+import {
+  BookSearchPage,
+  BorrowBooks,
+  HomePage,
+  LoginPage,
+  ReaderPage,
+  RegisterPage,
+  StaffPage,
+  ManageBooksPage,
+  ManageAuthorsPage,
+  ManageGenresPage,
+  ManagePublishersPage,
+  BookDetailPage
+} from './pages';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
-
-import './App.css';
-
+import './assets/css/App.css';
+import '@mantine/core/styles.css';
+import '@mantine/carousel/styles.css';
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* === Các Route công khai không có Navbar === */}
-        {/* Cả hai đường dẫn / và /login đều dẫn đến trang đăng nhập */}
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/login" element={<LoginPage />} /> 
-        <Route path="/register" element={<RegisterPage />} />
+        <Route element={<AppLayout />}>
+          {/* Các Route công khai */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} /> 
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/search-books" element={<BookSearchPage />} />
 
-        {/* === Nhóm các Route được bảo vệ sử dụng chung AppLayout === */}
-        <Route 
-          element={
-            // Lớp bảo vệ đầu tiên: chỉ cần đăng nhập là được
-            <ProtectedRoute allowedRoles={['0', '1', '2']}>
-              <AppLayout />
-            </ProtectedRoute>
-          }
-        >
-          {/* Các route con này sẽ được render bên trong <Outlet /> của AppLayout */}
-          <Route 
-            path="/admin" 
-            element={
-              // Lớp bảo vệ thứ hai: kiểm tra vai trò cụ thể
-              <ProtectedRoute allowedRoles={['0']}>
-                <AdminPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* Các Route được bảo vệ */}
           <Route 
             path="/staff" 
             element={
-              <ProtectedRoute allowedRoles={['0', '1']}> {/* Admin cũng có thể vào */}
+              <ProtectedRoute allowedRoles={['0', '1']}> 
                 <StaffPage />
               </ProtectedRoute>
             }
@@ -59,12 +48,56 @@ function App() {
             }
           />
           <Route 
-            path="/search-books" 
-            element={<BookSearchPage />} // Route này chỉ cần đăng nhập, đã được bảo vệ ở lớp ngoài
+            path="/borrow-books" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <BorrowBooks />
+              </ProtectedRoute>
+            }
           />
-        </Route>
+          <Route 
+            path="/manage-books" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <ManageBooksPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/manage-authors" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <ManageAuthorsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/manage-genres" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <ManageGenresPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/manage-publishers" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <ManagePublishersPage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Bạn có thể thêm một route "*" ở đây để xử lý trang 404 Not Found */}
+          <Route
+          path="/book-detail/:id"
+          element={
+            <ProtectedRoute allowedRoles={['0', '1', '2']}>
+              <BookDetailPage />
+            </ProtectedRoute>
+          }
+          />
+
+        </Route>
       </Routes>
     </BrowserRouter>
   );

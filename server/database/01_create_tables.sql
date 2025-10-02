@@ -106,6 +106,7 @@ CREATE TABLE Sach (
     SoLuong    INT NOT NULL DEFAULT 0,
     ViTriKe    NVARCHAR(50) NULL,
     TrangThai  VARCHAR(50) NOT NULL, -- Con, Het
+    AnhBia     NVARCHAR(MAX) NULL,
     CONSTRAINT FK_Sach_NXB FOREIGN KEY (MaNXB) REFERENCES NhaXuatBan(MaNXB),
     CONSTRAINT CK_Sach_Gia CHECK (GiaSach >= 0),
     CONSTRAINT CK_Sach_TrangThai CHECK (TrangThai IN ('Con','Het'))
