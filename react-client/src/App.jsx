@@ -12,6 +12,7 @@ import {
   RegisterPage,
   StaffPage,
 } from './pages';
+import ReaderForm from './components/ReaderForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
 
@@ -35,6 +36,30 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['0']}>
                 <AdminPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/admin/readers" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <ReaderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/admin/readers/new" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <ReaderForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/admin/readers/edit/:id" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <ReaderForm />
               </ProtectedRoute>
             }
           />

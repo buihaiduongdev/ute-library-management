@@ -1,0 +1,100 @@
+2025-10-02T15:12:37.147Z - LOGIN ERROR: PrismaClientInitializationError: 
+Invalid `prisma.taiKhoan.findUnique()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/AuthController.js:16:48
+
+  13 }
+  14 
+  15 try {
+→ 16     const user = await prisma.taiKhoan.findUnique(
+The provided database string is invalid. Error parsing connection string: Conversion error: invalid digit found in string in database URL. Please refer to the documentation in https://www.prisma.io/docs/reference/database-reference/connection-urls for constructing a correct connection string. In some cases, certain characters must be escaped. Please check the string for any illegal characters.
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7568)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:16:26)
+2025-10-02T15:12:42.804Z - LOGIN ERROR: PrismaClientInitializationError: 
+Invalid `prisma.taiKhoan.findUnique()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/AuthController.js:16:48
+
+  13 }
+  14 
+  15 try {
+→ 16     const user = await prisma.taiKhoan.findUnique(
+The provided database string is invalid. Error parsing connection string: Conversion error: invalid digit found in string in database URL. Please refer to the documentation in https://www.prisma.io/docs/reference/database-reference/connection-urls for constructing a correct connection string. In some cases, certain characters must be escaped. Please check the string for any illegal characters.
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7568)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:16:26)
+2025-10-02T15:18:49.594Z - LOGIN ERROR: PrismaClientInitializationError: 
+Invalid `prisma.taiKhoan.findUnique()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/AuthController.js:16:48
+
+  13 }
+  14 
+  15 try {
+→ 16     const user = await prisma.taiKhoan.findUnique(
+The provided database string is invalid. Error parsing connection string: Conversion error: invalid digit found in string in database URL. Please refer to the documentation in https://www.prisma.io/docs/reference/database-reference/connection-urls for constructing a correct connection string. In some cases, certain characters must be escaped. Please check the string for any illegal characters.
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7568)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:16:26)
+2025-10-02T15:18:54.379Z - LOGIN ERROR: PrismaClientInitializationError: 
+Invalid `prisma.taiKhoan.findUnique()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/AuthController.js:16:48
+
+  13 }
+  14 
+  15 try {
+→ 16     const user = await prisma.taiKhoan.findUnique(
+The provided database string is invalid. Error parsing connection string: Conversion error: invalid digit found in string in database URL. Please refer to the documentation in https://www.prisma.io/docs/reference/database-reference/connection-urls for constructing a correct connection string. In some cases, certain characters must be escaped. Please check the string for any illegal characters.
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7568)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:16:26)
+2025-10-02T15:21:18.814Z - LOGIN ERROR: PrismaClientInitializationError: 
+Invalid `prisma.taiKhoan.findUnique()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/AuthController.js:16:48
+
+  13 }
+  14 
+  15 try {
+→ 16     const user = await prisma.taiKhoan.findUnique(
+The provided database string is invalid. Error parsing connection string: Conversion error: invalid digit found in string in database URL. Please refer to the documentation in https://www.prisma.io/docs/reference/database-reference/connection-urls for constructing a correct connection string. In some cases, certain characters must be escaped. Please check the string for any illegal characters.
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7568)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:16:26)
+2025-10-02T15:22:18.744Z - LOGIN ERROR: Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/home/user/ute-library-management/server/node_modules/jsonwebtoken/sign.js:111:20)
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:34:31)
+2025-10-02T15:24:49.514Z - LOGIN ERROR: Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/home/user/ute-library-management/server/node_modules/jsonwebtoken/sign.js:111:20)
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:34:31)
+2025-10-02T15:24:50.653Z - LOGIN ERROR: Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/home/user/ute-library-management/server/node_modules/jsonwebtoken/sign.js:111:20)
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:34:31)
+2025-10-02T15:24:51.108Z - LOGIN ERROR: Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/home/user/ute-library-management/server/node_modules/jsonwebtoken/sign.js:111:20)
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:34:31)
+2025-10-02T15:24:51.633Z - LOGIN ERROR: Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/home/user/ute-library-management/server/node_modules/jsonwebtoken/sign.js:111:20)
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:34:31)
+2025-10-02T15:26:07.261Z - LOGIN ERROR: Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/home/user/ute-library-management/server/node_modules/jsonwebtoken/sign.js:111:20)
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:34:31)
+2025-10-02T15:35:45.484Z - LOGIN ERROR: Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/home/user/ute-library-management/server/node_modules/jsonwebtoken/sign.js:111:20)
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:34:31)
+2025-10-02T15:35:50.240Z - LOGIN ERROR: Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/home/user/ute-library-management/server/node_modules/jsonwebtoken/sign.js:111:20)
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:34:31)
+2025-10-02T15:42:42.583Z - LOGIN ERROR: Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/home/user/ute-library-management/server/node_modules/jsonwebtoken/sign.js:111:20)
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:34:31)
+2025-10-02T15:42:46.827Z - LOGIN ERROR: Error: secretOrPrivateKey must have a value
+    at module.exports [as sign] (/home/user/ute-library-management/server/node_modules/jsonwebtoken/sign.js:111:20)
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:34:31)

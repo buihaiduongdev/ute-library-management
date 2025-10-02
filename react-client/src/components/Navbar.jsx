@@ -95,6 +95,16 @@ function Navbar() {
                         Mượn-Trả sách
                     </Button>
                 )}
+                 {role === '0' && (
+                    <Button 
+                        component={Link} 
+                        to="/admin/readers"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        Quản lý Độc giả
+                    </Button>
+                )}
             </Group>
             {/* Dựa vào token để hiển thị UI phù hợp */}
             <Group>
