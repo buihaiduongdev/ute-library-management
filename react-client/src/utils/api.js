@@ -2,24 +2,31 @@ const API_URL = '/api';
 
 const handleResponse = async (response) => {
     if (!response.ok) {
-        let errorMessage = 'API request failed.';
+        let errorMessage = 'Yêu cầu API thất bại.';
         try {
             const data = await response.json();
-            errorMessage = data.message || `Error with status ${response.status}`;
+            errorMessage = data.message || `Lỗi với mã trạng thái ${response.status}`;
         } catch (e) {
-            // Nếu không parse được JSON, dùng status code làm thông báo
-            errorMessage = `Server error with status ${response.status}`;
+            errorMessage = `Lỗi máy chủ với mã trạng thái ${response.status}`;
         }
         throw new Error(errorMessage);
     }
-    const text = await response.text(); // Lấy text trước
-    if (!text) return {}; // Trả về object rỗng nếu không có dữ liệu
+    const text = await response.text();
+    if (!text) return {};
     try {
-        const data = JSON.parse(text); // Parse text thành JSON
-        return data;
+        return JSON.parse(text);
     } catch (e) {
-        throw new Error('Invalid JSON response from server.');
+        throw new Error('Phản hồi JSON không hợp lệ từ máy chủ.');
     }
+};
+
+const getToken = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/login';
+        throw new Error('Không tìm thấy token xác thực. Vui lòng đăng nhập.');
+    }
+    return token;
 };
 
 export const get = async (url) => {
@@ -28,7 +35,7 @@ export const get = async (url) => {
         headers: { 'Content-Type': 'application/json' },
     });
     return handleResponse(response);
-}
+};
 
 export const post = async (url, body) => {
     const response = await fetch(url, {
@@ -39,21 +46,9 @@ export const post = async (url, body) => {
     return handleResponse(response);
 };
 
-export const createBorrow = (borrowData) => post(`${API_URL}/borrow`, borrowData);
-
-// Thêm các hàm mới
-const getToken = () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = '/login';
-        throw new Error('No authentication token found. Please log in.');
-    }
-    return token;
-};
-
 export const authGet = async (url, options = {}) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
         const response = await fetch(`${API_URL}${url}`, {
@@ -70,7 +65,7 @@ export const authGet = async (url, options = {}) => {
     } catch (err) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
-            throw new Error('Request timed out after 10 seconds.');
+            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
         }
         throw err;
     }
@@ -96,7 +91,7 @@ export const authPost = async (url, body, options = {}) => {
     } catch (err) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
-            throw new Error('Request timed out after 10 seconds.');
+            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
         }
         throw err;
     }
@@ -122,7 +117,7 @@ export const put = async (url, body, options = {}) => {
     } catch (err) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
-            throw new Error('Request timed out after 10 seconds.');
+            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
         }
         throw err;
     }
@@ -147,7 +142,7 @@ export const del = async (url, options = {}) => {
     } catch (err) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
-            throw new Error('Request timed out after 10 seconds.');
+            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
         }
         throw err;
     }
@@ -155,7 +150,7 @@ export const del = async (url, options = {}) => {
 
 export const uploadImage = async (file) => {
     if (!file) {
-        throw new Error('No file provided for upload.');
+        throw new Error('Không có tệp nào được cung cấp để tải lên.');
     }
     const formData = new FormData();
     formData.append('image', file);
@@ -177,15 +172,95 @@ export const uploadImage = async (file) => {
     } catch (err) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
-            throw new Error('Image upload timed out after 10 seconds.');
+            throw new Error('Tải ảnh hết thời gian sau 10 giây.');
         }
         throw err;
     }
 };
 
+export const createBorrow = (borrowData) => post(`${API_URL}/borrow`, borrowData);
+
 export const authCreateBorrow = async (borrowData) => {
     if (!borrowData || !borrowData.MaSach || !borrowData.MaNguoiDung) {
-        throw new Error('Borrow data must include MaSach and MaNguoiDung.');
+        throw new Error('Dữ liệu mượn sách phải bao gồm MaSach và MaNguoiDung.');
     }
     return authPost('/borrow', borrowData);
+};
+
+export const authCreatePublisher = async (publisherData, options = {}) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    try {
+        const response = await fetch(`${API_URL}/publishers`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getToken()}`,
+                ...options.headers
+            },
+            body: JSON.stringify(publisherData),
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return await handleResponse(response);
+    } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
+        }
+        throw err;
+    }
+};
+
+export const authCreateGenre = async (genreData, options = {}) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    try {
+        const response = await fetch(`${API_URL}/genres`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getToken()}`,
+                ...options.headers
+            },
+            body: JSON.stringify(genreData),
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return await handleResponse(response);
+    } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
+        }
+        throw err;
+    }
+};
+
+export const authCreateAuthor = async (authorData, options = {}) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    try {
+        const response = await fetch(`${API_URL}/authors`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getToken()}`,
+                ...options.headers
+            },
+            body: JSON.stringify(authorData),
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return await handleResponse(response);
+    } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
+        }
+        throw err;
+    }
 };
