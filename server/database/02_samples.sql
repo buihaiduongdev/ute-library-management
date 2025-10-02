@@ -44,7 +44,7 @@ INSERT INTO NhaXuatBan (TenNXB, DiaChi, SoDienThoai, Email) VALUES
 -- 8. Sách
 INSERT INTO Sach (TieuDe, NamXuatBan, GiaSach, MaNXB, SoLuong, ViTriKe, AnhBia, TrangThai) VALUES
 (N'Book Title 1', 2020, 100000, 1, 5, N'A1', NULL, 'Con');
-(N'Kafka bên bờ biển', 2002, 120000, 2, 5, N'K2', 'Con');
+(N'Kafka bên bờ biển', 2002, 120000, 2, 5, N'K2', NULL, 'Con');
 =======
 -- =======================
 -- Sách và cuốn sách

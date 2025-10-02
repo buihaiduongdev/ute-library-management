@@ -91,8 +91,8 @@ model Sach {
   MaNXB        Int?
   SoLuong      Int            @default(0, map: "DF__Sach__SoLuong__37703C52")
   ViTriKe      String?        @db.NVarChar(50)
-  AnhBia       Bytes?         @db.VarBinary
   TrangThai    String         @db.VarChar(50)
+  AnhBia       Bytes?
   CuonSach     CuonSach[]
   NhaXuatBan   NhaXuatBan?    @relation(fields: [MaNXB], references: [MaNXB], onDelete: NoAction, onUpdate: NoAction, map: "FK_Sach_NXB")
   Sach_TacGia  Sach_TacGia[]
