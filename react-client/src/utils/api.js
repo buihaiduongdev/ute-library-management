@@ -47,135 +47,53 @@ export const post = async (url, body) => {
 };
 
 export const authGet = async (url, options = {}) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-        const response = await fetch(`${API_URL}${url}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getToken()}`,
-                ...options.headers
-            },
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        return await handleResponse(response);
-    } catch (err) {
-        clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
-        }
-        throw err;
-    }
+    const response = await fetch(`${API_URL}${url}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`,
+            ...options.headers
+        },
+    });
+    return await handleResponse(response);
 };
 
 export const authPost = async (url, body, options = {}) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-        const response = await fetch(`${API_URL}${url}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getToken()}`,
-                ...options.headers
-            },
-            body: JSON.stringify(body),
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        return await handleResponse(response);
-    } catch (err) {
-        clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
-        }
-        throw err;
-    }
+    const response = await fetch(`${API_URL}${url}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`,
+            ...options.headers
+        },
+        body: JSON.stringify(body),
+    });
+    return await handleResponse(response);
 };
 
 export const put = async (url, body, options = {}) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-        const response = await fetch(`${API_URL}${url}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getToken()}`,
-                ...options.headers
-            },
-            body: JSON.stringify(body),
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        return await handleResponse(response);
-    } catch (err) {
-        clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
-        }
-        throw err;
-    }
+    const response = await fetch(`${API_URL}${url}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`,
+            ...options.headers
+        },
+        body: JSON.stringify(body),
+    });
+    return await handleResponse(response);
 };
 
 export const del = async (url, options = {}) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-        const response = await fetch(`${API_URL}${url}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getToken()}`,
-                ...options.headers
-            },
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        return await handleResponse(response);
-    } catch (err) {
-        clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
-        }
-        throw err;
-    }
-};
-
-export const uploadImage = async (file) => {
-    if (!file) {
-        throw new Error('Không có tệp nào được cung cấp để tải lên.');
-    }
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-        const response = await fetch(`${API_URL}/upload`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${getToken()}`
-            },
-            body: formData,
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        return await handleResponse(response);
-    } catch (err) {
-        clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-            throw new Error('Tải ảnh hết thời gian sau 10 giây.');
-        }
-        throw err;
-    }
+    const response = await fetch(`${API_URL}${url}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`,
+            ...options.headers
+        },
+    });
+    return await handleResponse(response);
 };
 
 export const createBorrow = (borrowData) => post(`${API_URL}/borrow`, borrowData);
@@ -188,79 +106,40 @@ export const authCreateBorrow = async (borrowData) => {
 };
 
 export const authCreatePublisher = async (publisherData, options = {}) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-        const response = await fetch(`${API_URL}/publishers`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getToken()}`,
-                ...options.headers
-            },
-            body: JSON.stringify(publisherData),
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        return await handleResponse(response);
-    } catch (err) {
-        clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
-        }
-        throw err;
-    }
+    const response = await fetch(`${API_URL}/publishers`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`,
+            ...options.headers
+        },
+        body: JSON.stringify(publisherData),
+    });
+    return await handleResponse(response);
 };
 
 export const authCreateGenre = async (genreData, options = {}) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-        const response = await fetch(`${API_URL}/genres`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getToken()}`,
-                ...options.headers
-            },
-            body: JSON.stringify(genreData),
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        return await handleResponse(response);
-    } catch (err) {
-        clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
-        }
-        throw err;
-    }
+    const response = await fetch(`${API_URL}/genres`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`,
+            ...options.headers
+        },
+        body: JSON.stringify(genreData),
+    });
+    return await handleResponse(response);
 };
 
 export const authCreateAuthor = async (authorData, options = {}) => {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-        const response = await fetch(`${API_URL}/authors`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getToken()}`,
-                ...options.headers
-            },
-            body: JSON.stringify(authorData),
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        return await handleResponse(response);
-    } catch (err) {
-        clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-            throw new Error('Yêu cầu hết thời gian sau 10 giây.');
-        }
-        throw err;
-    }
+    const response = await fetch(`${API_URL}/authors`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getToken()}`,
+            ...options.headers
+        },
+        body: JSON.stringify(authorData),
+    });
+    return await handleResponse(response);
 };
