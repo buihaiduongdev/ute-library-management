@@ -3,10 +3,10 @@ const router = express.Router();
 const GenresController = require('../controllers/GenresController');
 const { verifyToken } = require('../middlewares/auth.middleware');
 
-router.get('/', GenresController.getGenres); // ?search=query
-router.get('/:id', GenresController.getGenreById);
-router.post('/', verifyToken(['0', '1']), GenresController.createGenre);
-router.put('/:id', verifyToken(['0', '1']), GenresController.updateGenre);
-router.delete('/:id', verifyToken(['0', '1']), GenresController.deleteGenre);
+router.get('/', verifyToken(), GenresController.getGenres); // ?search=query&limit=8&offset=0
+router.get('/:id', verifyToken(), GenresController.getGenreById);
+router.post('/', verifyToken(), GenresController.createGenre);
+router.put('/:id', verifyToken(), GenresController.updateGenre);
+router.delete('/:id', verifyToken(), GenresController.deleteGenre);
 
 module.exports = router;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, TextInput, Button, Table, Modal, Group, Paper, Divider, Text } from '@mantine/core';
+import { Container, Title, TextInput, Button, Table, Modal, Group, Paper, Divider, Text, Pagination } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
@@ -13,6 +13,9 @@ function ManagePublishersPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 8;
 
   const form = useForm({
     initialValues: {
@@ -22,7 +25,7 @@ function ManagePublishersPage() {
       Email: ''
     },
     validate: {
-      TenNXB: (value) => (value ? null : 'Tên nhà xuất bản là bắt buộc'),
+      TenNXB: (value) => (value.trim() ? null : 'Tên nhà xuất bản là bắt buộc'),
       Email: (value) => (value && !/^\S+@\S+\.\S+$/.test(value) ? 'Email không hợp lệ' : null),
       SoDienThoai: (value) => (value && !/^\d{10,11}$/.test(value) ? 'Số điện thoại phải có 10-11 chữ số' : null)
     }
@@ -30,15 +33,17 @@ function ManagePublishersPage() {
 
   useEffect(() => {
     fetchPublishers();
-  }, [search]);
+  }, [search, page]);
 
   const fetchPublishers = async () => {
     try {
-      const { data } = await authGet(`/publishers?search=${search}`);
-      setPublishers(data);
+      const offset = (page - 1) * limit;
+      const response = await authGet(`/publishers?search=${encodeURIComponent(search)}&limit=${limit}&offset=${offset}`);
+      setPublishers(response.data || []);
+      setTotal(Math.ceil(response.total / limit));
     } catch (err) {
       Notifications.show({ title: 'Lỗi', message: err.message, color: 'red' });
-      if (err.message.includes('No authentication token')) {
+      if (err.message.includes('No authentication token') || err.message.includes('Forbidden')) {
         window.location.href = '/login';
       }
     }
@@ -47,10 +52,10 @@ function ManagePublishersPage() {
   const handleSubmit = async (values) => {
     try {
       const payload = {
-        TenNXB: values.TenNXB,
-        SoDienThoai: values.SoDienThoai || null,
-        DiaChi: values.DiaChi || null,
-        Email: values.Email || null
+        TenNXB: values.TenNXB.trim(),
+        SoDienThoai: values.SoDienThoai?.trim() || null,
+        DiaChi: values.DiaChi?.trim() || null,
+        Email: values.Email?.trim() || null
       };
       if (editId) {
         await put(`/publishers/${editId}`, payload);
@@ -58,6 +63,11 @@ function ManagePublishersPage() {
       } else {
         await authPost('/publishers', payload);
         Notifications.show({ title: 'Thành công', message: 'Thêm nhà xuất bản thành công', color: 'green' });
+        // Lấy lại tổng số nhà xuất bản để tính trang cuối
+        const response = await authGet(`/publishers?search=${encodeURIComponent(search)}&limit=${limit}&offset=0`);
+        const newTotal = Math.ceil(response.total / limit);
+        setTotal(newTotal);
+        setPage(newTotal); // Chuyển đến trang cuối
       }
       fetchPublishers();
       setModalOpen(false);
@@ -65,7 +75,7 @@ function ManagePublishersPage() {
       setEditId(null);
     } catch (err) {
       Notifications.show({ title: 'Lỗi', message: err.message, color: 'red' });
-      if (err.message.includes('No authentication token')) {
+      if (err.message.includes('No authentication token') || err.message.includes('Forbidden')) {
         window.location.href = '/login';
       }
     }
@@ -89,9 +99,13 @@ function ManagePublishersPage() {
       fetchPublishers();
       setDeleteModalOpen(false);
       setDeleteId(null);
+      // Nếu trang hiện tại trống sau khi xóa, quay về trang trước
+      if (publishers.length === 1 && page > 1) {
+        setPage(page - 1);
+      }
     } catch (err) {
       Notifications.show({ title: 'Lỗi', message: err.message, color: 'red' });
-      if (err.message.includes('No authentication token')) {
+      if (err.message.includes('No authentication token') || err.message.includes('Forbidden')) {
         window.location.href = '/login';
       }
     }
@@ -99,23 +113,26 @@ function ManagePublishersPage() {
 
   return (
     <Container size="lg" py="xl">
+      <Title order={2} c="cyan" ta="center" mb="lg">
+        Quản lý nhà xuất bản
+      </Title>
       <Paper shadow="sm" p="md" radius="md" withBorder>
-        <Group justify="space-between" mb="lg">
-          <Title order={2} c="cyan">Quản lý nhà xuất bản</Title>
-        </Group>
         <Group mb="lg" grow>
           <TextInput
             placeholder="Tìm kiếm nhà xuất bản..."
             value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
+            onChange={(e) => {
+              setSearch(e.currentTarget.value);
+              setPage(1); // Reset về trang 1 khi tìm kiếm
+            }}
             radius="md"
           />
           <Button onClick={() => setModalOpen(true)} color="cyan" radius="md">
-            Thêm nhà xuất bản
+            Thêm
           </Button>
         </Group>
         <Divider my="sm" />
-        <Table highlightOnHover>
+        <Table highlightOnHover verticalAlign="center">
           <thead>
             <tr>
               <th>Mã nhà xuất bản</th>
@@ -123,7 +140,7 @@ function ManagePublishersPage() {
               <th>Số điện thoại</th>
               <th>Địa chỉ</th>
               <th>Email</th>
-              <th>Hành động</th>
+              <th style={{ textAlign: 'center' }}>Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -135,12 +152,13 @@ function ManagePublishersPage() {
                 <td><Text size="sm">{publisher.DiaChi || '-'}</Text></td>
                 <td><Text size="sm">{publisher.Email || '-'}</Text></td>
                 <td>
-                  <Group gap="xs">
+                  <Group gap="xs" justify="center">
                     <Button
                       variant="subtle"
                       size="xs"
                       color="cyan"
-                      leftSection={<IconPencil size={rem(16)} />}
+                      leftSection={<IconPencil size={20} />}
+                      style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
                       onClick={() => handleEdit(publisher)}
                     >
                       Sửa
@@ -149,7 +167,8 @@ function ManagePublishersPage() {
                       variant="subtle"
                       size="xs"
                       color="red"
-                      leftSection={<IconTrash size={rem(16)} />}
+                      leftSection={<IconTrash size={20} />}
+                      style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
                       onClick={() => {
                         setDeleteId(publisher.MaNXB);
                         setDeleteModalOpen(true);
@@ -163,6 +182,11 @@ function ManagePublishersPage() {
             ))}
           </tbody>
         </Table>
+        {total > 1 && (
+          <Group justify="center" mt="md">
+            <Pagination total={total} value={page} onChange={setPage} color="cyan" radius="md" />
+          </Group>
+        )}
         <Modal
           opened={modalOpen}
           onClose={() => {
@@ -170,7 +194,7 @@ function ManagePublishersPage() {
             form.reset();
             setEditId(null);
           }}
-          title={editId ? 'Sửa nhà xuất bản' : 'Thêm nhà xuất bản'}
+          title={editId ? 'Sửa nhà xuất bản' : 'Thêm'}
           size="md"
           radius="md"
         >
@@ -204,8 +228,20 @@ function ManagePublishersPage() {
               radius="md"
             />
             <Group justify="flex-end" mt="lg">
+              
               <Button type="submit" color="cyan" radius="md">
                 {editId ? 'Cập nhật' : 'Thêm'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setModalOpen(false);
+                  form.reset();
+                  setEditId(null);
+                }}
+                radius="md"
+              >
+                Hủy
               </Button>
             </Group>
           </form>
@@ -217,13 +253,14 @@ function ManagePublishersPage() {
           size="sm"
           radius="md"
         >
-          <div>Bạn có chắc chắn muốn xóa nhà xuất bản này?</div>
+          <Text>Bạn có chắc chắn muốn xóa nhà xuất bản này?</Text>
           <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
-              Hủy
-            </Button>
+            
             <Button color="red" onClick={handleDelete} radius="md">
               Xóa
+            </Button>
+            <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
+              Hủy
             </Button>
           </Group>
         </Modal>

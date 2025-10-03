@@ -3,10 +3,10 @@ const router = express.Router();
 const PublishersController = require('../controllers/PublishersController');
 const { verifyToken } = require('../middlewares/auth.middleware');
 
-router.get('/', PublishersController.getPublishers); // ?search=query
-router.get('/:id', PublishersController.getPublisherById);
-router.post('/', verifyToken(['0', '1']), PublishersController.createPublisher);
-router.put('/:id', verifyToken(['0', '1']), PublishersController.updatePublisher);
-router.delete('/:id', verifyToken(['0', '1']), PublishersController.deletePublisher);
+router.get('/', verifyToken(), PublishersController.getPublishers); // ?search=query&limit=8&offset=0
+router.get('/:id', verifyToken(), PublishersController.getPublisherById);
+router.post('/', verifyToken(), PublishersController.createPublisher);
+router.put('/:id', verifyToken(), PublishersController.updatePublisher);
+router.delete('/:id', verifyToken(), PublishersController.deletePublisher);
 
 module.exports = router;

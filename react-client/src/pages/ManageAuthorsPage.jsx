@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, TextInput, Button, Table, Modal, Group, Paper, Divider, Text } from '@mantine/core';
+import { Container, Title, TextInput, Button, Table, Modal, Group, Paper, Divider, Text, Pagination } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
@@ -13,22 +13,27 @@ function ManageAuthorsPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 8;
 
   const form = useForm({
     initialValues: { TenTacGia: '', QuocTich: '', TieuSu: '' },
     validate: {
-      TenTacGia: (value) => (value ? null : 'Tên tác giả là bắt buộc')
-    }
+      TenTacGia: (value) => (value.trim() ? null : 'Tên tác giả là bắt buộc'),
+    },
   });
 
   useEffect(() => {
     fetchAuthors();
-  }, [search]);
+  }, [search, page]);
 
   const fetchAuthors = async () => {
     try {
-      const { data } = await authGet(`/authors?search=${search}`);
-      setAuthors(data);
+      const offset = (page - 1) * limit;
+      const response = await authGet(`/authors?search=${encodeURIComponent(search)}&limit=${limit}&offset=${offset}`);
+      setAuthors(response.data || []);
+      setTotal(Math.ceil(response.total / limit));
     } catch (err) {
       Notifications.show({ title: 'Lỗi', message: err.message, color: 'red' });
       if (err.message.includes('No authentication token')) {
@@ -40,9 +45,9 @@ function ManageAuthorsPage() {
   const handleSubmit = async (values) => {
     try {
       const payload = {
-        TenTacGia: values.TenTacGia,
-        QuocTich: values.QuocTich || null,
-        TieuSu: values.TieuSu || null
+        TenTacGia: values.TenTacGia.trim(),
+        QuocTich: values.QuocTich?.trim() || null,
+        TieuSu: values.TieuSu?.trim() || null,
       };
       if (editId) {
         await put(`/authors/${editId}`, payload);
@@ -50,6 +55,11 @@ function ManageAuthorsPage() {
       } else {
         await authPost('/authors', payload);
         Notifications.show({ title: 'Thành công', message: 'Thêm tác giả thành công', color: 'green' });
+        // Lấy lại tổng số tác giả để tính trang cuối
+        const response = await authGet(`/authors?search=${encodeURIComponent(search)}&limit=${limit}&offset=0`);
+        const newTotal = Math.ceil(response.total / limit);
+        setTotal(newTotal);
+        setPage(newTotal); // Chuyển đến trang cuối
       }
       fetchAuthors();
       setModalOpen(false);
@@ -57,7 +67,7 @@ function ManageAuthorsPage() {
       setEditId(null);
     } catch (err) {
       Notifications.show({ title: 'Lỗi', message: err.message, color: 'red' });
-      if (err.message.includes('No authentication token')) {
+      if (err.message.includes('No authentication token') || err.message.includes('Forbidden')) {
         window.location.href = '/login';
       }
     }
@@ -65,10 +75,10 @@ function ManageAuthorsPage() {
 
   const handleEdit = (author) => {
     setEditId(author.MaTG);
-    form.setValues({ 
-      TenTacGia: author.TenTacGia, 
-      QuocTich: author.QuocTich || '', 
-      TieuSu: author.TieuSu || '' 
+    form.setValues({
+      TenTacGia: author.TenTacGia,
+      QuocTich: author.QuocTich || '',
+      TieuSu: author.TieuSu || '',
     });
     setModalOpen(true);
   };
@@ -80,9 +90,13 @@ function ManageAuthorsPage() {
       fetchAuthors();
       setDeleteModalOpen(false);
       setDeleteId(null);
+      // Nếu trang hiện tại trống sau khi xóa, quay về trang trước
+      if (authors.length === 1 && page > 1) {
+        setPage(page - 1);
+      }
     } catch (err) {
       Notifications.show({ title: 'Lỗi', message: err.message, color: 'red' });
-      if (err.message.includes('No authentication token')) {
+      if (err.message.includes('No authentication token') || err.message.includes('Forbidden')) {
         window.location.href = '/login';
       }
     }
@@ -90,15 +104,18 @@ function ManageAuthorsPage() {
 
   return (
     <Container size="lg" py="xl">
+      <Title order={2} c="cyan" ta="center" mb="lg">
+        Quản lý tác giả
+      </Title>
       <Paper shadow="sm" p="md" radius="md" withBorder>
-        <Group justify="space-between" mb="lg">
-          <Title order={2} c="cyan">Quản lý tác giả</Title>
-        </Group>
         <Group mb="lg" grow>
           <TextInput
             placeholder="Tìm kiếm tác giả..."
             value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
+            onChange={(e) => {
+              setSearch(e.currentTarget.value);
+              setPage(1); // Reset về trang 1 khi tìm kiếm
+            }}
             radius="md"
           />
           <Button onClick={() => setModalOpen(true)} color="cyan" radius="md">
@@ -106,30 +123,33 @@ function ManageAuthorsPage() {
           </Button>
         </Group>
         <Divider my="sm" />
-        <Table highlightOnHover>
+        <Table highlightOnHover verticalAlign="center">
           <thead>
             <tr>
               <th>Mã tác giả</th>
               <th>Tên tác giả</th>
               <th>Quốc tịch</th>
               <th>Tiểu sử</th>
-              <th>Hành động</th>
+              <th style={{ textAlign: 'center' }}>Hành động</th>
             </tr>
           </thead>
           <tbody>
-            {authors.map(author => (
+            {authors.map((author) => (
               <tr key={author.MaTG}>
                 <td>{author.MaTG}</td>
                 <td>{author.TenTacGia}</td>
                 <td>{author.QuocTich || '-'}</td>
-                <td><Text size="sm">{author.TieuSu || '-'}</Text></td>
                 <td>
-                  <Group gap="xs">
+                  <Text size="sm">{author.TieuSu || '-'}</Text>
+                </td>
+                <td>
+                  <Group gap="xs" justify="center">
                     <Button
                       variant="subtle"
                       size="xs"
                       color="cyan"
-                      leftSection={<IconPencil size={rem(16)} />}
+                      leftSection={<IconPencil size={20} />}
+                      style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
                       onClick={() => handleEdit(author)}
                     >
                       Sửa
@@ -138,7 +158,8 @@ function ManageAuthorsPage() {
                       variant="subtle"
                       size="xs"
                       color="red"
-                      leftSection={<IconTrash size={rem(16)} />}
+                      leftSection={<IconTrash size={20} />}
+                      style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
                       onClick={() => {
                         setDeleteId(author.MaTG);
                         setDeleteModalOpen(true);
@@ -152,6 +173,11 @@ function ManageAuthorsPage() {
             ))}
           </tbody>
         </Table>
+        {total > 1 && (
+          <Group justify="center" mt="md">
+            <Pagination total={total} value={page} onChange={setPage} color="cyan" radius="md" />
+          </Group>
+        )}
         <Modal
           opened={modalOpen}
           onClose={() => {
@@ -159,7 +185,7 @@ function ManageAuthorsPage() {
             form.reset();
             setEditId(null);
           }}
-          title={editId ? 'Sửa tác giả' : 'Thêm tác giả'}
+          title={editId ? 'Sửa' : 'Thêm'}
           size="md"
           radius="md"
         >
@@ -186,8 +212,20 @@ function ManageAuthorsPage() {
               radius="md"
             />
             <Group justify="flex-end" mt="lg">
+              
               <Button type="submit" color="cyan" radius="md">
                 {editId ? 'Cập nhật' : 'Thêm'}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setModalOpen(false);
+                  form.reset();
+                  setEditId(null);
+                }}
+                radius="md"
+              >
+                Hủy
               </Button>
             </Group>
           </form>
@@ -199,13 +237,13 @@ function ManageAuthorsPage() {
           size="sm"
           radius="md"
         >
-          <div>Bạn có chắc chắn muốn xóa tác giả này?</div>
+          <Text>Bạn có chắc chắn muốn xóa tác giả này?</Text>
           <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
-              Hủy
-            </Button>
             <Button color="red" onClick={handleDelete} radius="md">
               Xóa
+            </Button>
+            <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
+              Hủy
             </Button>
           </Group>
         </Modal>
