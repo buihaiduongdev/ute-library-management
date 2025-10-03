@@ -1,4 +1,5 @@
 const prisma = require('../models/db');
+const ExcelJS = require('exceljs');
 
 // Hàm kiểm tra và làm sạch chuỗi base64
 const sanitizeBase64 = (str) => {
@@ -25,7 +26,7 @@ const sanitizeBase64 = (str) => {
 
 const BooksController = {
   async getBooks(req, res) {
-    const { search, limit = 12, offset = 0 } = req.query; // Đổi limit mặc định thành 8
+    const { search, limit = 12, offset = 0 } = req.query;
     try {
       const where = {};
       if (search && search.trim()) {
@@ -33,23 +34,16 @@ const BooksController = {
         const isNumericSearch = !isNaN(searchTrimmed) && searchTrimmed !== '';
 
         where.OR = [
-          // Tìm kiếm theo tiêu đề
           { TieuDe: { contains: searchTrimmed } },
-          // Tìm kiếm theo vị trí kệ
           { ViTriKe: { contains: searchTrimmed } },
-          // Tìm kiếm theo tên nhà xuất bản
           { NhaXuatBan: { TenNXB: { contains: searchTrimmed } } },
-          // Tìm kiếm theo tên tác giả
           { Sach_TacGia: { some: { TacGia: { TenTacGia: { contains: searchTrimmed } } } } },
-          // Tìm kiếm theo thể loại
           { Sach_TheLoai: { some: { TheLoai: { TenTheLoai: { contains: searchTrimmed } } } } },
-          // Tìm kiếm theo trạng thái
           ...(searchTrimmed.toLowerCase().includes('còn') || searchTrimmed.toLowerCase().includes('hết')
             ? [{ TrangThai: searchTrimmed.toLowerCase().includes('còn') ? 'Con' : 'Het' }]
             : []),
         ];
 
-        // Chỉ thêm các điều kiện số nếu search là số hợp lệ
         if (isNumericSearch) {
           where.OR.push(
             { MaSach: parseInt(searchTrimmed) },
@@ -60,10 +54,8 @@ const BooksController = {
         }
       }
 
-      // Đếm tổng số sách
       const total = await prisma.sach.count({ where });
 
-      // Lấy danh sách sách
       const books = await prisma.sach.findMany({
         where,
         include: {
@@ -80,7 +72,6 @@ const BooksController = {
         console.log('getBooks: Sample book AnhBia:', books[0].AnhBia ? `Length: ${books[0].AnhBia.length}` : 'null');
       }
 
-      // Chuyển đổi dữ liệu ảnh và trạng thái
       const booksWithBase64 = books.map((book) => ({
         ...book,
         AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
@@ -96,18 +87,34 @@ const BooksController = {
 
   async getBookById(req, res) {
     const { id } = req.params;
+    console.log('getBookById: Received id:', id, 'Type:', typeof id);
     try {
+      if (!id || isNaN(id)) {
+        console.error('getBookById: Invalid id:', id);
+        return res.status(400).json({ message: `Mã sách phải là số, nhận được: "${id}"` });
+      }
+
+      const bookId = parseInt(id);
+      if (bookId <= 0) {
+        console.error('getBookById: id is not positive:', bookId);
+        return res.status(400).json({ message: 'Mã sách phải là số nguyên dương' });
+      }
+
       const book = await prisma.sach.findUnique({
-        where: { MaSach: parseInt(id) },
+        where: { MaSach: bookId },
         include: {
           NhaXuatBan: true,
           Sach_TacGia: { include: { TacGia: true } },
           Sach_TheLoai: { include: { TheLoai: true } },
         },
       });
-      if (!book) return res.status(404).json({ message: 'Không tìm thấy sách' });
 
-      console.log(`getBookById: Sách ${id} ảnh bìa:`, book.AnhBia ? `Độ dài: ${book.AnhBia.length}` : 'null');
+      if (!book) {
+        console.error(`getBookById: Book not found for MaSach: ${bookId}`);
+        return res.status(404).json({ message: 'Không tìm thấy sách' });
+      }
+
+      console.log(`getBookById: Fetched book ${bookId} with AnhBia:`, book.AnhBia ? `Length: ${book.AnhBia.length}` : 'null');
 
       const bookWithBase64 = {
         ...book,
@@ -116,8 +123,8 @@ const BooksController = {
       };
       res.json({ message: 'Thành công', data: bookWithBase64 });
     } catch (err) {
-      console.error('Lỗi trong getBookById:', err);
-      res.status(500).json({ message: err.message });
+      console.error('getBookById: Error:', err.message);
+      res.status(500).json({ message: 'Lỗi máy chủ: ' + err.message });
     }
   },
 
@@ -125,7 +132,6 @@ const BooksController = {
     const { TieuDe, TenTacGia, TheLoai, TenNXB, NamXuatBan, SoLuong, GiaSach, ViTriKe, AnhBia } = req.body;
     try {
       const currentYear = 2025;
-      // Xác thực
       if (!TieuDe?.trim()) throw new Error('Tiêu đề sách là bắt buộc');
       if (!TenTacGia?.trim()) throw new Error('Tên tác giả là bắt buộc');
       if (!TenNXB?.trim()) throw new Error('Tên nhà xuất bản là bắt buộc');
@@ -138,13 +144,11 @@ const BooksController = {
       if (AnhBia && !AnhBia.match(/^data:image\/(jpeg|png);base64,/))
         throw new Error('Ảnh bìa phải là chuỗi base64 hợp lệ (jpeg hoặc png)');
 
-      // Làm sạch và kiểm tra base64
       const base64Data = AnhBia ? sanitizeBase64(AnhBia.replace(/^data:image\/(jpeg|png);base64,/, '')) : null;
       console.log(`createBook: Độ dài ảnh bìa: ${base64Data ? base64Data.length : 'null'}`);
       console.log(`createBook: Xem trước base64: ${base64Data ? base64Data.substring(0, 50) + '...' : 'null'}`);
 
       const book = await prisma.$transaction(async (tx) => {
-        // Kiểm tra và tạo/lấy tác giả
         let author = await tx.tacGia.findFirst({
           where: { TenTacGia: TenTacGia.trim() },
         });
@@ -154,7 +158,6 @@ const BooksController = {
           });
         }
 
-        // Kiểm tra và tạo/lấy nhà xuất bản
         let publisher = await tx.nhaXuatBan.findUnique({
           where: { TenNXB: TenNXB.trim() },
         });
@@ -164,7 +167,6 @@ const BooksController = {
           });
         }
 
-        // Xử lý thể loại
         const genreIds = [];
         if (TheLoai?.trim()) {
           let genre = await tx.theLoai.findFirst({
@@ -178,7 +180,6 @@ const BooksController = {
           genreIds.push(genre.MaTL);
         }
 
-        // Tạo sách
         const newBook = await tx.sach.create({
           data: {
             TieuDe: TieuDe.trim(),
@@ -194,7 +195,6 @@ const BooksController = {
 
         console.log(`createBook: Đã tạo sách ${newBook.MaSach} với ảnh bìa:`, base64Data ? `Độ dài: ${base64Data.length}` : 'null');
 
-        // Liên kết thể loại
         if (genreIds.length) {
           await tx.sach_TheLoai.createMany({
             data: genreIds.map((id) => ({
@@ -204,7 +204,6 @@ const BooksController = {
           });
         }
 
-        // Liên kết tác giả
         await tx.sach_TacGia.create({
           data: {
             MaSach: newBook.MaSach,
@@ -216,7 +215,6 @@ const BooksController = {
         return newBook;
       });
 
-      // Lấy sách vừa tạo
       const createdBook = await prisma.sach.findUnique({
         where: { MaSach: book.MaSach },
         include: {
@@ -231,7 +229,7 @@ const BooksController = {
       console.log(`createBook: Lấy sách ${book.MaSach} ảnh bìa:`, createdBook.AnhBia ? `Độ dài: ${createdBook.AnhBia.length}` : 'null');
 
       const bookWithBase64 = {
-        ...createdBook,
+        ...book,
         AnhBia: createdBook.AnhBia ? `data:image/jpeg;base64,${createdBook.AnhBia}` : null,
         TrangThai: createdBook.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
       };
@@ -248,7 +246,6 @@ const BooksController = {
     const { TieuDe, TenTacGia, TheLoai, TenNXB, NamXuatBan, SoLuong, GiaSach, ViTriKe, AnhBia } = req.body;
     try {
       const currentYear = 2025;
-      // Xác thực
       if (!TieuDe?.trim()) throw new Error('Tiêu đề sách là bắt buộc');
       if (!TenTacGia?.trim()) throw new Error('Tên tác giả là bắt buộc');
       if (!TenNXB?.trim()) throw new Error('Tên nhà xuất bản là bắt buộc');
@@ -261,13 +258,11 @@ const BooksController = {
       if (AnhBia && !AnhBia.match(/^data:image\/(jpeg|png);base64,/))
         throw new Error('Ảnh bìa phải là chuỗi base64 hợp lệ (jpeg hoặc png)');
 
-      // Làm sạch và kiểm tra base64
       const base64Data = AnhBia ? sanitizeBase64(AnhBia.replace(/^data:image\/(jpeg|png);base64,/, '')) : null;
       console.log(`updateBook: Độ dài ảnh bìa: ${base64Data ? base64Data.length : 'null'}`);
       console.log(`updateBook: Xem trước base64: ${base64Data ? base64Data.substring(0, 50) + '...' : 'null'}`);
 
       const book = await prisma.$transaction(async (tx) => {
-        // Kiểm tra và tạo/lấy tác giả
         let author = await tx.tacGia.findFirst({
           where: { TenTacGia: TenTacGia.trim() },
         });
@@ -277,7 +272,6 @@ const BooksController = {
           });
         }
 
-        // Kiểm tra và tạo/lấy nhà xuất bản
         let publisher = await tx.nhaXuatBan.findUnique({
           where: { TenNXB: TenNXB.trim() },
         });
@@ -287,7 +281,6 @@ const BooksController = {
           });
         }
 
-        // Xử lý thể loại
         const genreIds = [];
         if (TheLoai?.trim()) {
           let genre = await tx.theLoai.findFirst({
@@ -301,7 +294,6 @@ const BooksController = {
           genreIds.push(genre.MaTL);
         }
 
-        // Cập nhật sách
         const updatedBook = await tx.sach.update({
           where: { MaSach: parseInt(id) },
           data: {
@@ -318,11 +310,9 @@ const BooksController = {
 
         console.log(`updateBook: Cập nhật sách ${updatedBook.MaSach} với ảnh bìa:`, base64Data ? `Độ dài: ${base64Data.length}` : 'null');
 
-        // Xóa quan hệ cũ
         await tx.sach_TacGia.deleteMany({ where: { MaSach: parseInt(id) } });
         await tx.sach_TheLoai.deleteMany({ where: { MaSach: parseInt(id) } });
 
-        // Liên kết tác giả
         await tx.sach_TacGia.create({
           data: {
             MaSach: parseInt(id),
@@ -330,7 +320,6 @@ const BooksController = {
           },
         });
 
-        // Liên kết thể loại
         if (genreIds.length) {
           await tx.sach_TheLoai.createMany({
             data: genreIds.map((maTL) => ({
@@ -343,7 +332,6 @@ const BooksController = {
         return updatedBook;
       });
 
-      // Lấy sách vừa cập nhật
       const updatedBook = await prisma.sach.findUnique({
         where: { MaSach: book.MaSach },
         include: {
@@ -374,11 +362,9 @@ const BooksController = {
     const { id } = req.params;
     try {
       await prisma.$transaction(async (tx) => {
-        // Xóa các quan hệ liên quan
         await tx.sach_TacGia.deleteMany({ where: { MaSach: parseInt(id) } });
         await tx.sach_TheLoai.deleteMany({ where: { MaSach: parseInt(id) } });
 
-        // Xóa sách
         const deletedBook = await tx.sach.delete({
           where: { MaSach: parseInt(id) },
         });
@@ -471,6 +457,61 @@ const BooksController = {
       res.json({ message: 'Success', data: booksWithBase64 });
     } catch (err) {
       res.status(500).json({ message: err.message });
+    }
+  },
+
+  async exportBooks(req, res) {
+    try {
+      const books = await prisma.sach.findMany({
+        include: {
+          NhaXuatBan: true,
+          Sach_TacGia: { include: { TacGia: true } },
+          Sach_TheLoai: { include: { TheLoai: true } },
+        },
+      });
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Danh Sách Sách');
+
+      worksheet.columns = [
+        { header: 'Mã Sách', key: 'MaSach', width: 10 },
+        { header: 'Tiêu Đề', key: 'TieuDe', width: 30 },
+        { header: 'Tác Giả', key: 'TacGia', width: 20 },
+        { header: 'Thể Loại', key: 'TheLoai', width: 20 },
+        { header: 'NXB', key: 'TenNXB', width: 20 },
+        { header: 'Năm XB', key: 'NamXuatBan', width: 15 },
+        { header: 'Số Lượng', key: 'SoLuong', width: 10 },
+        { header: 'Giá Sách', key: 'GiaSach', width: 10 },
+        { header: 'Vị Trí Kệ', key: 'ViTriKe', width: 15 },
+        { header: 'Trạng Thái', key: 'TrangThai', width: 15 },
+      ];
+
+      books.forEach((book) => {
+        worksheet.addRow({
+          MaSach: book.MaSach,
+          TieuDe: book.TieuDe,
+          TacGia: book.Sach_TacGia.map((t) => t.TacGia.TenTacGia).join(', ') || 'N/A',
+          TheLoai: book.Sach_TheLoai.map((t) => t.TheLoai.TenTheLoai).join(', ') || 'N/A',
+          TenNXB: book.NhaXuatBan?.TenNXB || 'N/A',
+          NamXuatBan: book.NamXuatBan || 'N/A',
+          SoLuong: book.SoLuong || 0,
+          GiaSach: book.GiaSach || 0,
+          ViTriKe: book.ViTriKe || 'N/A',
+          TrangThai: book.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
+        });
+      });
+
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename="DanhSachSach.xlsx"');
+
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (err) {
+      console.error('Lỗi trong exportBooks:', err);
+      res.status(500).json({ message: 'Lỗi máy chủ: ' + err.message });
     }
   },
 };

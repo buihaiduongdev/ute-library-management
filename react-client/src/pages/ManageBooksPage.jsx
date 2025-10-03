@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Title, TextInput, Button, SimpleGrid, Image, Modal, FileInput, Autocomplete, Group, Card, Text, Grid, Pagination } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconDownload } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 
 function ManageBooksPage() {
@@ -166,6 +166,16 @@ function ManageBooksPage() {
   };
 
   const handleEdit = (book) => {
+    console.log('handleEdit: Book MaSach:', book.MaSach, 'Type:', typeof book.MaSach, 'Book object:', book);
+    if (!book.MaSach || isNaN(book.MaSach)) {
+      console.error('handleEdit: Invalid MaSach:', book.MaSach);
+      Notifications.show({
+        title: 'Lỗi',
+        message: 'Mã sách không hợp lệ, vui lòng thử lại',
+        color: 'red',
+      });
+      return;
+    }
     setEditId(book.MaSach);
     form.setValues({
       TieuDe: book.TieuDe || '',
@@ -197,6 +207,49 @@ function ManageBooksPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      console.log('handleExport: Sending request to /books/export');
+      const response = await authGet('/books/export', {
+        responseType: 'blob',
+      });
+  
+      // Kiểm tra response là Blob
+      if (!(response instanceof Blob)) {
+        console.error('handleExport: Expected Blob, received:', typeof response);
+        throw new Error('Phản hồi không phải là file Excel');
+      }
+  
+      console.log('handleExport: Received Blob, size:', response.size, 'type:', response.type);
+  
+      // Tạo URL từ Blob
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'DanhSachSach.xlsx'); // Tên file mặc định, người dùng có thể đổi trong Save As
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+  
+      Notifications.show({
+        title: 'Thành công',
+        message: 'Xuất file Excel thành công',
+        color: 'green',
+      });
+    } catch (err) {
+      console.error('handleExport: Error:', err);
+      Notifications.show({
+        title: 'Lỗi',
+        message: err.message || 'Không thể xuất file Excel',
+        color: 'red',
+      });
+      if (err.message.includes('No authentication token')) {
+        window.location.href = '/login';
+      }
+    }
+  };
+
   return (
     <Container size="xl" py="xl">
       <Title order={2} c="cyan" ta="center" mb="lg">
@@ -213,18 +266,29 @@ function ManageBooksPage() {
           radius="md"
           size="md"
         />
-        <Button
-          onClick={() => {
-            setEditId(null);
-            form.reset();
-            setModalOpen(true);
-          }}
-          color="cyan"
-          radius="md"
-          size="md"
-        >
-          Thêm Sách
-        </Button>
+        <Group>
+          <Button
+            onClick={() => {
+              setEditId(null);
+              form.reset();
+              setModalOpen(true);
+            }}
+            color="cyan"
+            radius="md"
+            size="md"
+          >
+            Thêm Sách
+          </Button>
+          <Button
+            onClick={handleExport}
+            color="green"
+            radius="md"
+            size="md"
+            leftSection={<IconDownload size={20} />}
+          >
+            Xuất file
+          </Button>
+        </Group>
       </Group>
 
       <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
@@ -276,7 +340,7 @@ function ManageBooksPage() {
                 <Image
                   src={book.AnhBia}
                   height="100%"
-                  fit="fill"
+                  fit="contain"
                   radius="md"
                   fallbackSrc="https://via.placeholder.com/150?text=No+Image"
                   style={{ width: '100%', maxWidth: '150px', objectFit: 'fill' }}
