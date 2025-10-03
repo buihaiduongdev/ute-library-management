@@ -1,73 +1,56 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const borrowController = require('../controllers/BorrowController');
-const { verifyToken } = require('../middlewares/auth.middleware');
+const borrowController = require("../controllers/BorrowController");
+const { verifyToken } = require("../middlewares/auth.middleware");
 
 // Middleware xác thực
 const staffOrAdmin = verifyToken([0, 1]); // Admin hoặc Staff
 const allRoles = verifyToken([0, 1, 2]); // Tất cả roles
 
 /**
- * @route   POST /api/borrow
- * @desc    Tạo phiếu mượn sách mới
- * @access  Private (Admin, Staff)
+ * Routes cụ thể phải đặt TRƯỚC routes động (:id)
+ * để tránh conflict routing
  */
-router.post('/', staffOrAdmin, borrowController.createBorrow);
 
-/**
- * @route   GET /api/borrow/statistics
- * @desc    Thống kê mượn trả sách
- * @access  Private (Admin, Staff)
- */
-router.get('/statistics', staffOrAdmin, borrowController.getStatistics);
+// [GET] Lấy cấu hình hệ thống
+router.get(
+  "/config",
+  allRoles,
+  borrowController.getConfig
+);
 
-/**
- * @route   GET /api/borrow/overdue
- * @desc    Lấy danh sách sách quá hạn
- * @access  Private (Admin, Staff)
- */
-router.get('/overdue', staffOrAdmin, borrowController.getOverdueBooks);
+// [GET] Lấy danh sách cuốn sách có sẵn
+router.get(
+  "/available-copies",
+  staffOrAdmin,
+  borrowController.getAvailableCopies
+);
 
-/**
- * @route   GET /api/borrow/fines
- * @desc    Lấy danh sách phạt chưa thanh toán
- * @access  Private (Admin, Staff)
- */
-router.get('/fines', staffOrAdmin, borrowController.getUnpaidFines);
+// [GET] Thống kê mượn trả
+router.get("/statistics", staffOrAdmin, borrowController.getStatistics);
 
-/**
- * @route   GET /api/borrow/reader/:idDG
- * @desc    Lấy lịch sử mượn sách của độc giả
- * @access  Private (All roles)
- */
-router.get('/reader/:idDG', allRoles, borrowController.getReaderHistory);
+// [GET] Danh sách sách quá hạn
+router.get("/overdue", staffOrAdmin, borrowController.getOverdueBooks);
 
-/**
- * @route   GET /api/borrow/:id
- * @desc    Lấy chi tiết phiếu mượn theo ID
- * @access  Private (Admin, Staff)
- */
-router.get('/:id', staffOrAdmin, borrowController.getBorrowById);
+// [GET] Danh sách phạt chưa thanh toán
+router.get("/fines", staffOrAdmin, borrowController.getUnpaidFines);
 
-/**
- * @route   GET /api/borrow
- * @desc    Lấy danh sách phiếu mượn (có phân trang và filter)
- * @access  Private (Admin, Staff)
- */
-router.get('/', staffOrAdmin, borrowController.getBorrows);
+// [GET] Lịch sử mượn của độc giả
+router.get("/reader/:idDG", allRoles, borrowController.getReaderHistory);
 
-/**
- * @route   POST /api/borrow/return
- * @desc    Trả sách
- * @access  Private (Admin, Staff)
- */
-router.post('/return', staffOrAdmin, borrowController.returnBooks);
+// [GET] Chi tiết phiếu mượn theo ID (phải đặt sau các routes /something)
+router.get("/:id", staffOrAdmin, borrowController.getBorrowById);
 
-/**
- * @route   POST /api/borrow/pay-fine/:maPhat
- * @desc    Thanh toán phạt
- * @access  Private (Admin, Staff)
- */
-router.post('/pay-fine/:maPhat', staffOrAdmin, borrowController.payFine);
+// [POST] Tạo phiếu mượn mới
+router.post("/", staffOrAdmin, borrowController.createBorrow);
+
+// [GET] Danh sách phiếu mượn (có filter, pagination)
+router.get("/", staffOrAdmin, borrowController.getBorrows);
+
+// [POST] Trả sách
+router.post("/return", staffOrAdmin, borrowController.returnBooks);
+
+// [POST] Thanh toán phạt
+router.post("/pay-fine/:maPhat", staffOrAdmin, borrowController.payFine);
 
 module.exports = router;
