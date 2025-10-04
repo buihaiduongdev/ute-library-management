@@ -105,6 +105,16 @@ function Navbar() {
                         Quản lý Độc giả
                     </Button>
                 )}
+                 {(role === '0' || role === '1') && (
+                    <Button 
+                        component={Link} 
+                        to="/card-management"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        🎴 Quản lý Thẻ
+                    </Button>
+                )}
             </Group>
             {/* Dựa vào token để hiển thị UI phù hợp */}
             <Group>

@@ -44,3 +44,8 @@ export const getReaderById = (id) => get(`${API_URL}/readers/${id}`);
 export const createReader = (readerData) => post(`${API_URL}/readers`, readerData);
 export const updateReader = (id, readerData) => put(`${API_URL}/readers/${id}`, readerData);
 export const deleteReader = (id) => del(`${API_URL}/readers/${id}`);
+
+// 🎴 Card Management APIs
+export const getReaderCardInfo = (id) => get(`${API_URL}/readers/${id}/card-info`);
+export const renewReaderCard = (id, renewData) => put(`${API_URL}/readers/${id}/renew`, renewData);
+export const deactivateReaderCard = (id) => put(`${API_URL}/readers/${id}/deactivate`);

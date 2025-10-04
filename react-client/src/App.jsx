@@ -12,6 +12,7 @@ import {
   RegisterPage,
   StaffPage,
 } from './pages';
+import CardManagement from './pages/CardManagement';
 import ReaderForm from './components/ReaderForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
@@ -95,7 +96,15 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+      {/* 🎴 Card Management - Only Admin & Staff */}
+      <Route 
+            path="/card-management" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <CardManagement />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>
