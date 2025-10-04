@@ -40,6 +40,12 @@ INSERT INTO NhaXuatBan (TenNXB, DiaChi, SoDienThoai, Email) VALUES
 (N'Bloomsbury Publishing', N'London, UK', NULL, 'info@bloomsbury.com'),
 (N'Shinchosha', N'Tokyo, Japan', NULL, NULL);
 
+<<<<<<< HEAD
+-- 8. Sách
+INSERT INTO Sach (TieuDe, NamXuatBan, GiaSach, MaNXB, SoLuong, ViTriKe, AnhBia, TrangThai) VALUES
+(N'Book Title 1', 2020, 100000, 1, 5, N'A1', NULL, 'Con');
+(N'Kafka bên bờ biển', 2002, 120000, 2, 5, N'K2', NULL, 'Con');
+=======
 -- =======================
 -- Sách và cuốn sách
 -- =======================
@@ -47,6 +53,7 @@ INSERT INTO Sach (TieuDe, NamXuatBan, GiaSach, MaNXB, SoLuong, ViTriKe, TrangTha
 (N'Mắt Biếc', 1990, 55000, 1, 3, N'Kệ A1', 'Con'),
 (N'Harry Potter and the Philosopher''s Stone', 1997, 150000, 2, 5, N'Kệ B2', 'Con'),
 (N'Norwegian Wood', 1987, 120000, 3, 2, N'Kệ C3', 'Con');
+
 
 -- Cuốn sách cho từng đầu sách
 INSERT INTO CuonSach (MaSach, TrangThaiCS) VALUES
