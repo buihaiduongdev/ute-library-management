@@ -16,8 +16,9 @@ import {
 } from './pages';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
-import './App.css';
-
+import './assets/css/App.css';
+import '@mantine/core/styles.css';
+import '@mantine/carousel/styles.css';
 function App() {
   return (
     <BrowserRouter>

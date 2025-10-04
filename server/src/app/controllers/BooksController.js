@@ -514,6 +514,135 @@ const BooksController = {
       res.status(500).json({ message: 'Lỗi máy chủ: ' + err.message });
     }
   },
+
+  // Duong them dung cho home
+  async getTrendingBooks(req, res) {
+    try {
+      const trendingDetails = await prisma.chiTietMuon.groupBy({
+        by: ['MaCuonSach'],
+        _count: { MaCuonSach: true },
+        orderBy: { _count: { MaCuonSach: 'desc' } },
+        take: 20,
+      });
+
+      if (trendingDetails.length === 0) {
+        return res.json({ message: "Không có dữ liệu sách xu hướng.", data: [] });
+      }
+
+      const cuonSachIds = trendingDetails.map(detail => detail.MaCuonSach);
+      
+      const sachRecords = await prisma.cuonSach.findMany({
+          where: { MaCuonSach: { in: cuonSachIds } },
+          select: { MaSach: true },
+          distinct: ['MaSach'],
+      });
+      const uniqueSachIds = sachRecords.map(s => s.MaSach);
+
+      const books = await prisma.sach.findMany({
+        where: { MaSach: { in: uniqueSachIds.slice(0, 10) } },
+        include: {
+          Sach_TacGia: { include: { TacGia: true } },
+        },
+      });
+
+      const sortedBooks = uniqueSachIds
+        .slice(0, 10)
+        .map(id => books.find(b => b.MaSach === id))
+        .filter(Boolean);
+
+      const booksWithBase64 = sortedBooks.map((book) => ({
+        ...book,
+        AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
+        TacGia: book.Sach_TacGia.map(st => st.TacGia.TenTacGia).join(', '),
+      }));
+
+      res.json({ message: "Lấy sách xu hướng thành công.", data: booksWithBase64 });
+    } catch (err) {
+      console.error('Lỗi trong getTrendingBooks:', err);
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  async getNewArrivals(req, res) {
+    try {
+      const newBooks = await prisma.sach.findMany({
+        orderBy: {
+          MaSach: 'desc',
+        },
+        take: 10,
+        include: {
+          Sach_TacGia: { include: { TacGia: true } },
+        },
+      });
+
+      const booksWithBase64 = newBooks.map((book) => ({
+        ...book,
+        AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
+        TacGia: book.Sach_TacGia.map(st => st.TacGia.TenTacGia).join(', '),
+      }));
+
+      res.json({ message: "Lấy sách mới về thành công.", data: booksWithBase64 });
+    } catch (err) {
+      console.error('Lỗi trong getNewArrivals:', err);
+      res.status(500).json({ message: err.message });
+    }
+  },
+  async getRecommendedBooks(req, res) {
+    try {
+      const userId = req.user.id; // hoặc req.user.userId tùy JWT bạn set
+  
+      // 1. Lấy các thể loại user hay mượn nhất
+      const favoriteGenres = await prisma.sach_TheLoai.groupBy({
+        by: ['MaTL'],
+        _count: { MaTL: true },
+        where: {
+          Sach: {
+            CuonSach: {
+              some: {
+                ChiTietMuon: {
+                  some: {
+                    PhieuMuon: { IdDG: Number(userId) }
+                  }
+                }
+              }
+            }
+          }
+        },
+        orderBy: { _count: { MaTL: 'desc' } },
+        take: 3,
+      });
+  
+      if (favoriteGenres.length === 0) {
+        return res.json({ message: "Chưa có dữ liệu để gợi ý.", data: [] });
+      }
+  
+      const genreIds = favoriteGenres.map(g => g.MaTL);
+  
+      const recommendedBooks = await prisma.sach.findMany({
+        where: {
+          Sach_TheLoai: { some: { MaTL: { in: genreIds } } },
+        },
+        include: {
+          Sach_TacGia: { include: { TacGia: true } },
+        },
+        take: 10,
+      });
+  
+      const booksWithBase64 = recommendedBooks.map(book => ({
+        ...book,
+        AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
+        TacGia: book.Sach_TacGia.map(st => st.TacGia.TenTacGia).join(', '),
+      }));
+  
+      res.json({ message: "Gợi ý sách thành công.", data: booksWithBase64 });
+    } catch (err) {
+      console.error("Lỗi trong getRecommendedBooks:", err);
+      res.status(500).json({ message: err.message });
+    }
+  }
+  
+  
+  //Ket thu Phan cho home
 };
 
 module.exports = BooksController;
