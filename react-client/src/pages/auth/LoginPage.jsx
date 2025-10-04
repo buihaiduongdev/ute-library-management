@@ -15,7 +15,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 
-import {post} from '../utils/api';
+import {post} from '../../utils/api';
 
 function LoginPage() {
     const [username, setUsername] = useState('');
