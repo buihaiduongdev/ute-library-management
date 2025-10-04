@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -23,7 +24,6 @@ function Navbar() {
         window.location.reload(); // Tải lại để Navbar cập nhật trạng thái mới nhất
     };
 
-    // Menu dành cho người dùng ĐÃ ĐĂNG NHẬP
     const LoggedInMenu = () => (
         <Menu shadow="md" width={200}>
             <Menu.Target>
@@ -36,7 +36,6 @@ function Navbar() {
                     </Group>
                 </Button>
             </Menu.Target>
-
             <Menu.Dropdown>
                 <Menu.Label>Tài khoản</Menu.Label>
                 <Menu.Item leftSection={<IconUserCircle />}>
@@ -54,7 +53,6 @@ function Navbar() {
         </Menu>
     );
 
-    // Các nút dành cho khách CHƯA ĐĂNG NHẬP
     const LoggedOutButtons = () => (
         <Group h="100%">
             <Button component={Link} to="/login">
@@ -71,7 +69,7 @@ function Navbar() {
             <Group>
                 <Button 
                     component={Link} 
-                    to={"/"}
+                    to="/"
                     variant="subtle" 
                     size="md"
                 >
@@ -79,11 +77,11 @@ function Navbar() {
                 </Button>
                 <Button 
                     component={Link} 
-                    to={token ? "/search-books" : "/"} // Nếu đã đăng nhập thì link tới search, nếu không thì về trang chủ
+                    to="/search-books"
                     variant="subtle" 
                     size="md"
                 >
-                    Tra cứu sách
+                    Tra cứu sách
                 </Button>
                 {(role === '0' || role === '1') && (
                     <>
@@ -100,7 +98,6 @@ function Navbar() {
                                 <Button 
                                     variant="subtle" 
                                     size="md"
-                                     
                                 >
                                     Quản lý
                                 </Button>
@@ -123,7 +120,6 @@ function Navbar() {
                     </>
                 )}
             </Group>
-            {/* Dựa vào token để hiển thị UI phù hợp */}
             <Group>
                 {token ? <LoggedInMenu /> : <LoggedOutButtons />}
             </Group>

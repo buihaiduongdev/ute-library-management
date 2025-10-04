@@ -1,3 +1,4 @@
+// src/App.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import {
   AdminPage,
@@ -21,14 +22,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Sử dụng AppLayout làm layout chung cho tất cả các trang */}
         <Route element={<AppLayout />}>
-          {/* === Các Route công khai === */}
+          {/* Các Route công khai */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} /> 
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/search-books" element={<BookSearchPage />} /> {/* Chuyển ra đây */}
 
-          {/* === Các Route được bảo vệ === */}
+          {/* Các Route được bảo vệ */}
           <Route 
             path="/admin" 
             element={
@@ -50,14 +51,6 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['2']}>
                 <ReaderPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route 
-            path="/search-books" 
-            element={
-              <ProtectedRoute allowedRoles={['0', '1', '2']}>
-                <BookSearchPage />
               </ProtectedRoute>
             }
           />

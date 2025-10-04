@@ -1,205 +1,222 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, TextInput, MultiSelect, Select, RangeSlider, Button, Table, Image, Group, Paper, Divider } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { authGet } from '../utils/api';
-import { Link } from 'react-router-dom';
-import { IconBook } from '@tabler/icons-react';
+import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button } from '@mantine/core';
+import { IconPencil } from '@tabler/icons-react';
+import { get } from '../utils/api';
 import { Notifications } from '@mantine/notifications';
-import { rem } from '@mantine/core';
 
 function BookSearchPage() {
   const [books, setBooks] = useState([]);
-  const [publishers, setPublishers] = useState([]);
-  const [authors, setAuthors] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const userRole = localStorage.getItem('role');
-
-  const form = useForm({
-    initialValues: {
-      keyword: '',
-      authors: [],
-      genres: [],
-      publisher: '',
-      yearRange: [1900, new Date().getFullYear()],
-      sort: 'newest'
-    }
-  });
+  const [search, setSearch] = useState('');
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalBooks, setTotalBooks] = useState(0);
+  const booksPerPage = 12;
 
   useEffect(() => {
-    fetchMetadata();
     fetchBooks();
-  }, []);
-
-  const fetchMetadata = async () => {
-    try {
-      console.log('Fetching metadata...'); // Debug log
-      const [pubRes, authRes, genreRes] = await Promise.all([
-        authGet('/api/publishers'),
-        authGet('/api/authors'),
-        authGet('/api/genres')
-      ]);
-      console.log('Publishers fetched:', pubRes.data); // Debug log
-      console.log('Authors fetched:', authRes.data); // Debug log
-      console.log('Genres fetched:', genreRes.data); // Debug log
-      setPublishers(pubRes.data.map(p => ({ value: p.MaNXB.toString(), label: p.TenNXB })));
-      setAuthors(authRes.data.map(a => ({ value: a.MaTG.toString(), label: a.TenTacGia })));
-      setGenres(genreRes.data.map(g => ({ value: g.MaTL.toString(), label: g.TenTheLoai })));
-    } catch (err) {
-      console.error('Metadata fetch error:', err.message); // Debug log
-      Notifications.show({ title: 'Lỗi', message: err.message, color: 'red' });
-      if (err.message.includes('No authentication token')) {
-        window.location.href = '/login';
-      }
-    }
-  };
+  }, [search, currentPage]);
 
   const fetchBooks = async () => {
     try {
-      console.log('Fetching books with form values:', form.values); // Debug log
-      const { keyword, authors, genres, publisher, yearRange, sort } = form.values;
-      const query = `keyword=${encodeURIComponent(keyword || '')}&authors=${authors.join(',')}&genres=${genres.join(',')}&publisher=${publisher}&yearFrom=${yearRange[0]}&yearTo=${yearRange[1]}&sort=${sort}`;
-      const { data } = await authGet(`/api/books/search?${query}`);
-      console.log('Books fetched:', data); // Debug log
-      setBooks(data);
+      const offset = (currentPage - 1) * booksPerPage;
+      const response = await get(`/booksearch?search=${encodeURIComponent(search)}&limit=${booksPerPage}&offset=${offset}`);
+      console.log('Fetched books:', response.data, 'Total:', response.total);
+      setBooks(response.data || []);
+      setTotalBooks(response.total || 0);
     } catch (err) {
-      console.error('Books fetch error:', err.message); // Debug log
-      Notifications.show({ title: 'Lỗi', message: err.message, color: 'red' });
-      if (err.message.includes('No authentication token')) {
-        window.location.href = '/login';
-      }
+      console.error('Fetch books error:', err);
+      Notifications.show({ title: 'Lỗi', message: err.message || 'Không thể tải danh sách sách', color: 'red' });
     }
   };
 
-  const handleBorrow = async (id) => {
-    try {
-      console.log(`Attempting to borrow book ${id}`); // Debug log
-      // Placeholder: Gọi authCreateBorrow khi tích hợp BorrowBooks
-      // const response = await authCreateBorrow({ MaSach: id, MaNguoiDung: localStorage.getItem('userId') || 1 });
-      // Notifications.show({ title: 'Thành công', message: 'Đã mượn sách', color: 'green' });
-      console.log(`Borrow successful for book ${id}`); // Debug log (tạm thời)
-    } catch (err) {
-      console.error('Borrow error:', err.message); // Debug log
-      Notifications.show({ title: 'Lỗi', message: err.message, color: 'red' });
-    }
+  const handleView = (book) => {
+    setSelectedBook({
+      TieuDe: book.TieuDe || '',
+      TenTacGia: book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || 'N/A',
+      TheLoai: book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || 'N/A',
+      TenNXB: book.NhaXuatBan?.TenNXB || 'N/A',
+      NamXuatBan: book.NamXuatBan?.toString() || 'N/A',
+      SoLuong: book.SoLuong?.toString() || '0',
+      GiaSach: book.GiaSach?.toString() || 'N/A',
+      ViTriKe: book.ViTriKe || 'N/A',
+      AnhBia: book.AnhBia || null,
+      MaSach: book.MaSach,
+      TrangThai: book.TrangThai,
+    });
+    setModalOpen(true);
   };
 
   return (
-    <Container size="lg" py="xl">
-      <Paper shadow="sm" p="md" radius="md" withBorder>
-        <Group justify="space-between" mb="lg">
-          <Title order={2} c="cyan">Tra cứu sách</Title>
-        </Group>
-        <form onSubmit={form.onSubmit(fetchBooks)}>
-          <TextInput
-            label="Từ khóa"
-            placeholder="Nhập tiêu đề hoặc mô tả"
-            {...form.getInputProps('keyword')}
-            radius="md"
-          />
-          <MultiSelect
-            label="Tác giả"
-            placeholder="Chọn tác giả"
-            data={authors}
-            mt="md"
-            {...form.getInputProps('authors')}
-            radius="md"
-          />
-          <MultiSelect
-            label="Thể loại"
-            placeholder="Chọn thể loại"
-            data={genres}
-            mt="md"
-            {...form.getInputProps('genres')}
-            radius="md"
-          />
-          <Select
-            label="Nhà xuất bản"
-            placeholder="Chọn nhà xuất bản"
-            data={publishers}
-            mt="md"
-            {...form.getInputProps('publisher')}
-            radius="md"
-          />
-          <RangeSlider
-            label="Năm xuất bản"
-            min={1900}
-            max={new Date().getFullYear()}
-            mt="md"
-            {...form.getInputProps('yearRange')}
-            radius="md"
-          />
-          <Select
-            label="Sắp xếp"
-            data={[
-              { value: 'newest', label: 'Mới nhất' },
-              { value: 'oldest', label: 'Cũ nhất' },
-              { value: 'popular', label: 'Phổ biến' }
-            ]}
-            mt="md"
-            {...form.getInputProps('sort')}
-            radius="md"
-          />
-          <Group justify="flex-end" mt="md">
-            <Button type="submit" color="cyan" radius="md">
-              Tìm kiếm
-            </Button>
-          </Group>
-        </form>
-        <Divider my="sm" />
-        <Table highlightOnHover>
-          <thead>
-            <tr>
-              <th>Mã sách</th>
-              <th>Tiêu đề</th>
-              <th>Ảnh bìa</th>
-              <th>Tác giả</th>
-              <th>Thể loại</th>
-              <th>Nhà xuất bản</th>
-              <th>Năm xuất bản</th>
-              <th>Số lượng</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {books.map((book) => (
-              <tr key={book.MaSach}>
-                <td>{book.MaSach}</td>
-                <td>{book.TieuDe}</td>
-                <td>{book.AnhBia && <Image src={`data:image/jpeg;base64,${book.AnhBia}`} width={50} radius="sm" />}</td>
-                <td><Text size="sm">{book.Sach_TacGia.map(t => t.TacGia.TenTacGia).join(', ') || '-'}</Text></td>
-                <td><Text size="sm">{book.Sach_TheLoai.map(t => t.TheLoai.TenTheLoai).join(', ') || '-'}</Text></td>
-                <td><Text size="sm">{book.NhaXuatBan?.TenNXB || '-'}</Text></td>
-                <td>{book.NamXuatBan || '-'}</td>
-                <td>{book.SoLuong || '-'}</td>
-                <td>
-                  {['0', '1'].includes(userRole) ? (
-                    <Button
-                      variant="subtle"
-                      size="xs"
-                      color="cyan"
-                      leftSection={<IconBook size={rem(16)} />}
-                      onClick={() => handleBorrow(book.MaSach)}
-                    >
-                      Mượn
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="subtle"
-                      size="xs"
-                      color="cyan"
-                      leftSection={<IconBook size={rem(16)} />}
-                      component={Link}
-                      to={`/books/${book.MaSach}`}
-                    >
-                      Xem chi tiết
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Paper>
+    <Container size="xl" py="xl">
+      <Title order={2} c="cyan" ta="center" mb="lg">
+        Tra Cứu Sách
+      </Title>
+      <Group mb="lg" grow>
+        <TextInput
+          placeholder="Tìm kiếm sách"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.currentTarget.value);
+            setCurrentPage(1);
+          }}
+          radius="md"
+          size="md"
+        />
+      </Group>
+
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
+        {books.map((book) => (
+          <Card key={book.MaSach} shadow="sm" padding="md" radius="md" withBorder style={{ height: '270px', maxWidth: '300px', marginBottom: '16px' }}>
+            <Grid align="stretch" gutter="sm">
+              <Grid.Col span={{ base: 12, sm: 6 }}>
+                <Text style={{ fontSize: '12px' }} ta="left" fw={500} truncate="end">Mã sách: {book.MaSach}</Text>
+                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Tiêu đề: {book.TieuDe}</Text>
+                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">
+                  Tác giả: {book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || 'N/A'}
+                </Text>
+                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">
+                  Thể loại: {book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || 'N/A'}
+                </Text>
+                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">NXB: {book.NhaXuatBan?.TenNXB || 'N/A'}</Text>
+                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Năm XB: {book.NamXuatBan || 'N/A'}</Text>
+                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Số lượng: {book.SoLuong || '0'}</Text>
+                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Giá sách: {book.GiaSach || 'N/A'}</Text>
+                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
+                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Trạng thái: {book.TrangThai}</Text>
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, sm: 6 }} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Image
+                  src={book.AnhBia}
+                  height="100%"
+                  fit="contain"
+                  radius="md"
+                  fallbackSrc="https://via.placeholder.com/150?text=No+Image"
+                  style={{ width: '100%', maxWidth: '150px', objectFit: 'fill' }}
+                />
+              </Grid.Col>
+            </Grid>
+          </Card>
+        ))}
+      </SimpleGrid>
+
+      {books.length === 0 && (
+        <Text ta="center" c="dimmed" mt="lg">
+          Không tìm thấy sách nào.
+        </Text>
+      )}
+
+      <Group justify="center" mt="lg">
+        <Pagination
+          total={Math.ceil(totalBooks / booksPerPage)}
+          value={currentPage}
+          onChange={setCurrentPage}
+          color="cyan"
+          radius="md"
+          size="md"
+        />
+      </Group>
+
+      <Modal
+        opened={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedBook(null);
+        }}
+        title="Xem Sách"
+        size="lg"
+        radius="md"
+      >
+        {selectedBook && (
+          <div>
+            <TextInput
+              label="Tiêu đề"
+              value={selectedBook.TieuDe}
+              disabled
+              radius="md"
+              mt="sm"
+            />
+            <TextInput
+              label="Tác giả"
+              value={selectedBook.TenTacGia}
+              disabled
+              radius="md"
+              mt="sm"
+            />
+            <TextInput
+              label="Thể loại"
+              value={selectedBook.TheLoai}
+              disabled
+              radius="md"
+              mt="sm"
+            />
+            <TextInput
+              label="Nhà xuất bản"
+              value={selectedBook.TenNXB}
+              disabled
+              radius="md"
+              mt="sm"
+            />
+            <TextInput
+              label="Năm xuất bản"
+              value={selectedBook.NamXuatBan}
+              disabled
+              radius="md"
+              mt="sm"
+            />
+            <TextInput
+              label="Số lượng"
+              value={selectedBook.SoLuong}
+              disabled
+              radius="md"
+              mt="sm"
+            />
+            <TextInput
+              label="Giá sách"
+              value={selectedBook.GiaSach}
+              disabled
+              radius="md"
+              mt="sm"
+            />
+            <TextInput
+              label="Vị trí kệ"
+              value={selectedBook.ViTriKe}
+              disabled
+              radius="md"
+              mt="sm"
+            />
+            <TextInput
+              label="Trạng thái"
+              value={selectedBook.TrangThai}
+              disabled
+              radius="md"
+              mt="sm"
+            />
+            {selectedBook.AnhBia && (
+              <Image
+                src={selectedBook.AnhBia}
+                height={100}
+                fit="contain"
+                radius="md"
+                mt="sm"
+                fallbackSrc="https://via.placeholder.com/100?text=Preview"
+              />
+            )}
+            <Group justify="flex-end" mt="lg">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setModalOpen(false);
+                  setSelectedBook(null);
+                }}
+                radius="md"
+              >
+                Đóng
+              </Button>
+            </Group>
+          </div>
+        )}
+      </Modal>
     </Container>
   );
 }
