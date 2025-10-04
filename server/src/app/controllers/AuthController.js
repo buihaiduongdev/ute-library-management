@@ -101,7 +101,7 @@ class AuthController {
                 const ngayHetHan = new Date();
                 ngayHetHan.setFullYear(ngayHetHan.getFullYear() + 1);
 
-                await prisma.docGia.create({
+                const newDocGia = await prisma.docGia.create({
                     data: {
                         MaTK: newUser.MaTK,
                         HoTen: fullname,
@@ -115,10 +115,10 @@ class AuthController {
                     },
                 });
 
-                return newUser;
+                return newDocGia;
             });
 
-            res.status(201).json({ message: 'Đăng ký tài khoản độc giả thành công.', userId: result.MaTK });
+            res.status(201).json({ message: 'Đăng ký tài khoản độc giả thành công.', hoTen: result.HoTen });
 
         } catch (error) {
             console.error(error);

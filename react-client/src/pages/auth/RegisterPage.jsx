@@ -71,8 +71,8 @@ const RegisterPage = () => {
             };
             console.log("Payload gửi:", payload);
 
-            const data = await post('api/auth/register', payload);
-            
+            const data = await post('/api/auth/register', payload);
+            console.log(data);
             notifications.show({
                 title: 'Đăng ký thành công!',
                 message: `Chào mừng ${data.hoTen}, đang chuyển đến trang đăng nhập...`,
