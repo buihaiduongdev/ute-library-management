@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, TextInput, Button, Table, Modal, Group, Paper, Divider, Text, Pagination } from '@mantine/core';
+import { Container, Title, TextInput, Button, Table, Modal, Group, Paper, Divider, Text, Pagination, Box } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconDownload } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 import { rem } from '@mantine/core';
 
@@ -11,6 +11,7 @@ function ManagePublishersPage() {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
   const [page, setPage] = useState(1);
@@ -22,13 +23,13 @@ function ManagePublishersPage() {
       TenNXB: '',
       SoDienThoai: '',
       DiaChi: '',
-      Email: ''
+      Email: '',
     },
     validate: {
       TenNXB: (value) => (value.trim() ? null : 'Tên nhà xuất bản là bắt buộc'),
       Email: (value) => (value && !/^\S+@\S+\.\S+$/.test(value) ? 'Email không hợp lệ' : null),
-      SoDienThoai: (value) => (value && !/^\d{10,11}$/.test(value) ? 'Số điện thoại phải có 10-11 chữ số' : null)
-    }
+      SoDienThoai: (value) => (value && !/^\d{10,11}$/.test(value) ? 'Số điện thoại phải có 10-11 chữ số' : null),
+    },
   });
 
   useEffect(() => {
@@ -55,7 +56,7 @@ function ManagePublishersPage() {
         TenNXB: values.TenNXB.trim(),
         SoDienThoai: values.SoDienThoai?.trim() || null,
         DiaChi: values.DiaChi?.trim() || null,
-        Email: values.Email?.trim() || null
+        Email: values.Email?.trim() || null,
       };
       if (editId) {
         await put(`/publishers/${editId}`, payload);
@@ -63,11 +64,10 @@ function ManagePublishersPage() {
       } else {
         await authPost('/publishers', payload);
         Notifications.show({ title: 'Thành công', message: 'Thêm nhà xuất bản thành công', color: 'green' });
-        // Lấy lại tổng số nhà xuất bản để tính trang cuối
         const response = await authGet(`/publishers?search=${encodeURIComponent(search)}&limit=${limit}&offset=0`);
         const newTotal = Math.ceil(response.total / limit);
         setTotal(newTotal);
-        setPage(newTotal); // Chuyển đến trang cuối
+        setPage(newTotal);
       }
       fetchPublishers();
       setModalOpen(false);
@@ -87,7 +87,7 @@ function ManagePublishersPage() {
       TenNXB: publisher.TenNXB,
       SoDienThoai: publisher.SoDienThoai || '',
       DiaChi: publisher.DiaChi || '',
-      Email: publisher.Email || ''
+      Email: publisher.Email || '',
     });
     setModalOpen(true);
   };
@@ -99,7 +99,6 @@ function ManagePublishersPage() {
       fetchPublishers();
       setDeleteModalOpen(false);
       setDeleteId(null);
-      // Nếu trang hiện tại trống sau khi xóa, quay về trang trước
       if (publishers.length === 1 && page > 1) {
         setPage(page - 1);
       }
@@ -111,10 +110,56 @@ function ManagePublishersPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      console.log('handleExport: Sending request to /publishers/export');
+      const response = await authGet('/publishers/export', {
+        responseType: 'blob',
+      });
+
+      if (!(response instanceof Blob)) {
+        console.error('handleExport: Expected Blob, received:', typeof response);
+        throw new Error('Phản hồi không phải là file Excel');
+      }
+
+      console.log('handleExport: Received Blob, size:', response.size, 'type:', response.type);
+
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'DanhSachNhaXuatBan.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      Notifications.show({
+        title: 'Thành công',
+        message: 'Xuất file Excel thành công',
+        color: 'green',
+      });
+    } catch (err) {
+      console.error('handleExport: Error:', err);
+      Notifications.show({
+        title: 'Lỗi',
+        message: err.message || 'Không thể xuất file Excel',
+        color: 'red',
+      });
+      if (err.message.includes('No authentication token')) {
+        window.location.href = '/login';
+      }
+    }
+    setExportModalOpen(false);
+  };
+
+  const handleOpenExportModal = () => {
+    setExportModalOpen(true);
+  };
+
   return (
     <Container size="lg" py="xl">
-      <Title order={2} c="cyan" ta="center" mb="lg">
-        Quản lý nhà xuất bản
+      <Title order={2} c="cyan" ta="center" mb="sm">
+        Quản Lý Nhà Xuất Bản
       </Title>
       <Paper shadow="sm" p="md" radius="md" withBorder>
         <Group mb="lg" grow>
@@ -123,14 +168,46 @@ function ManagePublishersPage() {
             value={search}
             onChange={(e) => {
               setSearch(e.currentTarget.value);
-              setPage(1); // Reset về trang 1 khi tìm kiếm
+              setPage(1);
             }}
             radius="md"
           />
-          <Button onClick={() => setModalOpen(true)} color="cyan" radius="md">
-            Thêm
-          </Button>
+          <Group>
+            <Button
+              onClick={() => {
+                setEditId(null);
+                form.reset();
+                setModalOpen(true);
+              }}
+              color="cyan"
+              radius="md"
+            >
+              Thêm nhà xuất bản 
+            </Button>
+            <Button
+              onClick={handleOpenExportModal}
+              color="green"
+              radius="md"
+              leftSection={<IconDownload size={20} />}
+            >
+              Xuất file
+            </Button>
+          </Group>
         </Group>
+        <Paper p="sm" radius="md" withBorder mb="md">
+          <Group gap="xs" align="center">
+            <Box w={20} h={20} bg="#fff9db" style={{ border: '1px solid #ddd' }} />
+            <Text size="sm" ta="left">
+              Nhà xuất bản không còn liên kết với bất kỳ sách nào, người dùng có thể xóa nhà xuất bản này.
+            </Text>
+          </Group>
+          <Group gap="xs" align="center" mt="xs">
+            <Box w={20} h={20} bg="white" style={{ border: '1px solid #ddd' }} />
+            <Text size="sm" ta="left">
+              Nhà xuất bản đang liên kết với sách, người dùng không thể xóa nhà xuất bản này.
+            </Text>
+          </Group>
+        </Paper>
         <Divider my="sm" />
         <Table highlightOnHover verticalAlign="center">
           <thead>
@@ -145,7 +222,7 @@ function ManagePublishersPage() {
           </thead>
           <tbody>
             {publishers.map((publisher) => (
-              <tr key={publisher.MaNXB}>
+              <tr key={publisher.MaNXB} style={{ backgroundColor: publisher.hasBooks ? 'white' : '#fff9db' }}>
                 <td>{publisher.MaNXB}</td>
                 <td>{publisher.TenNXB}</td>
                 <td><Text size="sm">{publisher.SoDienThoai || '-'}</Text></td>
@@ -182,6 +259,11 @@ function ManagePublishersPage() {
             ))}
           </tbody>
         </Table>
+        {publishers.length === 0 && (
+          <Text ta="center" c="dimmed" mt="lg">
+            Không tìm thấy nhà xuất bản nào.
+          </Text>
+        )}
         {total > 1 && (
           <Group justify="center" mt="md">
             <Pagination total={total} value={page} onChange={setPage} color="cyan" radius="md" />
@@ -194,7 +276,7 @@ function ManagePublishersPage() {
             form.reset();
             setEditId(null);
           }}
-          title={editId ? 'Sửa nhà xuất bản' : 'Thêm'}
+          title={editId ? 'Sửa nhà xuất bản' : 'Thêm nhà xuất bản'}
           size="md"
           radius="md"
         >
@@ -228,7 +310,6 @@ function ManagePublishersPage() {
               radius="md"
             />
             <Group justify="flex-end" mt="lg">
-              
               <Button type="submit" color="cyan" radius="md">
                 {editId ? 'Cập nhật' : 'Thêm'}
               </Button>
@@ -255,11 +336,27 @@ function ManagePublishersPage() {
         >
           <Text>Bạn có chắc chắn muốn xóa nhà xuất bản này?</Text>
           <Group justify="flex-end" mt="md">
-            
             <Button color="red" onClick={handleDelete} radius="md">
               Xóa
             </Button>
             <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
+              Hủy
+            </Button>
+          </Group>
+        </Modal>
+        <Modal
+          opened={exportModalOpen}
+          onClose={() => setExportModalOpen(false)}
+          title="Xác nhận xuất file"
+          size="sm"
+          radius="md"
+        >
+          <Text>Bạn có muốn xác nhận xuất file danh sách nhà xuất bản?</Text>
+          <Group justify="flex-end" mt="md">
+            <Button color="green" onClick={handleExport} radius="md">
+              Xuất file
+            </Button>
+            <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md">
               Hủy
             </Button>
           </Group>

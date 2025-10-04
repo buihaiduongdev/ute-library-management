@@ -1,4 +1,5 @@
 const prisma = require('../models/db');
+const ExcelJS = require('exceljs');
 
 const AuthorsController = {
   async getAuthors(req, res) {
@@ -11,30 +12,34 @@ const AuthorsController = {
         const isNumericSearch = !isNaN(searchTrimmed) && searchTrimmed !== '';
 
         where.OR = [
-          // Tìm kiếm theo tên tác giả
           { TenTacGia: { contains: searchTrimmed } },
-          // Tìm kiếm theo quốc tịch
           { QuocTich: { contains: searchTrimmed } },
-          // Tìm kiếm theo tiểu sử
           { TieuSu: { contains: searchTrimmed } },
         ];
 
-        // Chỉ thêm điều kiện số nếu search là số hợp lệ
         if (isNumericSearch) {
           where.OR.push({ MaTG: parseInt(searchTrimmed) });
         }
       }
 
-      // Đếm tổng số tác giả
       const total = await prisma.tacGia.count({ where });
 
-      // Lấy danh sách tác giả
       const authors = await prisma.tacGia.findMany({
         where,
         take: parseInt(limit),
         skip: parseInt(offset),
         orderBy: { MaTG: 'asc' },
+        include: {
+          Sach_TacGia: { select: { MaSach: true } }, // Lấy thông tin liên kết sách
+        },
       });
+
+      // Thêm trường hasBooks để chỉ ra tác giả có liên kết với sách hay không
+      const authorsWithHasBooks = authors.map((author) => ({
+        ...author,
+        hasBooks: author.Sach_TacGia.length > 0,
+        Sach_TacGia: undefined, // Loại bỏ dữ liệu không cần thiết
+      }));
 
       console.log(`getAuthors: Fetched ${authors.length} authors`);
       if (authors.length > 0) {
@@ -43,10 +48,11 @@ const AuthorsController = {
           TenTacGia: authors[0].TenTacGia,
           QuocTich: authors[0].QuocTich || 'null',
           TieuSu: authors[0].TieuSu ? `${authors[0].TieuSu.substring(0, 50)}...` : 'null',
+          hasBooks: authorsWithHasBooks[0].hasBooks,
         });
       }
 
-      res.json({ message: 'Success', data: authors, total });
+      res.json({ message: 'Success', data: authorsWithHasBooks, total });
     } catch (err) {
       console.error('Error in getAuthors:', err);
       res.status(500).json({ message: err.message });
@@ -73,11 +79,9 @@ const AuthorsController = {
   async createAuthor(req, res) {
     const { TenTacGia, TieuSu, QuocTich } = req.body;
     try {
-      // Xác thực
       if (!TenTacGia?.trim()) throw new Error('Tên tác giả là bắt buộc');
 
       const author = await prisma.$transaction(async (tx) => {
-        // Tạo tác giả
         const newAuthor = await tx.tacGia.create({
           data: {
             TenTacGia: TenTacGia.trim(),
@@ -91,7 +95,6 @@ const AuthorsController = {
         return newAuthor;
       });
 
-      // Lấy tác giả vừa tạo
       const createdAuthor = await prisma.tacGia.findUnique({
         where: { MaTG: author.MaTG },
       });
@@ -111,11 +114,9 @@ const AuthorsController = {
     const { id } = req.params;
     const { TenTacGia, TieuSu, QuocTich } = req.body;
     try {
-      // Xác thực
       if (!TenTacGia?.trim()) throw new Error('Tên tác giả là bắt buộc');
 
       const author = await prisma.$transaction(async (tx) => {
-        // Cập nhật tác giả
         const updatedAuthor = await tx.tacGia.update({
           where: { MaTG: parseInt(id) },
           data: {
@@ -130,7 +131,6 @@ const AuthorsController = {
         return updatedAuthor;
       });
 
-      // Lấy tác giả vừa cập nhật
       const updatedAuthor = await prisma.tacGia.findUnique({
         where: { MaTG: author.MaTG },
       });
@@ -150,7 +150,16 @@ const AuthorsController = {
     const { id } = req.params;
     try {
       await prisma.$transaction(async (tx) => {
-        // Xóa các quan hệ liên quan
+        // Kiểm tra xem tác giả có liên kết với sách nào không
+        const bookCount = await tx.sach_TacGia.count({
+          where: { MaTG: parseInt(id) },
+        });
+
+        if (bookCount > 0) {
+          throw new Error('Không thể xóa tác giả vì vẫn còn sách liên quan');
+        }
+
+        // Nếu không có sách liên quan, xóa quan hệ trong Sach_TacGia (để đảm bảo sạch dữ liệu)
         await tx.sach_TacGia.deleteMany({ where: { MaTG: parseInt(id) } });
 
         // Xóa tác giả
@@ -190,15 +199,13 @@ const AuthorsController = {
 
       const orderBy =
         sort === 'newest'
-          ? { MaTG: 'asc' } // Sắp xếp theo MaTG tăng dần
+          ? { MaTG: 'asc' }
           : sort === 'oldest'
-          ? { MaTG: 'asc' } // Vẫn tăng dần để nhất quán
-          : { MaTG: 'asc' }; // Mặc định sắp xếp theo MaTG tăng dần
+          ? { MaTG: 'asc' }
+          : { MaTG: 'asc' };
 
-      // Đếm tổng số tác giả
       const total = await prisma.tacGia.count({ where });
 
-      // Lấy danh sách tác giả
       const authors = await prisma.tacGia.findMany({
         where,
         take: parseInt(limit),
@@ -235,6 +242,47 @@ const AuthorsController = {
     } catch (err) {
       console.error('Error in searchAuthors:', err);
       res.status(500).json({ message: err.message });
+    }
+  },
+
+  async exportAuthors(req, res) {
+    try {
+      const authors = await prisma.tacGia.findMany({
+        orderBy: { MaTG: 'asc' },
+      });
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Danh Sách Tác Giả');
+
+      worksheet.columns = [
+        { header: 'Mã Tác Giả', key: 'MaTG', width: 12 },
+        { header: 'Tên Tác Giả', key: 'TenTacGia', width: 30 },
+        { header: 'Quốc Tịch', key: 'QuocTich', width: 20 },
+        { header: 'Tiểu Sử', key: 'TieuSu', width: 50 },
+      ];
+
+      authors.forEach((author) => {
+        worksheet.addRow({
+          MaTG: author.MaTG,
+          TenTacGia: author.TenTacGia || 'N/A',
+          QuocTich: author.QuocTich || 'N/A',
+          TieuSu: author.TieuSu || 'N/A',
+        });
+      });
+
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename="DanhSachTacGia.xlsx"');
+
+      await workbook.xlsx.write(res);
+      res.end();
+
+      console.log(`exportAuthors: Đã xuất ${authors.length} tác giả`);
+    } catch (err) {
+      console.error('Lỗi trong exportAuthors:', err);
+      res.status(500).json({ message: 'Lỗi máy chủ: ' + err.message });
     }
   },
 };

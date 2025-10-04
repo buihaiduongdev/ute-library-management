@@ -1,4 +1,5 @@
 const prisma = require('../models/db');
+const ExcelJS = require('exceljs');
 
 const PublishersController = {
   async getPublishers(req, res) {
@@ -11,32 +12,34 @@ const PublishersController = {
         const isNumericSearch = !isNaN(searchTrimmed) && searchTrimmed !== '';
 
         where.OR = [
-          // Tìm kiếm theo tên nhà xuất bản
           { TenNXB: { contains: searchTrimmed } },
-          // Tìm kiếm theo địa chỉ
           { DiaChi: { contains: searchTrimmed } },
-          // Tìm kiếm theo số điện thoại
           { SoDienThoai: { contains: searchTrimmed } },
-          // Tìm kiếm theo email
           { Email: { contains: searchTrimmed } },
         ];
 
-        // Chỉ thêm điều kiện số nếu search là số hợp lệ
         if (isNumericSearch) {
           where.OR.push({ MaNXB: parseInt(searchTrimmed) });
         }
       }
 
-      // Đếm tổng số nhà xuất bản
       const total = await prisma.nhaXuatBan.count({ where });
 
-      // Lấy danh sách nhà xuất bản
       const publishers = await prisma.nhaXuatBan.findMany({
         where,
         take: parseInt(limit),
         skip: parseInt(offset),
         orderBy: { MaNXB: 'asc' },
+        include: {
+          Sach: { select: { MaSach: true } },
+        },
       });
+
+      const publishersWithHasBooks = publishers.map((publisher) => ({
+        ...publisher,
+        hasBooks: publisher.Sach.length > 0,
+        Sach: undefined,
+      }));
 
       console.log(`getPublishers: Fetched ${publishers.length} publishers`);
       if (publishers.length > 0) {
@@ -46,10 +49,11 @@ const PublishersController = {
           DiaChi: publishers[0].DiaChi || 'null',
           SoDienThoai: publishers[0].SoDienThoai || 'null',
           Email: publishers[0].Email || 'null',
+          hasBooks: publishersWithHasBooks[0].hasBooks,
         });
       }
 
-      res.json({ message: 'Success', data: publishers, total });
+      res.json({ message: 'Success', data: publishersWithHasBooks, total });
     } catch (err) {
       console.error('Error in getPublishers:', err);
       res.status(500).json({ message: err.message });
@@ -76,11 +80,9 @@ const PublishersController = {
   async createPublisher(req, res) {
     const { TenNXB, DiaChi, SoDienThoai, Email } = req.body;
     try {
-      // Xác thực
       if (!TenNXB?.trim()) throw new Error('Tên nhà xuất bản là bắt buộc');
 
       const publisher = await prisma.$transaction(async (tx) => {
-        // Tạo nhà xuất bản
         const newPublisher = await tx.nhaXuatBan.create({
           data: {
             TenNXB: TenNXB.trim(),
@@ -95,7 +97,6 @@ const PublishersController = {
         return newPublisher;
       });
 
-      // Lấy nhà xuất bản vừa tạo
       const createdPublisher = await prisma.nhaXuatBan.findUnique({
         where: { MaNXB: publisher.MaNXB },
       });
@@ -115,11 +116,9 @@ const PublishersController = {
     const { id } = req.params;
     const { TenNXB, DiaChi, SoDienThoai, Email } = req.body;
     try {
-      // Xác thực
       if (!TenNXB?.trim()) throw new Error('Tên nhà xuất bản là bắt buộc');
 
       const publisher = await prisma.$transaction(async (tx) => {
-        // Cập nhật nhà xuất bản
         const updatedPublisher = await tx.nhaXuatBan.update({
           where: { MaNXB: parseInt(id) },
           data: {
@@ -135,7 +134,6 @@ const PublishersController = {
         return updatedPublisher;
       });
 
-      // Lấy nhà xuất bản vừa cập nhật
       const updatedPublisher = await prisma.nhaXuatBan.findUnique({
         where: { MaNXB: publisher.MaNXB },
       });
@@ -154,9 +152,19 @@ const PublishersController = {
   async deletePublisher(req, res) {
     const { id } = req.params;
     try {
+      console.log(`deletePublisher: Attempting to delete publisher with MaNXB: ${id}`);
+      
       await prisma.$transaction(async (tx) => {
-        // Xóa các quan hệ liên quan
-        await tx.sach.deleteMany({ where: { MaNXB: parseInt(id) } });
+        // Kiểm tra xem nhà xuất bản có liên kết với sách nào không
+        const bookCount = await tx.sach.count({
+          where: { MaNXB: parseInt(id) },
+        });
+
+        console.log(`deletePublisher: Found ${bookCount} books linked to publisher MaNXB: ${id}`);
+
+        if (bookCount > 0) {
+          throw new Error('Không thể xóa nhà xuất bản vì vẫn còn sách liên quan');
+        }
 
         // Xóa nhà xuất bản
         const deletedPublisher = await tx.nhaXuatBan.delete({
@@ -171,6 +179,49 @@ const PublishersController = {
     } catch (err) {
       console.error('Lỗi trong deletePublisher:', err);
       res.status(400).json({ message: err.message });
+    }
+  },
+
+  async exportPublishers(req, res) {
+    try {
+      const publishers = await prisma.nhaXuatBan.findMany({
+        orderBy: { MaNXB: 'asc' },
+      });
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Danh Sách Nhà Xuất Bản');
+
+      worksheet.columns = [
+        { header: 'Mã Nhà Xuất Bản', key: 'MaNXB', width: 12 },
+        { header: 'Tên Nhà Xuất Bản', key: 'TenNXB', width: 30 },
+        { header: 'Số Điện Thoại', key: 'SoDienThoai', width: 20 },
+        { header: 'Địa Chỉ', key: 'DiaChi', width: 30 },
+        { header: 'Email', key: 'Email', width: 25 },
+      ];
+
+      publishers.forEach((publisher) => {
+        worksheet.addRow({
+          MaNXB: publisher.MaNXB,
+          TenNXB: publisher.TenNXB || 'N/A',
+          SoDienThoai: publisher.SoDienThoai || 'N/A',
+          DiaChi: publisher.DiaChi || 'N/A',
+          Email: publisher.Email || 'N/A',
+        });
+      });
+
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename="DanhSachNhaXuatBan.xlsx"');
+
+      await workbook.xlsx.write(res);
+      res.end();
+
+      console.log(`exportPublishers: Đã xuất ${publishers.length} nhà xuất bản`);
+    } catch (err) {
+      console.error('Lỗi trong exportPublishers:', err);
+      res.status(500).json({ message: 'Lỗi máy chủ: ' + err.message });
     }
   },
 };

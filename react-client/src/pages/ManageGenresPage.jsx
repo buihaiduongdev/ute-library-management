@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, TextInput, Button, Table, Modal, Group, Paper, Divider, Text, Pagination } from '@mantine/core';
+import { Container, Title, TextInput, Button, Table, Modal, Group, Paper, Divider, Text, Pagination, Box } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
-import { IconPencil, IconTrash } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconDownload } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 import { rem } from '@mantine/core';
 
@@ -11,6 +11,7 @@ function ManageGenresPage() {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
   const [page, setPage] = useState(1);
@@ -20,11 +21,11 @@ function ManageGenresPage() {
   const form = useForm({
     initialValues: {
       TenTheLoai: '',
-      MoTa: ''
+      MoTa: '',
     },
     validate: {
-      TenTheLoai: (value) => (value.trim() ? null : 'Tên thể loại là bắt buộc')
-    }
+      TenTheLoai: (value) => (value.trim() ? null : 'Tên thể loại là bắt buộc'),
+    },
   });
 
   useEffect(() => {
@@ -49,7 +50,7 @@ function ManageGenresPage() {
     try {
       const payload = {
         TenTheLoai: values.TenTheLoai.trim(),
-        MoTa: values.MoTa?.trim() || null
+        MoTa: values.MoTa?.trim() || null,
       };
       if (editId) {
         await put(`/genres/${editId}`, payload);
@@ -57,11 +58,10 @@ function ManageGenresPage() {
       } else {
         await authPost('/genres', payload);
         Notifications.show({ title: 'Thành công', message: 'Thêm thể loại thành công', color: 'green' });
-        // Lấy lại tổng số thể loại để tính trang cuối
         const response = await authGet(`/genres?search=${encodeURIComponent(search)}&limit=${limit}&offset=0`);
         const newTotal = Math.ceil(response.total / limit);
         setTotal(newTotal);
-        setPage(newTotal); // Chuyển đến trang cuối
+        setPage(newTotal);
       }
       fetchGenres();
       setModalOpen(false);
@@ -79,7 +79,7 @@ function ManageGenresPage() {
     setEditId(genre.MaTL);
     form.setValues({
       TenTheLoai: genre.TenTheLoai,
-      MoTa: genre.MoTa || ''
+      MoTa: genre.MoTa || '',
     });
     setModalOpen(true);
   };
@@ -91,7 +91,6 @@ function ManageGenresPage() {
       fetchGenres();
       setDeleteModalOpen(false);
       setDeleteId(null);
-      // Nếu trang hiện tại trống sau khi xóa, quay về trang trước
       if (genres.length === 1 && page > 1) {
         setPage(page - 1);
       }
@@ -103,10 +102,56 @@ function ManageGenresPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      console.log('handleExport: Sending request to /genres/export');
+      const response = await authGet('/genres/export', {
+        responseType: 'blob',
+      });
+
+      if (!(response instanceof Blob)) {
+        console.error('handleExport: Expected Blob, received:', typeof response);
+        throw new Error('Phản hồi không phải là file Excel');
+      }
+
+      console.log('handleExport: Received Blob, size:', response.size, 'type:', response.type);
+
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'DanhSachTheLoai.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      Notifications.show({
+        title: 'Thành công',
+        message: 'Xuất file Excel thành công',
+        color: 'green',
+      });
+    } catch (err) {
+      console.error('handleExport: Error:', err);
+      Notifications.show({
+        title: 'Lỗi',
+        message: err.message || 'Không thể xuất file Excel',
+        color: 'red',
+      });
+      if (err.message.includes('No authentication token')) {
+        window.location.href = '/login';
+      }
+    }
+    setExportModalOpen(false);
+  };
+
+  const handleOpenExportModal = () => {
+    setExportModalOpen(true);
+  };
+
   return (
     <Container size="lg" py="xl">
-      <Title order={2} c="cyan" ta="center" mb="lg">
-        Quản lý thể loại
+      <Title order={2} c="cyan" ta="center" mb="sm">
+        Quản Lý Thể Loại
       </Title>
       <Paper shadow="sm" p="md" radius="md" withBorder>
         <Group mb="lg" grow>
@@ -115,14 +160,46 @@ function ManageGenresPage() {
             value={search}
             onChange={(e) => {
               setSearch(e.currentTarget.value);
-              setPage(1); // Reset về trang 1 khi tìm kiếm
+              setPage(1);
             }}
             radius="md"
           />
-          <Button onClick={() => setModalOpen(true)} color="cyan" radius="md">
-            Thêm thể loại
-          </Button>
+          <Group>
+            <Button
+              onClick={() => {
+                setEditId(null);
+                form.reset();
+                setModalOpen(true);
+              }}
+              color="cyan"
+              radius="md"
+            >
+              Thêm thể loại
+            </Button>
+            <Button
+              onClick={handleOpenExportModal}
+              color="green"
+              radius="md"
+              leftSection={<IconDownload size={20} />}
+            >
+              Xuất file
+            </Button>
+          </Group>
         </Group>
+        <Paper p="sm" radius="md" withBorder mb="md">
+          <Group gap="xs" align="center">
+            <Box w={20} h={20} bg="#fff9db" style={{ border: '1px solid #ddd' }} />
+            <Text size="sm" ta="left">
+              Thể loại không còn liên kết với bất kỳ sách nào, người dùng có thể xóa thể loại này.
+            </Text>
+          </Group>
+          <Group gap="xs" align="center" mt="xs">
+            <Box w={20} h={20} bg="white" style={{ border: '1px solid #ddd' }} />
+            <Text size="sm" ta="left">
+              Thể loại đang liên kết với sách, người dùng không thể xóa thể loại này.
+            </Text>
+          </Group>
+        </Paper>
         <Divider my="sm" />
         <Table highlightOnHover verticalAlign="center">
           <thead>
@@ -135,10 +212,12 @@ function ManageGenresPage() {
           </thead>
           <tbody>
             {genres.map((genre) => (
-              <tr key={genre.MaTL}>
+              <tr key={genre.MaTL} style={{ backgroundColor: genre.hasBooks ? 'white' : '#fff9db' }}>
                 <td>{genre.MaTL}</td>
                 <td>{genre.TenTheLoai}</td>
-                <td><Text size="sm">{genre.MoTa || '-'}</Text></td>
+                <td>
+                  <Text size="sm">{genre.MoTa || '-'}</Text>
+                </td>
                 <td>
                   <Group gap="xs" justify="center">
                     <Button
@@ -170,6 +249,11 @@ function ManageGenresPage() {
             ))}
           </tbody>
         </Table>
+        {genres.length === 0 && (
+          <Text ta="center" c="dimmed" mt="lg">
+            Không tìm thấy thể loại nào.
+          </Text>
+        )}
         {total > 1 && (
           <Group justify="center" mt="md">
             <Pagination total={total} value={page} onChange={setPage} color="cyan" radius="md" />
@@ -182,7 +266,7 @@ function ManageGenresPage() {
             form.reset();
             setEditId(null);
           }}
-          title={editId ? 'Sửa' : 'Thêm'}
+          title={editId ? 'Sửa thể loại' : 'Thêm thể loại'}
           size="md"
           radius="md"
         >
@@ -202,7 +286,6 @@ function ManageGenresPage() {
               radius="md"
             />
             <Group justify="flex-end" mt="lg">
-              
               <Button type="submit" color="cyan" radius="md">
                 {editId ? 'Cập nhật' : 'Thêm'}
               </Button>
@@ -229,11 +312,27 @@ function ManageGenresPage() {
         >
           <Text>Bạn có chắc chắn muốn xóa thể loại này?</Text>
           <Group justify="flex-end" mt="md">
-            
             <Button color="red" onClick={handleDelete} radius="md">
               Xóa
             </Button>
             <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
+              Hủy
+            </Button>
+          </Group>
+        </Modal>
+        <Modal
+          opened={exportModalOpen}
+          onClose={() => setExportModalOpen(false)}
+          title="Xác nhận xuất file"
+          size="sm"
+          radius="md"
+        >
+          <Text>Bạn có muốn xác nhận xuất file danh sách thể loại?</Text>
+          <Group justify="flex-end" mt="md">
+            <Button color="green" onClick={handleExport} radius="md">
+              Xuất file
+            </Button>
+            <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md">
               Hủy
             </Button>
           </Group>

@@ -10,6 +10,7 @@ function ManageBooksPage() {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false); // Thêm trạng thái cho modal xuất file
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
   const [genres, setGenres] = useState([]);
@@ -213,25 +214,25 @@ function ManageBooksPage() {
       const response = await authGet('/books/export', {
         responseType: 'blob',
       });
-  
+
       // Kiểm tra response là Blob
       if (!(response instanceof Blob)) {
         console.error('handleExport: Expected Blob, received:', typeof response);
         throw new Error('Phản hồi không phải là file Excel');
       }
-  
+
       console.log('handleExport: Received Blob, size:', response.size, 'type:', response.type);
-  
+
       // Tạo URL từ Blob
       const url = window.URL.createObjectURL(response);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'DanhSachSach.xlsx'); // Tên file mặc định, người dùng có thể đổi trong Save As
+      link.setAttribute('download', 'DanhSachSach.xlsx');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-  
+
       Notifications.show({
         title: 'Thành công',
         message: 'Xuất file Excel thành công',
@@ -248,6 +249,11 @@ function ManageBooksPage() {
         window.location.href = '/login';
       }
     }
+    setExportModalOpen(false); // Đóng modal sau khi xuất file
+  };
+
+  const handleOpenExportModal = () => {
+    setExportModalOpen(true); // Mở modal xác nhận xuất file
   };
 
   return (
@@ -280,7 +286,7 @@ function ManageBooksPage() {
             Thêm Sách
           </Button>
           <Button
-            onClick={handleExport}
+            onClick={handleOpenExportModal} // Sửa đổi để mở modal xác nhận
             color="green"
             radius="md"
             size="md"
@@ -493,6 +499,24 @@ function ManageBooksPage() {
             Xóa
           </Button>
           <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
+            Hủy
+          </Button>
+        </Group>
+      </Modal>
+
+      <Modal
+        opened={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        title="Xác nhận xuất file"
+        size="sm"
+        radius="md"
+      >
+        <Text>Bạn có muốn xác nhận xuất file danh sách sách?</Text>
+        <Group justify="flex-end" mt="md">
+          <Button color="green" onClick={handleExport} radius="md">
+            Xuất file
+          </Button>
+          <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md">
             Hủy
           </Button>
         </Group>
