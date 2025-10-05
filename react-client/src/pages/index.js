@@ -10,3 +10,4 @@ export { default as ManageBooksPage } from './ManageBooksPage';
 export { default as ManageAuthorsPage } from './ManageAuthorsPage';
 export { default as ManageGenresPage } from './ManageGenresPage';
 export { default as ManagePublishersPage } from './ManagePublishersPage';
+export { default as BookDetailPage} from './BookDetailPage'

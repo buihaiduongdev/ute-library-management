@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Card, 
   Image, 
@@ -12,13 +13,9 @@ import {
   Badge,
   Button 
 } from '@mantine/core';
-import { 
-  IconBook, 
-  IconTrendingUp, 
-  IconSparkles 
-} from '@tabler/icons-react'; // Thêm icons từ Tabler
+
+import HeroSection from '../components/HeroSecition';
 import { Carousel } from '@mantine/carousel';
-import Autoplay from 'embla-carousel-autoplay';
 import { authGet } from '../utils/api';
 import '../assets/css/HomePage.css';
 
@@ -30,23 +27,33 @@ const BookCard = ({ book }) => {
   
   return (
     <Card
+      component={Link}
+      to={`/book-detail/${book.MaSach}`}  
       shadow="none"
       radius="lg"
       withBorder={false}
       className="book-card"
-      style={{ cursor: 'pointer' }}
+      style={{
+        cursor: 'pointer',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between', // đẩy button xuống dưới
+        height: 420, // cố định chiều cao card
+      }}
+
     >
       <Card.Section>
         <Image
-          src={book.AnhBia || 'https://via.placeholder.com/200x280?text=No+Cover'}
+          src={'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
           height={260}
           fit="cover"
           alt={book.TieuDe}
-          styles={{ root: { position: 'relative' } }}
+          styles={{ root: { position: 'relative' } }
+        }
         />
       </Card.Section>
 
-      <Text fw={700} size="lg" mt="md" lineClamp={2} c={theme.black}>
+      <Text fw={700} size="lg" mt="md" lineClamp={1} c={theme.black}>
         {book.TieuDe}
       </Text>
 
@@ -64,10 +71,11 @@ const BookCard = ({ book }) => {
     <Button
       fullWidth
       mt="md"
-      color="blue"
-      onClick={() => handleBorrow(book.MaSach)}
+      color="#34699A"
+      component={Link}
+      to={`/book-detail/${book.MaSach}`}      
     >
-      Mượn ngay
+      Xem chi tiết
     </Button>
     </Card>
   );
@@ -77,6 +85,8 @@ const BookCardFirst = ({ book }) => {
 
   return (
     <Card
+      component={Link}
+      to={`/book-detail/${book.MaSach}`}  
       shadow="none"
       radius="lg"
       withBorder={false}
@@ -85,7 +95,7 @@ const BookCardFirst = ({ book }) => {
     >
       <Card.Section>
         <Image
-          src={book.AnhBia || 'https://via.placeholder.com/200x280?text=No+Cover'}
+          src={'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
           height={300}
           fit="cover"
           alt={book.TieuDe}
@@ -166,30 +176,27 @@ const HomePage = () => {
 
   return (
     <Box className="homepage-container">
-
-
+    <HeroSection onExplore={() => console.log('Đi tới phần khám phá')} />
     {recommendedBooks.length > 0 && (
-      <Paper className="carousel-section" p="xl" radius="lg" mb="3rem" withBorder={false}>
-        <Title order={2} ta="center" c={theme.colors.orange[6]} mb="lg">
-          <IconBook size={32} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+      <Paper py="xl" px='5rem' withBorder={false}>
+        <Title order={2} c="#34699A" mb="lg">
           SÁCH GỢI Ý CHO BẠN
         </Title>
-        <Text ta="center" size="sm" c="dimmed" mb="lg">
-          Dựa trên sở thích của bạn
-        </Text>
         <Carousel
           withIndicators
-          height={350}
+          height={400}
+          px='lg'
           slideSize={{ base: '100%', sm: '50%', md: '33.333333%' }}
           slideGap={{ base: 0, sm: 'md' }}
           emblaOptions={{ loop: true, align: 'start' }}
         >
               {recommendedBooks.map(book => (
-               <Carousel.Slide
+               <Carousel.Slide key={book.MaSach}
                mt='md'
                h='100%'
+               p='xl'
                 >
-                  <BookCardFirst key={book.MaSach} book={book} />
+                  <BookCardFirst  book={book} />
                 </Carousel.Slide>
               ))}
         </Carousel>
@@ -198,14 +205,10 @@ const HomePage = () => {
 
       {/* --- Sách Xu Hướng --- */}
       {trendingBooks.length > 0 && (
-        <Paper className="trending-section" p="xl" radius="lg" mb="3rem" withBorder={false}>
-          <Title order={2} ta="center" mb="lg" c={theme.colors.orange[6]} style={{ fontWeight: 800 }}>
-            <IconTrendingUp size={32} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+        <Paper className="trending-section" style={{ backgroundColor: '#A3CCDA'}} py="xl" px='5rem' withBorder={false}>
+          <Title order={2} mb="lg" c="#34699A" style={{ fontWeight: 800 }}>
             SÁCH XU HƯỚNG
           </Title>
-          <Text ta="center" size="sm" c="dimmed" mb="lg">
-            Những cuốn sách đang hot nhất
-          </Text>
           <div className="book-grid">
             {trendingBooks.map(book => <BookCard key={book.MaSach} book={book} />)}
           </div>
@@ -214,14 +217,10 @@ const HomePage = () => {
 
       {/* --- Khám Phá Sách Mới --- */}
       {newArrivals.length > 0 && (
-        <Paper className="new-section" p="xl" radius="lg" withBorder={false}>
-          <Title order={2} ta="center" mb="lg" c={theme.colors.green[6]} style={{ fontWeight: 800 }}>
-            <IconSparkles size={32} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+        <Paper className="new-section" py="xl" px='5rem' withBorder={false}>
+          <Title order={2} mb="lg" c="#34699A" style={{ fontWeight: 800 }}>
             KHÁM PHÁ SÁCH MỚI
           </Title>
-          <Text ta="center" size="sm" c="dimmed" mb="lg">
-            Các tựa sách mới ra mắt
-          </Text>
           <div className="book-grid">
             {newArrivals.map(book => <BookCard key={book.MaSach} book={book} />)}
           </div>
