@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Table, Button, Title, Group, Modal, TextInput, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
+import { IconSearch } from '@tabler/icons-react';
 import { getAllReaders, createReader, updateReader, deleteReader } from '../utils/api';
 import { notifications } from '@mantine/notifications';
 
@@ -12,6 +13,7 @@ function ReaderPage() {
     const [error, setError] = useState(null);
     const [editingReader, setEditingReader] = useState(null); // null = create, object = edit
     const [readerToDelete, setReaderToDelete] = useState(null);
+    const [searchTerm, setSearchTerm] = useState(''); // State cho từ khóa tìm kiếm
 
     // Form quản lý dữ liệu độc giả
     const form = useForm({
@@ -53,6 +55,17 @@ function ReaderPage() {
     useEffect(() => {
         fetchReaders();
     }, []);
+
+    // Hàm filter độc giả dựa trên từ khóa tìm kiếm
+    const filteredReaders = readers.filter(reader => {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+            reader.MaDG?.toLowerCase().includes(searchLower) ||
+            reader.HoTen?.toLowerCase().includes(searchLower) ||
+            reader.Email?.toLowerCase().includes(searchLower) ||
+            reader.SoDienThoai?.includes(searchTerm)
+        );
+    });
 
     // Hàm để reset modal về trạng thái tạo mới
     const resetToCreateMode = () => {
@@ -148,7 +161,7 @@ function ReaderPage() {
     };
 
     // Hiển thị các hàng của bảng
-    const rows = readers.map((reader) => (
+    const rows = filteredReaders.map((reader) => (
         <Table.Tr key={reader.IdDG}>
             <Table.Td>{reader.MaDG}</Table.Td>
             <Table.Td>{reader.HoTen}</Table.Td>
@@ -223,6 +236,23 @@ function ReaderPage() {
                 <Title order={2}>Quản lý Độc giả</Title>
                 <Button onClick={handleCreateNew}>Thêm Độc giả</Button>
             </Group>
+
+            {/* Thanh tìm kiếm */}
+            <TextInput
+                placeholder="Tìm kiếm theo mã độc giả, họ tên, email hoặc số điện thoại..."
+                leftSection={<IconSearch size={16} />}
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.currentTarget.value)}
+                mb="md"
+                size="md"
+            />
+
+            {/* Hiển thị số lượng kết quả */}
+            {searchTerm && (
+                <Text size="sm" c="dimmed" mb="sm">
+                    Tìm thấy {filteredReaders.length} độc giả phù hợp với "{searchTerm}"
+                </Text>
+            )}
             
             <Table striped highlightOnHover withTableBorder withColumnBorders>
                 <Table.Thead>

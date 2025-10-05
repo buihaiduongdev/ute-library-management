@@ -96,8 +96,9 @@ function App() {
               </ProtectedRoute>
             }
           />
-      {/* 🎴 Card Management - Only Admin & Staff */}
-      <Route 
+          
+          {/* 🎴 Card Management - Only Admin & Staff */}
+          <Route 
             path="/card-management" 
             element={
               <ProtectedRoute allowedRoles={['0', '1']}>
@@ -105,6 +106,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
         </Route>
       </Routes>
     </BrowserRouter>
