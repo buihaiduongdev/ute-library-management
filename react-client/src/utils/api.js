@@ -2,9 +2,21 @@
 const API_URL = '/api';
 
 const handleResponse = async (response) => {
-    const data = await response.json();
+    let data;
+    try {
+        data = await response.json();
+    } catch (error) {
+        // If response is not JSON, create a generic error
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
     if (!response.ok) {
-        throw new Error(data.message || 'API request failed.');
+        console.error('❌ API Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            data: data
+        });
+        throw new Error(data.message || data.error || `Lỗi hệ thống (${response.status})`);
     }
     return data;
 };
@@ -46,6 +58,11 @@ export const updateReader = (id, readerData) => put(`${API_URL}/readers/${id}`, 
 export const deleteReader = (id) => del(`${API_URL}/readers/${id}`);
 
 // 🎴 Card Management APIs
-export const getReaderCardInfo = (id) => get(`${API_URL}/readers/${id}/card-info`);
+export const getReaderCardInfo = (id) => {
+    console.log('🎴 getReaderCardInfo called with id:', id, 'type:', typeof id);
+    const url = `${API_URL}/readers/${id}/card-info`;
+    console.log('🔗 Requesting URL:', url);
+    return get(url);
+};
 export const renewReaderCard = (id, renewData) => put(`${API_URL}/readers/${id}/renew`, renewData);
 export const deactivateReaderCard = (id) => put(`${API_URL}/readers/${id}/deactivate`);

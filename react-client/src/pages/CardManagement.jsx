@@ -105,12 +105,16 @@ function CardManagement() {
 
   // Show card info modal
   const handleViewCard = async (reader) => {
+    console.log('🎴 handleViewCard called with reader:', reader);
+    console.log('🔍 reader.IdDG:', reader.IdDG, 'type:', typeof reader.IdDG);
+    
     setSelectedReader(reader);
     try {
       const cardData = await getReaderCardInfo(reader.IdDG);
       setCardInfo(cardData);
       setCardInfoModalOpened(true);
     } catch (error) {
+      console.error('❌ Error in handleViewCard:', error);
       notifications.show({
         title: 'Lỗi',
         message: 'Không thể tải thông tin thẻ!',
@@ -164,6 +168,13 @@ function CardManagement() {
     }
   };
 
+  // Helper function to check if reader has active borrows
+  const hasActiveBorrows = (reader) => {
+    // This would need to be fetched from the API or stored in state
+    // For now, we'll assume we don't have this info and let the backend handle it
+    return false; // Placeholder - backend will validate
+  };
+
   // Get card status badge
   const getCardStatusBadge = (reader) => {
     const today = new Date();
@@ -211,7 +222,7 @@ function CardManagement() {
           
           {reader.TrangThai !== 'TamKhoa' && (
             <>
-              <Tooltip label="Gia hạn thẻ">
+              <Tooltip label="Gia hạn thẻ (kiểm tra sách đang mượn)">
                 <ActionIcon 
                   variant="outline" 
                   color="blue"
@@ -382,6 +393,13 @@ function CardManagement() {
               <Text size="sm">
                 <strong>{selectedReader.HoTen}</strong> ({selectedReader.MaDG})<br />
                 Thẻ hiện tại hết hạn: {new Date(selectedReader.NgayHetHan).toLocaleDateString()}
+              </Text>
+            </Alert>
+
+            <Alert color="yellow" title="Lưu Ý Quan Trọng">
+              <Text size="sm">
+                ⚠️ Hệ thống sẽ kiểm tra xem độc giả có đang mượn sách không trước khi gia hạn.<br />
+                Nếu đang mượn sách, vui lòng trả sách trước khi gia hạn thẻ.
               </Text>
             </Alert>
 

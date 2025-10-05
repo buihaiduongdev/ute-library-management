@@ -16,7 +16,7 @@ function ReaderPage() {
     // Form quản lý dữ liệu độc giả
     const form = useForm({
         initialValues: {
-            MaTK: '',
+            MaTK: '', // Optional - sẽ tự động tạo nếu để trống
             MaDG: '',
             HoTen: '',
             Email: '',
@@ -28,7 +28,7 @@ function ReaderPage() {
             TrangThai: true,
         },
         validate: {
-            MaTK: (value) => (value ? null : 'Mã tài khoản không được để trống'),
+            MaTK: (value) => null, // Không bắt buộc
             MaDG: (value) => (value ? null : 'Mã độc giả không được để trống'),
             HoTen: (value) => (value ? null : 'Họ tên không được để trống'),
             Email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Email không hợp lệ'),
@@ -88,9 +88,12 @@ function ReaderPage() {
     // Hàm xử lý khi submit form (tạo mới hoặc cập nhật)
     const handleSubmit = async (values) => {
         try {
+            console.log('📝 Form values:', values);
+            
             if (editingReader) {
                 // Cập nhật độc giả - không gửi MaTK vì nó là foreign key
                 const { MaTK, ...updateData } = values;
+                console.log('🔄 Update data:', updateData);
                 await updateReader(editingReader.IdDG, updateData);
                 notifications.show({
                     title: 'Thành công',
@@ -99,6 +102,8 @@ function ReaderPage() {
                 });
             } else {
                 // Tạo độc giả mới
+                console.log('➕ Create reader data:', values);
+                console.log('🔍 NgaySinh in form:', values.NgaySinh, 'type:', typeof values.NgaySinh);
                 await createReader(values);
                 notifications.show({
                     title: 'Thành công',
@@ -180,9 +185,10 @@ function ReaderPage() {
                     <Stack>
                         {error && <Text c="red" size="sm">{error}</Text>}
                         <TextInput label="Mã Độc Giả" placeholder="DG001" {...form.getInputProps('MaDG')} required />
-                        <TextInput label="Mã Tài Khoản" placeholder="Nhập mã tài khoản liên kết" {...form.getInputProps('MaTK')} required />
+                        <TextInput label="Mã Tài Khoản (Tùy chọn)" placeholder="Để trống để tự động tạo tài khoản mới" {...form.getInputProps('MaTK')} />
                         <TextInput label="Họ Tên" placeholder="Nguyễn Văn A" {...form.getInputProps('HoTen')} required />
                         <TextInput label="Email" placeholder="example@mail.com" {...form.getInputProps('Email')} required />
+                        <TextInput label="Ngày Sinh" type="date" {...form.getInputProps('NgaySinh')} />
                         <TextInput label="Địa chỉ" placeholder="123 Đường ABC" {...form.getInputProps('DiaChi')} />
                         <TextInput label="Số Điện Thoại" placeholder="09xxxxxxx" {...form.getInputProps('SoDienThoai')} />
                         <Group justify="flex-end" mt="md">
