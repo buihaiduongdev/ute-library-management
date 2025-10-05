@@ -624,6 +624,249 @@ class BorrowController {
   async payFine(req, res) {
     res.status(200).json({ message: "Thanh toán phạt - chưa implement" });
   }
+
+  // [POST] /api/borrow/extend - Gia hạn sách
+  async extendBook(req, res) {
+    const { maPM, maCuonSach } = req.body;
+    const isReader = req.user.role === 2; // Độc giả
+    const userTKId = req.user.id; // MaTK từ token
+
+    if (!maPM || !maCuonSach) {
+      return res.status(400).json({
+        message: 'Vui lòng cung cấp mã phiếu mượn và mã cuốn sách'
+      });
+    }
+
+    try {
+      // 1. Lấy cấu hình gia hạn
+      const cauHinhGiaHan = await prisma.cauHinhHeThong.findMany({
+        where: { Nhom: 'GiaHan' }
+      });
+
+      const maxLanGiaHan = parseInt(
+        cauHinhGiaHan.find(c => c.TenThamSo === 'MaxLanGiaHan')?.GiaTri || '2'
+      );
+      const soNgayGiaHanMoiLan = parseInt(
+        cauHinhGiaHan.find(c => c.TenThamSo === 'SoNgayGiaHanMoiLan')?.GiaTri || '7'
+      );
+      const phiGiaHan = parseFloat(
+        cauHinhGiaHan.find(c => c.TenThamSo === 'PhiGiaHan')?.GiaTri || '0'
+      );
+
+      // 2. Kiểm tra chi tiết mượn
+      const chiTietMuon = await prisma.chiTietMuon.findUnique({
+        where: {
+          MaPM_MaCuonSach: {
+            MaPM: parseInt(maPM),
+            MaCuonSach: parseInt(maCuonSach)
+          }
+        },
+        include: {
+          PhieuMuon: {
+            include: {
+              DocGia: {
+                include: { TaiKhoan: true }
+              }
+            }
+          },
+          CuonSach: {
+            include: { Sach: true }
+          }
+        }
+      });
+
+      if (!chiTietMuon) {
+        return res.status(404).json({ message: 'Không tìm thấy thông tin mượn sách' });
+      }
+
+      if (chiTietMuon.TrangThai !== 'DangMuon') {
+        return res.status(400).json({
+          message: `Không thể gia hạn. Trạng thái hiện tại: ${chiTietMuon.TrangThai}`
+        });
+      }
+
+      // 3. Nếu là độc giả, kiểm tra quyền sở hữu
+      if (isReader && chiTietMuon.PhieuMuon.DocGia.MaTK !== userTKId) {
+        return res.status(403).json({
+          message: 'Bạn không có quyền gia hạn sách này'
+        });
+      }
+
+      // 4. Kiểm tra số lần gia hạn
+      if (chiTietMuon.SoLanGiaHan >= maxLanGiaHan) {
+        return res.status(400).json({
+          message: `Đã đạt giới hạn gia hạn tối đa (${maxLanGiaHan} lần)`
+        });
+      }
+
+      // 5. Kiểm tra trạng thái độc giả
+      if (chiTietMuon.PhieuMuon.DocGia.TrangThai !== 'ConHan') {
+        return res.status(403).json({
+          message: `Không thể gia hạn. Trạng thái tài khoản: ${chiTietMuon.PhieuMuon.DocGia.TrangThai}`
+        });
+      }
+
+      // 6. Kiểm tra có phạt chưa thanh toán không
+      const unpaidFines = await prisma.thePhat.findMany({
+        where: {
+          TraSach: {
+            MaPM: chiTietMuon.MaPM
+          },
+          TrangThaiThanhToan: 'ChuaThanhToan'
+        }
+      });
+
+      if (unpaidFines.length > 0) {
+        return res.status(400).json({
+          message: 'Không thể gia hạn khi còn phí phạt chưa thanh toán'
+        });
+      }
+
+      // 7. Gia hạn trong transaction
+      const result = await prisma.$transaction(async (tx) => {
+        // Tính ngày hẹn trả mới
+        const ngayHenTraCu = new Date(chiTietMuon.NgayHenTra);
+        const ngayHenTraMoi = new Date(ngayHenTraCu);
+        ngayHenTraMoi.setDate(ngayHenTraCu.getDate() + soNgayGiaHanMoiLan);
+
+        // Cập nhật chi tiết mượn
+        const updatedChiTiet = await tx.chiTietMuon.update({
+          where: {
+            MaPM_MaCuonSach: {
+              MaPM: parseInt(maPM),
+              MaCuonSach: parseInt(maCuonSach)
+            }
+          },
+          data: {
+            NgayHenTra: ngayHenTraMoi,
+            SoLanGiaHan: chiTietMuon.SoLanGiaHan + 1
+          }
+        });
+
+        return {
+          ...updatedChiTiet,
+          NgayHenTraCu: ngayHenTraCu,
+          NgayHenTraMoi: ngayHenTraMoi,
+          PhiGiaHan: phiGiaHan
+        };
+      });
+
+      res.status(200).json({
+        message: 'Gia hạn sách thành công',
+        data: {
+          MaPM: parseInt(maPM),
+          MaCuonSach: parseInt(maCuonSach),
+          TenSach: chiTietMuon.CuonSach.Sach.TieuDe,
+          NgayHenTraCu: result.NgayHenTraCu,
+          NgayHenTraMoi: result.NgayHenTraMoi,
+          SoLanGiaHan: result.SoLanGiaHan,
+          PhiGiaHan: result.PhiGiaHan,
+          SoNgayGiaHan: soNgayGiaHanMoiLan
+        }
+      });
+
+    } catch (error) {
+      console.error('Error extending book:', error);
+      res.status(500).json({
+        message: 'Lỗi khi gia hạn sách',
+        error: error.message
+      });
+    }
+  }
+
+  // [GET] /api/borrow/extendable - Lấy danh sách sách có thể gia hạn của độc giả
+  async getExtendableBooks(req, res) {
+    try {
+      const userTKId = req.user.id; // MaTK từ token
+      const isReader = req.user.role === 2;
+
+      if (!isReader) {
+        return res.status(403).json({ message: 'Chỉ độc giả mới có thể xem danh sách gia hạn' });
+      }
+
+      // Tìm độc giả theo MaTK
+      const docGia = await prisma.docGia.findUnique({
+        where: { MaTK: parseInt(userTKId) }
+      });
+
+      if (!docGia) {
+        return res.status(404).json({ message: 'Không tìm thấy thông tin độc giả' });
+      }
+
+      // Lấy cấu hình
+      const maxLanGiaHanConfig = await prisma.cauHinhHeThong.findFirst({
+        where: { Nhom: 'GiaHan', TenThamSo: 'MaxLanGiaHan' }
+      });
+      const maxLanGiaHan = parseInt(maxLanGiaHanConfig?.GiaTri || '2');
+
+      // Lấy danh sách sách đang mượn và có thể gia hạn
+      const extendableBooks = await prisma.chiTietMuon.findMany({
+        where: {
+          PhieuMuon: {
+            IdDG: docGia.IdDG
+          },
+          TrangThai: 'DangMuon',
+          SoLanGiaHan: {
+            lt: maxLanGiaHan
+          }
+        },
+        include: {
+          PhieuMuon: {
+            select: { MaPM: true }
+          },
+          CuonSach: {
+            include: {
+              Sach: {
+                select: {
+                  TieuDe: true,
+                  MaSach: true,
+                  AnhBia: true,
+                  Sach_TacGia: {
+                    include: { TacGia: true }
+                  }
+                }
+              }
+            }
+          }
+        },
+        orderBy: { NgayHenTra: 'asc' }
+      });
+
+      // Tính ngày còn lại cho mỗi cuốn
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const booksWithDaysLeft = extendableBooks.map(book => {
+        const dueDate = new Date(book.NgayHenTra);
+        dueDate.setHours(0, 0, 0, 0);
+        const daysLeft = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+        
+        return {
+          ...book,
+          DaysLeft: daysLeft,
+          IsOverdue: daysLeft < 0,
+          CanExtend: book.SoLanGiaHan < maxLanGiaHan
+        };
+      });
+
+      res.status(200).json({
+        message: 'Lấy danh sách sách có thể gia hạn thành công',
+        data: booksWithDaysLeft,
+        summary: {
+          total: booksWithDaysLeft.length,
+          overdue: booksWithDaysLeft.filter(b => b.IsOverdue).length,
+          maxExtensions: maxLanGiaHan
+        }
+      });
+
+    } catch (error) {
+      console.error('Error getting extendable books:', error);
+      res.status(500).json({
+        message: 'Lỗi khi lấy danh sách sách gia hạn',
+        error: error.message
+      });
+    }
+  }
 }
 
 module.exports = new BorrowController();
