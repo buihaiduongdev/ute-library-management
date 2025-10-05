@@ -1,9 +1,12 @@
 // src/modals/DetailModal.jsx
-import React from "react";
-import { Modal, Stack, Group, Text, Table, Badge, Paper, Divider, Avatar, Box } from "@mantine/core";
-import { IconInfoCircle, IconUser, IconCalendar, IconBooks, IconBook, IconClock, IconChartBar } from "@tabler/icons-react";
+import React, { useState } from "react";
+import { Modal, Stack, Group, Text, Table, Badge, Paper, Divider, Avatar, Box, Button, ActionIcon } from "@mantine/core";
+import { IconInfoCircle, IconUser, IconCalendar, IconBooks, IconBook, IconClock, IconChartBar, IconRefresh, IconAlertCircle } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
 
-function DetailModal({ opened, onClose, phieuMuon }) {
+function DetailModal({ opened, onClose, phieuMuon, onRefresh }) {
+  const [extendingId, setExtendingId] = useState(null);
+
   const getStatusBadge = (status) => {
     const statusMap = {
       DangMuon: { color: "blue", label: "Đang Mượn" },
@@ -12,6 +15,50 @@ function DetailModal({ opened, onClose, phieuMuon }) {
     };
     const s = statusMap[status] || { color: "gray", label: status };
     return <Badge color={s.color}>{s.label}</Badge>;
+  };
+
+  const handleExtend = async (chiTiet) => {
+    const extendKey = `${chiTiet.MaPM}_${chiTiet.MaCuonSach}`;
+    setExtendingId(extendKey);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/borrow/extend', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          maPM: chiTiet.MaPM,
+          maCuonSach: chiTiet.MaCuonSach,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        notifications.show({
+          title: 'Thành công',
+          message: `Gia hạn thành công đến ${new Date(
+            data.data.ngayHenTraMoi
+          ).toLocaleDateString('vi-VN')}`,
+          color: 'green',
+          icon: <IconRefresh size={18} />,
+        });
+        if (onRefresh) onRefresh();
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      notifications.show({
+        title: 'Lỗi',
+        message: error.message || 'Không thể gia hạn sách',
+        color: 'red',
+        icon: <IconAlertCircle size={18} />,
+      });
+    } finally {
+      setExtendingId(null);
+    }
   };
 
   return (
@@ -95,9 +142,18 @@ function DetailModal({ opened, onClose, phieuMuon }) {
                   </Table.Th>
                   <Table.Th style={{ textAlign: "center", fontWeight: 700 }}>
                     <Group gap="xs" justify="center">
+                      <IconRefresh size={16} />
+                      <Text span>Số Lần GH</Text>
+                    </Group>
+                  </Table.Th>
+                  <Table.Th style={{ textAlign: "center", fontWeight: 700 }}>
+                    <Group gap="xs" justify="center">
                       <IconChartBar size={16} />
                       <Text span>Trạng Thái</Text>
                     </Group>
+                  </Table.Th>
+                  <Table.Th style={{ textAlign: "center", fontWeight: 700, width: 120 }}>
+                    <Text span>Thao Tác</Text>
                   </Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -119,7 +175,30 @@ function DetailModal({ opened, onClose, phieuMuon }) {
                       </Badge>
                     </Table.Td>
                     <Table.Td style={{ textAlign: "center" }}>
+                      <Badge variant="filled" color="grape" size="lg">
+                        {ct.SoLanGiaHan || 0}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td style={{ textAlign: "center" }}>
                       {getStatusBadge(ct.TrangThai)}
+                    </Table.Td>
+                    <Table.Td style={{ textAlign: "center" }}>
+                      {ct.TrangThai === 'DangMuon' && (
+                        <Button
+                          size="xs"
+                          variant="light"
+                          color="blue"
+                          leftSection={<IconRefresh size={14} />}
+                          onClick={() => handleExtend(ct)}
+                          loading={extendingId === `${ct.MaPM}_${ct.MaCuonSach}`}
+                          disabled={extendingId === `${ct.MaPM}_${ct.MaCuonSach}`}
+                        >
+                          Gia Hạn
+                        </Button>
+                      )}
+                      {ct.TrangThai !== 'DangMuon' && (
+                        <Text size="sm" c="dimmed">-</Text>
+                      )}
                     </Table.Td>
                   </Table.Tr>
                 ))}

@@ -23,6 +23,9 @@ import {
   IconBookmark,
   IconCircleCheck,
   IconAlertCircle,
+  IconMailOpened,
+  IconCheck,
+  IconX,
 } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 
@@ -30,6 +33,7 @@ import { notifications } from "@mantine/notifications";
 import AvailableBooksCards from "../components/AvailableBooksCards";
 import BorrowListTable from "../components/BorrowListTable";
 import CustomPagination from "../components/CustomPagination";
+import RequestsTable from "../components/RequestsTable";
 
 // Modal
 import BorrowModal from "../modals/BorrowModal";
@@ -61,6 +65,16 @@ function BorrowBooks() {
     totalPages: 1,
   });
 
+  // Tab 3: yêu cầu mượn (mới)
+  const [yeuCauList, setYeuCauList] = useState([]);
+  const [requestStatusFilter, setRequestStatusFilter] = useState("ChoXuLy");
+  const [requestsPagination, setRequestsPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+
   // Modal state
   const [borrowModalOpened, setBorrowModalOpened] = useState(false);
   const [returnModalOpened, setReturnModalOpened] = useState(false);
@@ -70,10 +84,12 @@ function BorrowBooks() {
   useEffect(() => {
     if (activeTab === "books") {
       fetchAvailableBooks();
-    } else {
+    } else if (activeTab === "borrows") {
       fetchBorrows();
+    } else if (activeTab === "requests") {
+      fetchRequests();
     }
-  }, [activeTab, booksPagination.page, borrowsPagination.page, statusFilter]);
+  }, [activeTab, booksPagination.page, borrowsPagination.page, requestsPagination.page, statusFilter, requestStatusFilter]);
 
   // Fetch danh sách sách có thể mượn
   const fetchAvailableBooks = async () => {
@@ -126,6 +142,37 @@ function BorrowBooks() {
       notifications.show({
         title: "Lỗi",
         message: "Không thể tải danh sách phiếu mượn",
+        color: "red",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch danh sách yêu cầu mượn
+  const fetchRequests = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      let url = `/api/requests?page=${requestsPagination.page}&limit=${requestsPagination.limit}`;
+      if (requestStatusFilter !== "All") url += `&trangThai=${requestStatusFilter}`;
+      
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setYeuCauList(data.data || []);
+        setRequestsPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+          totalPages: data.pagination?.totalPages || 1,
+        }));
+      } else throw new Error(data.message);
+    } catch (error) {
+      notifications.show({
+        title: "Lỗi",
+        message: "Không thể tải danh sách yêu cầu",
         color: "red",
       });
     } finally {
@@ -198,6 +245,9 @@ function BorrowBooks() {
             <Badge size="xl" variant="light" color="green">
               {phieuMuons.length} phiếu mượn
             </Badge>
+            <Badge size="xl" variant="light" color="orange">
+              {yeuCauList.length} yêu cầu
+            </Badge>
           </Group>
         </Group>
       </Paper>
@@ -212,6 +262,12 @@ function BorrowBooks() {
             leftSection={<IconClipboardList size={18} />}
           >
             Phiếu Mượn
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="requests"
+            leftSection={<IconMailOpened size={18} />}
+          >
+            Yêu Cầu Mượn
           </Tabs.Tab>
         </Tabs.List>
 
@@ -298,6 +354,61 @@ function BorrowBooks() {
             }
           />
         </Tabs.Panel>
+
+        {/* TAB YÊU CẦU MƯỢN */}
+        <Tabs.Panel value="requests">
+          <Paper
+            shadow="sm"
+            p="md"
+            radius="md"
+            mb="lg"
+            withBorder
+            style={{ backgroundColor: "#f8f9fa" }}
+          >
+            <Group justify="space-between">
+              <Group>
+                <Select
+                  placeholder="Lọc theo trạng thái"
+                  data={[
+                    { value: "All", label: "Tất cả" },
+                    { value: "ChoXuLy", label: "Chờ xử lý" },
+                    { value: "DaDuyet", label: "Đã duyệt" },
+                    { value: "TuChoi", label: "Từ chối" },
+                  ]}
+                  value={requestStatusFilter}
+                  onChange={setRequestStatusFilter}
+                  style={{ width: 220 }}
+                  size="md"
+                />
+                <Button
+                  variant="light"
+                  leftSection={<IconRefresh size={18} />}
+                  onClick={fetchRequests}
+                  size="md"
+                >
+                  Làm mới
+                </Button>
+              </Group>
+              <Badge size="xl" variant="filled" color="orange">
+                {yeuCauList.filter(yc => yc.TrangThai === 'ChoXuLy').length} chờ xử lý
+              </Badge>
+            </Group>
+          </Paper>
+          
+          <RequestsTable
+            yeuCauList={yeuCauList}
+            onRefresh={fetchRequests}
+          />
+
+          {/* Pagination cho yêu cầu */}
+          <CustomPagination
+            currentPage={requestsPagination.page}
+            totalPages={requestsPagination.totalPages || 1}
+            onPageChange={(newPage) =>
+              setRequestsPagination((prev) => ({ ...prev, page: newPage }))
+            }
+          />
+        </Tabs.Panel>
       </Tabs>
 
       {/* Modal tạo phiếu */}
@@ -320,6 +431,12 @@ function BorrowBooks() {
         opened={detailModalOpened}
         onClose={() => setDetailModalOpened(false)}
         phieuMuon={selectedPhieuMuon}
+        onRefresh={() => {
+          fetchBorrows();
+          if (selectedPhieuMuon) {
+            handleViewDetail(selectedPhieuMuon.MaPM);
+          }
+        }}
       />
     </Container>
   );

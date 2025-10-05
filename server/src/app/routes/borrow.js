@@ -50,6 +50,12 @@ router.get("/", staffOrAdmin, borrowController.getBorrows);
 // [POST] Trả sách
 router.post("/return", staffOrAdmin, borrowController.returnBooks);
 
+// [POST] Gia hạn sách - sử dụng body vì composite key
+router.post("/extend", allRoles, borrowController.extendBook);
+
+// [GET] Lấy danh sách sách có thể gia hạn (cho độc giả)
+router.get("/extendable", allRoles, borrowController.getExtendableBooks);
+
 // [POST] Thanh toán phạt
 router.post("/pay-fine/:maPhat", staffOrAdmin, borrowController.payFine);
 
