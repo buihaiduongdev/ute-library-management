@@ -1,7 +1,6 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import {
-  AdminPage,
   BookSearchPage,
   BorrowBooks,
   HomePage,
@@ -12,12 +11,14 @@ import {
   ManageBooksPage,
   ManageAuthorsPage,
   ManageGenresPage,
-  ManagePublishersPage
+  ManagePublishersPage,
+  BookDetailPage
 } from './pages';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
-import './App.css';
-
+import './assets/css/App.css';
+import '@mantine/core/styles.css';
+import '@mantine/carousel/styles.css';
 function App() {
   return (
     <BrowserRouter>
@@ -27,17 +28,9 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} /> 
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/search-books" element={<BookSearchPage />} /> {/* Chuyển ra đây */}
+          <Route path="/search-books" element={<BookSearchPage />} />
 
           {/* Các Route được bảo vệ */}
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute allowedRoles={['0']}>
-                <AdminPage />
-              </ProtectedRoute>
-            }
-          />
           <Route 
             path="/staff" 
             element={
@@ -94,6 +87,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+          path="/book-detail/:id"
+          element={
+            <ProtectedRoute allowedRoles={['0', '1', '2']}>
+              <BookDetailPage />
+            </ProtectedRoute>
+          }
+          />
+
         </Route>
       </Routes>
     </BrowserRouter>
