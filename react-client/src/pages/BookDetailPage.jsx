@@ -10,63 +10,98 @@ import {
   Button,
   Group,
   Tabs,
+  Center,
+  Loader,
   Paper,
   Title,
   Table,
+  useMantineTheme
 } from "@mantine/core";
-import { authGet } from '../utils/api';
+import { authGet, authPost } from '../utils/api';
 import { notifications } from "@mantine/notifications";
-
+import RequestBorrowModal from '../modals/RequestBorrowModal';
 const BookDetailPage = () => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
+  const [modalOpened, setModalOpened] = useState(false);
+  const [copies, setCopies] = useState(null);
   const [activeTab, setActiveTab] = useState("details");
+  const theme = useMantineTheme();
 
-  // Mock user role - replace with actual role from context or auth
   const role = localStorage.getItem('role');
+  const fetchBookDetails = async () => {
+    try {
+      const response = await authGet(`/books/${id}`);
+      setBook(response.data);
+    } catch (error) {
+      console.error("Lỗi khi tải chi tiết sách:", error);
+      notifications.show({
+        title: "Lỗi",
+        message: "Không thể tải chi tiết sách.",
+        color: "red",
+      });
+    }
+  };
 
+  const fetchBookCopies = async () => {
+    try{
+      const response = await authGet(`/books/${id}/copies`);
+      setCopies(response.data);
+    } catch (error) {
+      notifications.show({
+        title: "Lỗi",
+        message: "Không thể tải bản sao sách.",
+        color: "red",
+      });
+    }
+  }
   useEffect(() => {
-    const fetchBookDetails = async () => {
-      try {
-        const response = await authGet(`/books/${id}`);
-        setBook(response.data);
-      } catch (error) {
-        console.error("Lỗi khi tải chi tiết sách:", error);
-        notifications.show({
-          title: "Lỗi",
-          message: "Không thể tải chi tiết sách.",
-          color: "red",
-        });
-      }
-    };
-
     fetchBookDetails();
+    fetchBookCopies();
   }, [id]);
 
-  const handleBorrow = () => {
-    // Logic for borrowing the book
-    notifications.show({
-      title: "Thành công",
-      message: "Bạn đã mượn sách thành công!",
-      color: "green",
-    });
+  const  handleBorrow = async () => {
+    const availableCopy = copies?.find(cs => cs.TrangThaiCS === "Con");
+    if (!availableCopy) {
+      notifications.show({ title: "Hết sách", message: "Không còn cuốn nào để mượn.", color: "red" });
+      return;
+    }
+
+    try {
+
+      const body = {
+       
+      }
+      await authPost(`/borrow/`, body);
+      notifications.show({ title: "Thành công", message: "Mượn sách thành công!", color: "green" });
+      notifications.show({
+        title: "Thành công",
+        message: "Bạn đã mượn sách thành công!",
+        color: "green",
+      });
+    } catch (error) {
+      notifications.show({ title: "Lỗi", message: "Không thể mượn sách.", color: "red" });
+    }
+   
   };
 
   const handleReserve = () => {
-    // Logic for reserving the book
     notifications.show({
       title: "Thông báo",
-      message: "Bạn đã đặt trước sách thành công!",
-      color: "blue",
+      message: "Tính năng đang trong quá trình phát triển!",
+      color: "yellow",
     });
   };
 
-  const isBookAvailable = book?.CuonSach?.some(cs => cs.TrangThaiCS === "Sẵn sàng") || false;
+  const isBookAvailable = book?.TrangThai === "Còn sách";
 
   if (!book) {
-    return <Container>Đang tải...</Container>;
+    return  (
+          <Center h={400}>
+            <Loader size="xl" variant="bars" color={theme.primaryColor} />
+          </Center>
+    );
   }
-  
   return (
     <Container size="lg" my="lg">
       <Grid>
@@ -83,7 +118,7 @@ const BookDetailPage = () => {
               <Text fw={500} size="xl">{book.TieuDe}</Text>
             </Group>
              <Group justify="center" mt="md" mb="xs">
-                 <Badge color={book.TrangThai === "Available" ? "green" : "red"}>
+                 <Badge color={book.TrangThai === "Còn sách" ? "green" : "red"}>
                 {book.TrangThai}
                 </Badge>
                 <Badge color="blue" variant="light">
@@ -117,7 +152,13 @@ const BookDetailPage = () => {
                     <Text><strong>Giá sách:</strong> {book.GiaSach}</Text>
                     <Text><strong>Vị trí kệ:</strong> {book.ViTriKe}</Text>
                     <Group mt="md">
-                      <Button onClick={handleBorrow} disabled={!isBookAvailable}>Mượn ngay</Button>
+                      <Button  onClick={() => setModalOpened(true)} disabled={!isBookAvailable}>Mượn ngay</Button>
+                      <RequestBorrowModal 
+                        opened={modalOpened} 
+                        onClose={() => setModalOpened(false)} 
+                        selectedBook={book} 
+                        refresh={fetchBookDetails} 
+                      />
                       <Button variant="outline" onClick={handleReserve} disabled={isBookAvailable}>Đặt trước</Button>
                     </Group>
                  </Paper>
@@ -151,11 +192,11 @@ const BookDetailPage = () => {
                           </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
-                          {book.CuonSach?.map(copy => (
+                          {copies?.map(copy => (
                             <Table.Tr key={copy.MaCuonSach}>
                               <Table.Td>{copy.MaCuonSach}</Table.Td>
                               <Table.Td>
-                                <Badge color={copy.TrangThaiCS === "Sẵn sàng" ? "green" : "orange"}>
+                                <Badge color={copy.TrangThaiCS === "Còn sách" ? "green" : "orange"}>
                                   {copy.TrangThaiCS}
                                 </Badge>
                               </Table.Td>
@@ -202,11 +243,48 @@ const BookDetailPage = () => {
         </Grid.Col>
       </Grid>
 
-        <Paper withBorder shadow="sm" p="md" radius="md" mt="lg">
-             <Title order={3} mb="md">Sách liên quan</Title>
-             {/* Mock data, replace with actual API call */}
-             <Text>Sách cùng thể loại / Sách cùng tác giả</Text>
-        </Paper>
+      <Paper withBorder shadow="sm" p="md" radius="md" mt="lg">
+        <Title order={3} mb="md">Sách liên quan</Title>
+        <Grid>
+          {book.RelatedBooks?.map(relBook => {
+            const authors = relBook.Sach_TacGia?.map(a => a.TacGia.TenTacGia).join(', ') || 'Chưa có thông tin';
+            const categories = relBook.Sach_TheLoai?.map(st => st.TheLoai.TenTheLoai).join(', ') || 'Chưa có thông tin';
+
+            return (
+              <Grid.Col span={3} key={relBook.MaSach}>
+                <Card
+                  component={Link}
+                  to={`/book-detail/${relBook.MaSach}`}
+                  shadow="none"
+                  radius="md"
+                  withBorder={false}
+                  style={{
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-start',
+                    height: 180,
+                    padding: '0.5rem',
+                  }}
+                >
+                  <Card.Section>
+                    <img
+                      src={relBook.AnhBia || 'https://via.placeholder.com/50x50?text=No+Image'}
+                      alt={relBook.TieuDe}
+                      style={{ height: 50, width: '100%', objectFit: 'cover', marginBottom: '0.5rem' }}
+                    />
+                  </Card.Section>
+
+                  <Text fw={600} size="sm" lineClamp={1} mb="2px">{relBook.TieuDe}</Text>
+                  <Text size="xs" c="dimmed" lineClamp={1} mb="2px">{authors}</Text>
+                  <Badge variant="light" color="indigo" size="xs">{categories}</Badge>
+                </Card>
+              </Grid.Col>
+            );
+          })}
+        </Grid>
+      </Paper>
+
 
     </Container>
   );

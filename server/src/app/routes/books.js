@@ -7,6 +7,7 @@ const { verifyToken } = require('../middlewares/auth.middleware');
 router.get('/trending', verifyToken(), BooksController.getTrendingBooks);
 router.get('/new-arrivals', verifyToken(), BooksController.getNewArrivals);
 router.get('/recommended/', verifyToken(), BooksController.getRecommendedBooks);
+router.get("/:id/copies",verifyToken(), BooksController.getBookCopies);
 
 //
 router.get('/export', verifyToken(), BooksController.exportBooks); 
