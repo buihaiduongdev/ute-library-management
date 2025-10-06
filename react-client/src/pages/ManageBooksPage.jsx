@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Title, TextInput, Button, SimpleGrid, Image, Modal, FileInput, Autocomplete, Group, Card, Text, Grid, Pagination } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
-import { IconPencil, IconTrash, IconDownload, IconBook, IconSearch, IconPlus, IconUser, IconCategory, IconBuilding, IconCalendar, IconNumber, IconCurrencyDollar, IconPhoto, IconCheck, IconX, IconCircleCheck, IconCircleX } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconDownload, IconBook, IconSearch, IconPlus, IconUser, IconCategory, IconBuilding, IconCalendar, IconNumber, IconCurrencyDollar, IconPhoto, IconCheck, IconX } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 
 function ManageBooksPage() {
@@ -303,26 +303,26 @@ function ManageBooksPage() {
           <Card key={book.MaSach} shadow="sm" padding="md" radius="md" withBorder style={{ height: '270px', maxWidth: '300px', marginBottom: '16px' }}>
             <Grid align="stretch" gutter="sm">
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Text style={{ fontSize: '12px' }} ta="left" fw={500} truncate="end">Mã sách: {book.MaSach}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Tiêu đề: {book.TieuDe}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">
+                <Text style={{ fontSize: '13px' }} ta="left" fw={500} truncate="end">Mã sách: {book.MaSach}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Tiêu đề: {book.TieuDe}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">
                   Tác giả: {book.Sach_TacGia.map((t) => t.TacGia.TenTacGia).join(', ') || 'N/A'}
                 </Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">
                   Thể loại: {book.Sach_TheLoai.map((t) => t.TheLoai.TenTheLoai).join(', ') || 'N/A'}
                 </Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">NXB: {book.NhaXuatBan?.TenNXB || 'N/A'}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Năm XB: {book.NamXuatBan || 'N/A'}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Số lượng: {book.SoLuong}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Giá sách: {book.GiaSach || 'N/A'}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">
-                  Trạng thái: {book.TrangThai}{' '}
-                  {book.TrangThai === 'Còn sách' ? (
-                    <IconCircleCheck size={16} color="green" style={{ verticalAlign: 'middle' }} />
-                  ) : (
-                    <IconCircleX size={16} color="red" style={{ verticalAlign: 'middle' }} />
-                  )}
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">NXB: {book.NhaXuatBan?.TenNXB || 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Năm XB: {book.NamXuatBan || 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Số lượng: {book.SoLuong ? `${book.SoLuong} cuốn` : '0 cuốn'}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Giá sách: {book.GiaSach ? `${book.GiaSach} VNĐ` : 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
+                <Text
+                  style={{ fontSize: '16px' }}
+                  ta="left"
+                  truncate="end"
+                  c={book.TrangThai === 'Còn sách' ? '#28a745' : book.TrangThai === 'Hết sách' ? '#dc3545' : 'dimmed'}
+                >
+                  {book.TrangThai || 'N/A'}
                 </Text>
                 <Group gap={4} mt="sm" justify="flex-end" style={{ flexWrap: 'nowrap' }}>
                   <Button
@@ -331,9 +331,7 @@ function ManageBooksPage() {
                     color="cyan"
                     leftSection={<IconPencil size={23} />}
                     onClick={() => handleEdit(book)}
-                   
                   >
-                    
                   </Button>
                   <Button
                     variant="subtle"
@@ -344,9 +342,7 @@ function ManageBooksPage() {
                       setDeleteId(book.MaSach);
                       setDeleteModalOpen(true);
                     }}
-                    
                   >
-                    
                   </Button>
                 </Group>
               </Grid.Col>
