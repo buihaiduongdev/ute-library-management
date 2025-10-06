@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button, Input, Tabs } from '@mantine/core';
+import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button, Input, Tabs, Divider } from '@mantine/core';
 import { get } from '../utils/api';
 import { IconBook, IconSearch, IconEye, IconX, IconUser, IconCategory, IconBuilding, IconCalendar, IconPackage, IconCash, IconMapPin, IconFlag, IconInfoCircle, IconPhone, IconMail } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
@@ -75,20 +75,27 @@ function BookSearchPage() {
           <Card key={book.MaSach} shadow="sm" padding="md" radius="md" withBorder style={{ height: '270px', maxWidth: '300px', marginBottom: '16px' }}>
             <Grid align="stretch" gutter="sm">
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Text style={{ fontSize: '12px' }} ta="left" fw={500} truncate="end">Mã sách: {book.MaSach}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Tiêu đề: {book.TieuDe}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">
+                <Text style={{ fontSize: '13px' }} ta="left" fw={500} truncate="end">Mã sách: {book.MaSach}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Tiêu đề: {book.TieuDe}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">
                   Tác giả: {book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || 'N/A'}
                 </Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">
                   Thể loại: {book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || 'N/A'}
                 </Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">NXB: {book.NhaXuatBan?.TenNXB || 'N/A'}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Năm XB: {book.NamXuatBan || 'N/A'}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Số lượng: {book.SoLuong || '0'}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Giá sách: {book.GiaSach || 'N/A'}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Trạng thái: {book.TrangThai}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">NXB: {book.NhaXuatBan?.TenNXB || 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Năm XB: {book.NamXuatBan || 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Số lượng: {book.SoLuong ? `${book.SoLuong} cuốn` : '0 cuốn'}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Giá sách: {book.GiaSach ? `${book.GiaSach} VNĐ` : 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
+                <Text
+                  style={{ fontSize: '16px' }}
+                  ta="left"
+                  truncate="end"
+                  c={book.TrangThai === 'Còn sách' ? '#28a745' : book.TrangThai === 'Hết sách' ? '#dc3545' : 'dimmed'}
+                >
+                  {book.TrangThai || 'N/A'}
+                </Text>
                 <Button
                   variant="light"
                   color="cyan"
@@ -157,6 +164,12 @@ function BookSearchPage() {
             </Tabs.List>
 
             <Tabs.Panel value="book" pt="xs">
+              <Input.Wrapper label="Mã sách" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconBook size={20} />
+                  <Text size="md">{selectedBook.MaSach || 'N/A'}</Text>
+                </Group>
+              </Input.Wrapper>
               <Input.Wrapper label="Tiêu đề" mt="sm">
                 <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                   <IconBook size={20} />
@@ -190,13 +203,13 @@ function BookSearchPage() {
               <Input.Wrapper label="Số lượng" mt="sm">
                 <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                   <IconPackage size={20} />
-                  <Text size="md">{selectedBook.SoLuong}</Text>
+                  <Text size="md">{selectedBook.SoLuong ? `${selectedBook.SoLuong} cuốn` : '0 cuốn'}</Text>
                 </Group>
               </Input.Wrapper>
               <Input.Wrapper label="Giá sách" mt="sm">
                 <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                   <IconCash size={20} />
-                  <Text size="md">{selectedBook.GiaSach}</Text>
+                  <Text size="md">{selectedBook.GiaSach ? `${selectedBook.GiaSach} VNĐ` : 'N/A'}</Text>
                 </Group>
               </Input.Wrapper>
               <Input.Wrapper label="Vị trí kệ" mt="sm">
@@ -227,7 +240,13 @@ function BookSearchPage() {
               {selectedBook.Sach_TacGia.length > 0 ? (
                 selectedBook.Sach_TacGia.map((author, index) => (
                   <div key={author.TacGia.MaTG}>
-                    <Text size="md" mt="sm" fw={500}>Tác giả {index + 1}</Text>
+                    {index > 0 && <Divider my="sm" />}
+                    <Input.Wrapper label="Mã tác giả" mt="sm">
+                      <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                        <IconUser size={20} />
+                        <Text size="md">{author.TacGia.MaTG || 'N/A'}</Text>
+                      </Group>
+                    </Input.Wrapper>
                     <Input.Wrapper label="Tên tác giả" mt="sm">
                       <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                         <IconUser size={20} />
@@ -257,7 +276,13 @@ function BookSearchPage() {
               {selectedBook.Sach_TheLoai.length > 0 ? (
                 selectedBook.Sach_TheLoai.map((genre, index) => (
                   <div key={genre.TheLoai.MaTL}>
-                    <Text size="md" mt="sm" fw={500}>Thể loại {index + 1}</Text>
+                    {index > 0 && <Divider my="sm" />}
+                    <Input.Wrapper label="Mã thể loại" mt="sm">
+                      <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                        <IconCategory size={20} />
+                        <Text size="md">{genre.TheLoai.MaTL || 'N/A'}</Text>
+                      </Group>
+                    </Input.Wrapper>
                     <Input.Wrapper label="Tên thể loại" mt="sm">
                       <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                         <IconCategory size={20} />
@@ -280,6 +305,12 @@ function BookSearchPage() {
             <Tabs.Panel value="publisher" pt="xs">
               {selectedBook.NhaXuatBan && Object.keys(selectedBook.NhaXuatBan).length > 0 ? (
                 <div>
+                  <Input.Wrapper label="Mã nhà xuất bản" mt="sm">
+                    <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                      <IconBuilding size={20} />
+                      <Text size="md">{selectedBook.NhaXuatBan.MaNXB || 'N/A'}</Text>
+                    </Group>
+                  </Input.Wrapper>
                   <Input.Wrapper label="Tên nhà xuất bản" mt="sm">
                     <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                       <IconBuilding size={20} />
