@@ -26,6 +26,7 @@ import {
   IconMailOpened,
   IconCheck,
   IconX,
+  IconCash,
 } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 
@@ -34,11 +35,13 @@ import AvailableBooksCards from "../components/AvailableBooksCards";
 import BorrowListTable from "../components/BorrowListTable";
 import CustomPagination from "../components/CustomPagination";
 import RequestsTable from "../components/RequestsTable";
+import FinesTable from "../components/FinesTable";
 
 // Modal
 import BorrowModal from "../modals/BorrowModal";
 import ReturnModal from "../modals/ReturnModal";
 import DetailModal from "../modals/DetailModal";
+import PayFineModal from "../modals/PayFineModal";
 
 function BorrowBooks() {
   const [loading, setLoading] = useState(false);
@@ -75,12 +78,34 @@ function BorrowBooks() {
     totalPages: 1,
   });
 
+  // Tab 4: phí phạt
+  const [fines, setFines] = useState([]);
+  const [fineStatusFilter, setFineStatusFilter] = useState("ChuaThanhToan");
+  const [finesPagination, setFinesPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+  const [totalFineAmount, setTotalFineAmount] = useState(0);
+
   // Modal state
   const [borrowModalOpened, setBorrowModalOpened] = useState(false);
   const [returnModalOpened, setReturnModalOpened] = useState(false);
   const [detailModalOpened, setDetailModalOpened] = useState(false);
+  const [payFineModalOpened, setPayFineModalOpened] = useState(false);
   const [selectedPhieuMuon, setSelectedPhieuMuon] = useState(null);
+  const [selectedFine, setSelectedFine] = useState(null);
 
+  // Fetch tất cả data ngay khi component mount để hiển thị badge
+  useEffect(() => {
+    fetchAvailableBooks();
+    fetchBorrows();
+    fetchRequests();
+    fetchFines();
+  }, []); // Chỉ chạy 1 lần khi mount
+
+  // Fetch data khi chuyển tab hoặc filter thay đổi
   useEffect(() => {
     if (activeTab === "books") {
       fetchAvailableBooks();
@@ -88,8 +113,10 @@ function BorrowBooks() {
       fetchBorrows();
     } else if (activeTab === "requests") {
       fetchRequests();
+    } else if (activeTab === "fines") {
+      fetchFines();
     }
-  }, [activeTab, booksPagination.page, borrowsPagination.page, requestsPagination.page, statusFilter, requestStatusFilter]);
+  }, [activeTab, booksPagination.page, borrowsPagination.page, requestsPagination.page, finesPagination.page, statusFilter, requestStatusFilter, fineStatusFilter]);
 
   // Fetch danh sách sách có thể mượn
   const fetchAvailableBooks = async () => {
@@ -180,6 +207,38 @@ function BorrowBooks() {
     }
   };
 
+  // Fetch danh sách phí phạt
+  const fetchFines = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      let url = `/api/borrow/fines?page=${finesPagination.page}&limit=${finesPagination.limit}`;
+      if (fineStatusFilter !== "All") url += `&trangThai=${fineStatusFilter}`;
+      
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setFines(data.data || []);
+        setFinesPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+          totalPages: data.pagination?.totalPages || 1,
+        }));
+        setTotalFineAmount(data.summary?.tongTienPhat || 0);
+      } else throw new Error(data.message);
+    } catch (error) {
+      notifications.show({
+        title: "Lỗi",
+        message: "Không thể tải danh sách phạt",
+        color: "red",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Xem chi tiết phiếu mượn
   const handleViewDetail = async (maPM) => {
     try {
@@ -199,6 +258,12 @@ function BorrowBooks() {
         color: "red",
       });
     }
+  };
+
+  // Mở modal thanh toán phạt
+  const handlePayFine = (fine) => {
+    setSelectedFine(fine);
+    setPayFineModalOpened(true);
   };
 
   if (loading) {
@@ -248,6 +313,9 @@ function BorrowBooks() {
             <Badge size="xl" variant="light" color="orange">
               {yeuCauList.length} yêu cầu
             </Badge>
+            <Badge size="xl" variant="light" color="red">
+              {fines.length} phạt
+            </Badge>
           </Group>
         </Group>
       </Paper>
@@ -268,6 +336,12 @@ function BorrowBooks() {
             leftSection={<IconMailOpened size={18} />}
           >
             Yêu Cầu Mượn
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="fines"
+            leftSection={<IconCash size={18} />}
+          >
+            Quản Lý Phạt
           </Tabs.Tab>
         </Tabs.List>
 
@@ -409,6 +483,69 @@ function BorrowBooks() {
             }
           />
         </Tabs.Panel>
+
+        {/* TAB QUẢN LÝ PHẠT */}
+        <Tabs.Panel value="fines">
+          <Paper
+            shadow="sm"
+            p="md"
+            radius="md"
+            mb="lg"
+            withBorder
+            style={{ backgroundColor: "#f8f9fa" }}
+          >
+            <Group justify="space-between">
+              <Group>
+                <Select
+                  placeholder="Lọc theo trạng thái"
+                  data={[
+                    { value: "All", label: "Tất cả" },
+                    { value: "ChuaThanhToan", label: "Chưa thanh toán" },
+                    { value: "DaThanhToan", label: "Đã thanh toán" },
+                  ]}
+                  value={fineStatusFilter}
+                  onChange={setFineStatusFilter}
+                  style={{ width: 220 }}
+                  size="md"
+                />
+                <Button
+                  variant="light"
+                  leftSection={<IconRefresh size={18} />}
+                  onClick={fetchFines}
+                  size="md"
+                >
+                  Làm mới
+                </Button>
+              </Group>
+              <Group>
+                <Badge size="xl" variant="filled" color="red">
+                  {fines.filter(f => f.TrangThaiThanhToan === 'ChuaThanhToan').length} chưa thanh toán
+                </Badge>
+                <Paper p="sm" withBorder style={{ backgroundColor: '#fff' }}>
+                  <Text size="xs" c="dimmed" tt="uppercase" fw={600}>Tổng tiền</Text>
+                  <Text fw={700} size="lg" c="red">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalFineAmount)}
+                  </Text>
+                </Paper>
+              </Group>
+            </Group>
+          </Paper>
+
+          <FinesTable
+            fines={fines}
+            onPayFine={handlePayFine}
+            loading={loading}
+          />
+
+          {/* Pagination cho phạt */}
+          <CustomPagination
+            currentPage={finesPagination.page}
+            totalPages={finesPagination.totalPages || 1}
+            onPageChange={(newPage) =>
+              setFinesPagination((prev) => ({ ...prev, page: newPage }))
+            }
+          />
+        </Tabs.Panel>
       </Tabs>
 
       {/* Modal tạo phiếu */}
@@ -436,6 +573,18 @@ function BorrowBooks() {
           if (selectedPhieuMuon) {
             handleViewDetail(selectedPhieuMuon.MaPM);
           }
+        }}
+      />
+
+      {/* Modal thanh toán phạt */}
+      <PayFineModal
+        opened={payFineModalOpened}
+        onClose={() => setPayFineModalOpened(false)}
+        fine={selectedFine}
+        onSuccess={() => {
+          fetchFines();
+          setPayFineModalOpened(false);
+          setSelectedFine(null);
         }}
       />
     </Container>

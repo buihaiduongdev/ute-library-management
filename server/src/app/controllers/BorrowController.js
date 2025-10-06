@@ -617,12 +617,185 @@ class BorrowController {
     res.status(200).json({ message: "Thống kê - chưa implement" });
   }
 
+  // [GET] /api/borrow/fines - Lấy danh sách phạt chưa thanh toán
   async getUnpaidFines(req, res) {
-    res.status(200).json({ message: "Phạt chưa thanh toán - chưa implement" });
+    try {
+      const { page = 1, limit = 10, idDG, trangThai } = req.query;
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const take = parseInt(limit);
+
+      const whereConditions = {};
+      
+      // Filter theo độc giả
+      if (idDG) {
+        whereConditions.TraSach = {
+          PhieuMuon: {
+            IdDG: parseInt(idDG)
+          }
+        };
+      }
+      
+      // Filter theo trạng thái thanh toán
+      if (trangThai) {
+        whereConditions.TrangThaiThanhToan = trangThai;
+      }
+
+      const [fines, total] = await Promise.all([
+        prisma.thePhat.findMany({
+          where: whereConditions,
+          skip,
+          take,
+          include: {
+            TraSach: {
+              include: {
+                PhieuMuon: {
+                  include: {
+                    DocGia: {
+                      select: { HoTen: true, MaDG: true, Email: true, SoDienThoai: true }
+                    }
+                  }
+                },
+                NhanVien: {
+                  select: { HoTen: true, MaNV: true }
+                }
+              }
+            },
+            CuonSach: {
+              include: {
+                Sach: {
+                  select: { TieuDe: true, MaSach: true }
+                }
+              }
+            }
+          },
+          orderBy: { MaPhat: 'desc' }
+        }),
+        prisma.thePhat.count({ where: whereConditions })
+      ]);
+
+      // Tính tổng tiền phạt
+      const tongTienPhat = fines.reduce(
+        (sum, fine) => sum + parseFloat(fine.SoTienPhat),
+        0
+      );
+
+      res.status(200).json({
+        message: 'Lấy danh sách phạt thành công',
+        data: fines,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          totalPages: Math.ceil(total / take)
+        },
+        summary: {
+          tongTienPhat,
+          soLuongPhat: total
+        }
+      });
+
+    } catch (error) {
+      console.error('Error getting unpaid fines:', error);
+      res.status(500).json({
+        message: 'Lỗi khi lấy danh sách phạt',
+        error: error.message
+      });
+    }
   }
 
+  // [POST] /api/borrow/pay-fine/:maPhat - Thanh toán phạt
   async payFine(req, res) {
-    res.status(200).json({ message: "Thanh toán phạt - chưa implement" });
+    const { maPhat } = req.params;
+    const { ghiChu } = req.body;
+
+    if (!maPhat) {
+      return res.status(400).json({
+        message: 'Vui lòng cung cấp mã phạt'
+      });
+    }
+
+    try {
+      // 1. Kiểm tra phạt tồn tại
+      const thePhat = await prisma.thePhat.findUnique({
+        where: { MaPhat: parseInt(maPhat) },
+        include: {
+          TraSach: {
+            include: {
+              PhieuMuon: {
+                include: {
+                  DocGia: {
+                    select: { HoTen: true, MaDG: true }
+                  }
+                }
+              }
+            }
+          },
+          CuonSach: {
+            include: {
+              Sach: {
+                select: { TieuDe: true }
+              }
+            }
+          }
+        }
+      });
+
+      if (!thePhat) {
+        return res.status(404).json({
+          message: 'Không tìm thấy thông tin phạt'
+        });
+      }
+
+      // 2. Kiểm tra đã thanh toán chưa
+      if (thePhat.TrangThaiThanhToan === 'DaThanhToan') {
+        return res.status(400).json({
+          message: 'Phạt này đã được thanh toán trước đó',
+          ngayThanhToan: thePhat.NgayThanhToan
+        });
+      }
+
+      // 3. Cập nhật trạng thái thanh toán
+      const updatedFine = await prisma.thePhat.update({
+        where: { MaPhat: parseInt(maPhat) },
+        data: {
+          TrangThaiThanhToan: 'DaThanhToan',
+          NgayThanhToan: new Date(),
+          GhiChu: ghiChu ? ghiChu.trim() : thePhat.GhiChu
+        },
+        include: {
+          TraSach: {
+            include: {
+              PhieuMuon: {
+                include: {
+                  DocGia: {
+                    select: { HoTen: true, MaDG: true }
+                  }
+                }
+              }
+            }
+          },
+          CuonSach: {
+            include: {
+              Sach: {
+                select: { TieuDe: true }
+              }
+            }
+          }
+        }
+      });
+
+      res.status(200).json({
+        message: 'Thanh toán phạt thành công',
+        data: updatedFine
+      });
+
+    } catch (error) {
+      console.error('Error paying fine:', error);
+      res.status(500).json({
+        message: 'Lỗi khi thanh toán phạt',
+        error: error.message
+      });
+    }
   }
 
   // [POST] /api/borrow/extend - Gia hạn sách

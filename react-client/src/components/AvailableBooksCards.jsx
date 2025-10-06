@@ -189,7 +189,7 @@ function AvailableBooksCards({
                 <Image
                   src={
                     cuon.Sach?.AnhBia ||
-                    "https://m.media-amazon.com/images/I/91PAL9IIE9L._UF1000,1000_QL80_.jpg"
+                    "https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9781982127794/it-9781982127794_hr.jpg"
                   }
                   width="100%"
                   height="100%"
