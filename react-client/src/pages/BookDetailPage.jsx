@@ -17,7 +17,7 @@ import {
   Table,
   useMantineTheme
 } from "@mantine/core";
-import { authGet, authPost } from '../utils/api';
+import { authGet } from '../utils/api';
 import { notifications } from "@mantine/notifications";
 import RequestBorrowModal from '../modals/RequestBorrowModal';
 const BookDetailPage = () => {
@@ -60,30 +60,6 @@ const BookDetailPage = () => {
     fetchBookCopies();
   }, [id]);
 
-  const  handleBorrow = async () => {
-    const availableCopy = copies?.find(cs => cs.TrangThaiCS === "Con");
-    if (!availableCopy) {
-      notifications.show({ title: "Hết sách", message: "Không còn cuốn nào để mượn.", color: "red" });
-      return;
-    }
-
-    try {
-
-      const body = {
-       
-      }
-      await authPost(`/borrow/`, body);
-      notifications.show({ title: "Thành công", message: "Mượn sách thành công!", color: "green" });
-      notifications.show({
-        title: "Thành công",
-        message: "Bạn đã mượn sách thành công!",
-        color: "green",
-      });
-    } catch (error) {
-      notifications.show({ title: "Lỗi", message: "Không thể mượn sách.", color: "red" });
-    }
-   
-  };
 
   const handleReserve = () => {
     notifications.show({

@@ -78,20 +78,55 @@ export default function RequestBorrowModal({ opened, onClose, selectedBook, refr
 
     setLoading(true);
     try {
-      const idDG = localStorage.getItem("idDG");
-      const sachMuon = [{
-        maCuonSach: selectedBook.MaCuonSach,
+      // Tìm cuốn sách còn trống từ Book hoặc từ CuonSach
+      let maCuonSach;
+      
+      // Nếu selectedBook là Sach (từ BookDetailPage)
+      if (selectedBook.MaSach) {
+        // Lấy danh sách cuốn sách còn trống
+        const copiesResponse = await authGet(`/books/${selectedBook.MaSach}/copies`);
+        const availableCopy = copiesResponse.data?.find(cs => cs.TrangThaiCS === "Con");
+        
+        if (!availableCopy) {
+          notifications.show({ 
+            title: "Hết sách", 
+            message: "Không còn cuốn nào để mượn.", 
+            color: "red" 
+          });
+          return;
+        }
+        
+        maCuonSach = availableCopy.MaCuonSach;
+      } 
+      // Nếu selectedBook là CuonSach (từ nơi khác)
+      else if (selectedBook.MaCuonSach) {
+        maCuonSach = selectedBook.MaCuonSach;
+      } else {
+        throw new Error("Không tìm thấy thông tin sách");
+      }
+
+      // Gọi API tạo yêu cầu mượn
+      const requestData = {
+        maCuonSach: maCuonSach,
         ngayHenTra: dueDate.toISOString().split("T")[0],
-      }];
+      };
 
-      await authPost();
+      await authPost("/requests", requestData);
 
-      notifications.show({ title: "Thành công", message: "Tạo yêu cầu mượn thành công", color: "green" });
+      notifications.show({ 
+        title: "Thành công", 
+        message: "Tạo yêu cầu mượn thành công. Chờ nhân viên duyệt!", 
+        color: "green" 
+      });
       onClose();
       setDueDate(null);
-      refresh();
+      if (refresh) refresh();
     } catch (err) {
-      notifications.show({ title: "Lỗi", message: err.message || "Không thể tạo yêu cầu mượn", color: "red" });
+      notifications.show({ 
+        title: "Lỗi", 
+        message: err.message || "Không thể tạo yêu cầu mượn", 
+        color: "red" 
+      });
     } finally {
       setLoading(false);
     }
@@ -128,8 +163,10 @@ export default function RequestBorrowModal({ opened, onClose, selectedBook, refr
 
             <Alert title="Sách Đã Chọn" color="blue" variant="light" radius="md">
               <Group justify="space-between">
-                <Text fw={500}>📚 Cuốn sách:</Text>
-                <Badge size="xl" variant="filled" color="blue">{selectedBook.TieuDe}</Badge>
+                <Text fw={500}>📚 Sách:</Text>
+                <Badge size="xl" variant="filled" color="blue">
+                  {selectedBook?.TieuDe || selectedBook?.Sach?.TieuDe || "Chưa chọn"}
+                </Badge>
               </Group>
             </Alert>
 
