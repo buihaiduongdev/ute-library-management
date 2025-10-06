@@ -158,211 +158,217 @@ function ManagePublishersPage() {
 
   return (
     <Container size="lg" py="xl">
-      <Title order={2} c="cyan" ta="center" mb="sm">
-        Quản Lý Nhà Xuất Bản
-      </Title>
-      <Paper shadow="sm" p="md" radius="md" withBorder>
-        <Group mb="lg" grow>
-          <TextInput
-            placeholder="Tìm kiếm nhà xuất bản..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.currentTarget.value);
-              setPage(1);
+  <Title order={2} c="cyan" ta="center" mb="sm">
+    Quản Lý Nhà Xuất Bản
+  </Title>
+  <Paper shadow="sm" p="md" radius="md" withBorder>
+    <Group mb="lg" grow>
+      <TextInput
+        placeholder="Tìm kiếm nhà xuất bản..."
+        value={search}
+        onChange={(e) => {
+          setSearch(e.currentTarget.value);
+          setPage(1);
+        }}
+        radius="md"
+      />
+      <Group>
+        <Button
+          onClick={() => {
+            setEditId(null);
+            form.reset();
+            setModalOpen(true);
+          }}
+          color="cyan"
+          radius="md"
+        >
+          Thêm nhà xuất bản 
+        </Button>
+        <Button
+          onClick={handleOpenExportModal}
+          color="green"
+          radius="md"
+          leftSection={<IconDownload size={20} />}
+        >
+          Xuất file
+        </Button>
+      </Group>
+    </Group>
+    <Paper p="sm" radius="md" withBorder mb="md">
+      <Group gap="xs" align="center">
+        <Box w={20} h={20} bg="#fff9db" style={{ border: '1px solid #ddd' }} />
+        <Text size="sm" ta="left">
+          Nhà xuất bản không còn liên kết với bất kỳ sách nào, người dùng có thể xóa nhà xuất bản này.
+        </Text>
+      </Group>
+      <Group gap="xs" align="center" mt="xs">
+        <Box w={20} h={20} bg="white" style={{ border: '1px solid #ddd' }} />
+        <Text size="sm" ta="left">
+          Nhà xuất bản đang liên kết với sách, người dùng không thể xóa nhà xuất bản này.
+        </Text>
+      </Group>
+    </Paper>
+    <Divider my="sm" />
+    <Table highlightOnHover verticalAlign="center" style={{ tableLayout: 'fixed', width: '100%' }}>
+      <thead>
+        <tr>
+          <th style={{ textAlign: 'center', padding: '8px' }}>Mã nhà xuất bản</th>
+          <th style={{ textAlign: 'center', padding: '8px' }}>Tên nhà xuất bản</th>
+          <th style={{ textAlign: 'center', padding: '8px' }}>Số điện thoại</th>
+          <th style={{ textAlign: 'center', padding: '8px' }}>Địa chỉ</th>
+          <th style={{ textAlign: 'center', padding: '8px' }}>Email</th>
+          <th style={{ textAlign: 'center', padding: '8px' }}>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        {publishers.map((publisher) => (
+          <tr key={publisher.MaNXB} style={{ backgroundColor: publisher.hasBooks ? 'white' : '#fff9db' }}>
+            <td style={{ textAlign: 'center', padding: '8px' }}>{publisher.MaNXB}</td>
+            <td style={{ textAlign: 'center', padding: '8px' }}>{publisher.TenNXB}</td>
+            <td style={{ textAlign: 'center', padding: '8px' }}>
+              <Text size="sm">{publisher.SoDienThoai || '-'}</Text>
+            </td>
+            <td style={{ textAlign: 'center', padding: '8px' }}>
+              <Text size="sm">{publisher.DiaChi || '-'}</Text>
+            </td>
+            <td style={{ textAlign: 'center', padding: '8px' }}>
+              <Text size="sm">{publisher.Email || '-'}</Text>
+            </td>
+            <td style={{ textAlign: 'center', padding: '8px' }}>
+              <Group gap="xs" justify="center">
+                <Button
+                  variant="subtle"
+                  size="xs"
+                  color="cyan"
+                  leftSection={<IconPencil size={20} />}
+                  style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
+                  onClick={() => handleEdit(publisher)}
+                >
+                  Sửa
+                </Button>
+                <Button
+                  variant="subtle"
+                  size="xs"
+                  color="red"
+                  leftSection={<IconTrash size={20} />}
+                  style={{ fontSize: '13px', display: 'flex', alignItems: 'center' }}
+                  onClick={() => {
+                    setDeleteId(publisher.MaNXB);
+                    setDeleteModalOpen(true);
+                  }}
+                >
+                  Xóa
+                </Button>
+              </Group>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </Table>
+    {publishers.length === 0 && (
+      <Text ta="center" c="dimmed" mt="lg">
+        Không tìm thấy nhà xuất bản nào.
+      </Text>
+    )}
+    {total > 1 && (
+      <Group justify="center" mt="md">
+        <Pagination total={total} value={page} onChange={setPage} color="cyan" radius="md" />
+      </Group>
+    )}
+    <Modal
+      opened={modalOpen}
+      onClose={() => {
+        setModalOpen(false);
+        form.reset();
+        setEditId(null);
+      }}
+      title={editId ? 'Sửa nhà xuất bản' : 'Thêm nhà xuất bản'}
+      size="md"
+      radius="md"
+    >
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <TextInput
+          label="Tên nhà xuất bản"
+          placeholder="Nhập tên nhà xuất bản"
+          {...form.getInputProps('TenNXB')}
+          required
+          radius="md"
+        />
+        <TextInput
+          label="Số điện thoại"
+          placeholder="Nhập số điện thoại (tùy chọn)"
+          mt="md"
+          {...form.getInputProps('SoDienThoai')}
+          radius="md"
+        />
+        <TextInput
+          label="Địa chỉ"
+          placeholder="Nhập địa chỉ (tùy chọn)"
+          mt="md"
+          {...form.getInputProps('DiaChi')}
+          radius="md"
+        />
+        <TextInput
+          label="Email"
+          placeholder="Nhập email (tùy chọn)"
+          mt="md"
+          {...form.getInputProps('Email')}
+          radius="md"
+        />
+        <Group justify="flex-end" mt="lg">
+          <Button type="submit" color="cyan" radius="md">
+            {editId ? 'Cập nhật' : 'Thêm NXB'}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setModalOpen(false);
+              form.reset();
+              setEditId(null);
             }}
             radius="md"
-          />
-          <Group>
-            <Button
-              onClick={() => {
-                setEditId(null);
-                form.reset();
-                setModalOpen(true);
-              }}
-              color="cyan"
-              radius="md"
-            >
-              Thêm nhà xuất bản 
-            </Button>
-            <Button
-              onClick={handleOpenExportModal}
-              color="green"
-              radius="md"
-              leftSection={<IconDownload size={20} />}
-            >
-              Xuất file
-            </Button>
-          </Group>
+          >
+            Hủy
+          </Button>
         </Group>
-        <Paper p="sm" radius="md" withBorder mb="md">
-          <Group gap="xs" align="center">
-            <Box w={20} h={20} bg="#fff9db" style={{ border: '1px solid #ddd' }} />
-            <Text size="sm" ta="left">
-              Nhà xuất bản không còn liên kết với bất kỳ sách nào, người dùng có thể xóa nhà xuất bản này.
-            </Text>
-          </Group>
-          <Group gap="xs" align="center" mt="xs">
-            <Box w={20} h={20} bg="white" style={{ border: '1px solid #ddd' }} />
-            <Text size="sm" ta="left">
-              Nhà xuất bản đang liên kết với sách, người dùng không thể xóa nhà xuất bản này.
-            </Text>
-          </Group>
-        </Paper>
-        <Divider my="sm" />
-        <Table highlightOnHover verticalAlign="center">
-          <thead>
-            <tr>
-              <th>Mã nhà xuất bản</th>
-              <th>Tên nhà xuất bản</th>
-              <th>Số điện thoại</th>
-              <th>Địa chỉ</th>
-              <th>Email</th>
-              <th style={{ textAlign: 'center' }}>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {publishers.map((publisher) => (
-              <tr key={publisher.MaNXB} style={{ backgroundColor: publisher.hasBooks ? 'white' : '#fff9db' }}>
-                <td>{publisher.MaNXB}</td>
-                <td>{publisher.TenNXB}</td>
-                <td><Text size="sm">{publisher.SoDienThoai || '-'}</Text></td>
-                <td><Text size="sm">{publisher.DiaChi || '-'}</Text></td>
-                <td><Text size="sm">{publisher.Email || '-'}</Text></td>
-                <td>
-                  <Group gap="xs" justify="center">
-                    <Button
-                      variant="subtle"
-                      size="xs"
-                      color="cyan"
-                      leftSection={<IconPencil size={20} />}
-                      style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
-                      onClick={() => handleEdit(publisher)}
-                    >
-                      Sửa
-                    </Button>
-                    <Button
-                      variant="subtle"
-                      size="xs"
-                      color="red"
-                      leftSection={<IconTrash size={20} />}
-                      style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
-                      onClick={() => {
-                        setDeleteId(publisher.MaNXB);
-                        setDeleteModalOpen(true);
-                      }}
-                    >
-                      Xóa
-                    </Button>
-                  </Group>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-        {publishers.length === 0 && (
-          <Text ta="center" c="dimmed" mt="lg">
-            Không tìm thấy nhà xuất bản nào.
-          </Text>
-        )}
-        {total > 1 && (
-          <Group justify="center" mt="md">
-            <Pagination total={total} value={page} onChange={setPage} color="cyan" radius="md" />
-          </Group>
-        )}
-        <Modal
-          opened={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            form.reset();
-            setEditId(null);
-          }}
-          title={editId ? 'Sửa nhà xuất bản' : 'Thêm nhà xuất bản'}
-          size="md"
-          radius="md"
-        >
-          <form onSubmit={form.onSubmit(handleSubmit)}>
-            <TextInput
-              label="Tên nhà xuất bản"
-              placeholder="Nhập tên nhà xuất bản"
-              {...form.getInputProps('TenNXB')}
-              required
-              radius="md"
-            />
-            <TextInput
-              label="Số điện thoại"
-              placeholder="Nhập số điện thoại (tùy chọn)"
-              mt="md"
-              {...form.getInputProps('SoDienThoai')}
-              radius="md"
-            />
-            <TextInput
-              label="Địa chỉ"
-              placeholder="Nhập địa chỉ (tùy chọn)"
-              mt="md"
-              {...form.getInputProps('DiaChi')}
-              radius="md"
-            />
-            <TextInput
-              label="Email"
-              placeholder="Nhập email (tùy chọn)"
-              mt="md"
-              {...form.getInputProps('Email')}
-              radius="md"
-            />
-            <Group justify="flex-end" mt="lg">
-              <Button type="submit" color="cyan" radius="md">
-                {editId ? 'Cập nhật' : 'Thêm'}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setModalOpen(false);
-                  form.reset();
-                  setEditId(null);
-                }}
-                radius="md"
-              >
-                Hủy
-              </Button>
-            </Group>
-          </form>
-        </Modal>
-        <Modal
-          opened={deleteModalOpen}
-          onClose={() => setDeleteModalOpen(false)}
-          title="Xác nhận xóa"
-          size="sm"
-          radius="md"
-        >
-          <Text>Bạn có chắc chắn muốn xóa nhà xuất bản này?</Text>
-          <Group justify="flex-end" mt="md">
-            <Button color="red" onClick={handleDelete} radius="md">
-              Xóa
-            </Button>
-            <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
-              Hủy
-            </Button>
-          </Group>
-        </Modal>
-        <Modal
-          opened={exportModalOpen}
-          onClose={() => setExportModalOpen(false)}
-          title="Xác nhận xuất file"
-          size="sm"
-          radius="md"
-        >
-          <Text>Bạn có muốn xác nhận xuất file danh sách nhà xuất bản?</Text>
-          <Group justify="flex-end" mt="md">
-            <Button color="green" onClick={handleExport} radius="md">
-              Xuất file
-            </Button>
-            <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md">
-              Hủy
-            </Button>
-          </Group>
-        </Modal>
-      </Paper>
-    </Container>
+      </form>
+    </Modal>
+    <Modal
+      opened={deleteModalOpen}
+      onClose={() => setDeleteModalOpen(false)}
+      title="Xác nhận xóa"
+      size="sm"
+      radius="md"
+    >
+      <Text>Bạn có chắc chắn muốn xóa nhà xuất bản này?</Text>
+      <Group justify="flex-end" mt="md">
+        <Button color="red" onClick={handleDelete} radius="md">
+          Xóa NXB
+        </Button>
+        <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
+          Hủy
+        </Button>
+      </Group>
+    </Modal>
+    <Modal
+      opened={exportModalOpen}
+      onClose={() => setExportModalOpen(false)}
+      title="Xác nhận xuất file"
+      size="sm"
+      radius="md"
+    >
+      <Text>Bạn có muốn xác nhận xuất file danh sách nhà xuất bản?</Text>
+      <Group justify="flex-end" mt="md">
+        <Button color="green" onClick={handleExport} radius="md">
+          Xuất file
+        </Button>
+        <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md">
+          Hủy
+        </Button>
+      </Group>
+    </Modal>
+  </Paper>
+</Container>
   );
 }
 
