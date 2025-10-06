@@ -1,6 +1,8 @@
 const prisma = require('../models/db.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+
 class AuthController {
     // [POST] /api/auth/login
     async login(req, res) {
@@ -52,6 +54,7 @@ class AuthController {
             });
         } catch (error) {
             console.error(error);
+            fs.appendFileSync('error.log', `${new Date().toISOString()} - LOGIN ERROR: ${error.stack}\n`);
             res.status(500).json({ message: 'Lỗi hệ thống.', error: error.message });
         }
     }
@@ -131,6 +134,7 @@ class AuthController {
 
         } catch (error) {
             console.error(error);
+            fs.appendFileSync('error.log', `${new Date().toISOString()} - REGISTER ERROR: ${error.stack}\n`);
             res.status(500).json({ message: 'Lỗi hệ thống.', error: error.message });
         }
     }

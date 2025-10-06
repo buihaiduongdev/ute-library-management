@@ -119,6 +119,36 @@ function Navbar() {
                         </Menu>
                     </>
                 )}
+                 {role === '0' && (
+                    <Button 
+                        component={Link} 
+                        to="/admin/readers"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        Quản lý Độc giả
+                    </Button>
+                )}
+                {(role === '0' || role === '1') && (
+                    <Button 
+                        component={Link} 
+                        to="/card-management"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        🎴 Quản lý Thẻ
+                    </Button>
+                )}
+                {role === '0' && (
+                    <Button 
+                        component={Link} 
+                        to="/reader-stats"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        📊 Thống kê Độc giả
+                    </Button>
+                )}
             </Group>
             <Group>
                 {token ? <LoggedInMenu /> : <LoggedOutButtons />}
