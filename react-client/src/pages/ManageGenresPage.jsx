@@ -149,7 +149,7 @@ function ManageGenresPage() {
   };
 
   return (
-    <Container size="lg" py="xl">
+        <Container size="lg" py="xl">
       <Title order={2} c="cyan" ta="center" mb="sm">
         Quản Lý Thể Loại
       </Title>
@@ -201,31 +201,31 @@ function ManageGenresPage() {
           </Group>
         </Paper>
         <Divider my="sm" />
-        <Table highlightOnHover verticalAlign="center">
+        <Table highlightOnHover verticalAlign="center" style={{ tableLayout: 'fixed', width: '100%' }}>
           <thead>
             <tr>
-              <th>Mã thể loại</th>
-              <th>Tên thể loại</th>
-              <th>Mô tả</th>
-              <th style={{ textAlign: 'center' }}>Hành động</th>
+              <th style={{ textAlign: 'center', padding: '8px' }}>Mã thể loại</th>
+              <th style={{ textAlign: 'center', padding: '8px' }}>Tên thể loại</th>
+              <th style={{ textAlign: 'center', padding: '8px' }}>Mô tả</th>
+              <th style={{ textAlign: 'center', padding: '8px' }}>Hành động</th>
             </tr>
           </thead>
           <tbody>
             {genres.map((genre) => (
               <tr key={genre.MaTL} style={{ backgroundColor: genre.hasBooks ? 'white' : '#fff9db' }}>
-                <td>{genre.MaTL}</td>
-                <td>{genre.TenTheLoai}</td>
-                <td>
+                <td style={{ textAlign: 'center', padding: '8px' }}>{genre.MaTL}</td>
+                <td style={{ textAlign: 'center', padding: '8px' }}>{genre.TenTheLoai}</td>
+                <td style={{ textAlign: 'center', padding: '8px' }}>
                   <Text size="sm">{genre.MoTa || '-'}</Text>
                 </td>
-                <td>
+                <td style={{ textAlign: 'center', padding: '8px' }}>
                   <Group gap="xs" justify="center">
                     <Button
                       variant="subtle"
                       size="xs"
                       color="cyan"
                       leftSection={<IconPencil size={20} />}
-                      style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
+                      style={{ fontSize: '14px', display: 'flex', alignItems: 'center' }}
                       onClick={() => handleEdit(genre)}
                     >
                       Sửa
@@ -235,7 +235,7 @@ function ManageGenresPage() {
                       size="xs"
                       color="red"
                       leftSection={<IconTrash size={20} />}
-                      style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
+                      style={{ fontSize: '14px', display: 'flex', alignItems: 'center' }}
                       onClick={() => {
                         setDeleteId(genre.MaTL);
                         setDeleteModalOpen(true);
@@ -287,7 +287,7 @@ function ManageGenresPage() {
             />
             <Group justify="flex-end" mt="lg">
               <Button type="submit" color="cyan" radius="md">
-                {editId ? 'Cập nhật' : 'Thêm'}
+                {editId ? 'Cập nhật' : 'Thêm thể loại'}
               </Button>
               <Button
                 variant="outline"
@@ -313,7 +313,7 @@ function ManageGenresPage() {
           <Text>Bạn có chắc chắn muốn xóa thể loại này?</Text>
           <Group justify="flex-end" mt="md">
             <Button color="red" onClick={handleDelete} radius="md">
-              Xóa
+              Xóa thể loại
             </Button>
             <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
               Hủy
