@@ -5,6 +5,7 @@ const authorsRouter = require('./authors');
 const genresRouter = require('./genres');
 const publishersRouter = require('./publishers');
 const borrowRouter = require('./borrow');
+const statisticsRouter = require('./statistics');
 const requestsRouter = require('./requests');
 
 function route(app) {
@@ -15,6 +16,7 @@ function route(app) {
   app.use('/api/genres', genresRouter);
   app.use('/api/publishers', publishersRouter);
   app.use('/api/borrow', borrowRouter);
+  app.use('/api/statistics', statisticsRouter);
   app.use('/api/requests', requestsRouter);
 }
 

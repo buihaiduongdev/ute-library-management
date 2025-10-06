@@ -6,10 +6,8 @@ import {
     Button, 
     Paper, 
     Title, 
-    Container, 
-    Group,
+    Container,
     Anchor,
-    Alert,
     Center
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -43,7 +41,7 @@ function LoginPage() {
             localStorage.setItem('username', data.username);
             
             switch (data.role) {
-                case 0: navigate('/admin'); break;
+                case 0: navigate('/'); break;
                 case 1: navigate('/staff'); break;
                 case 2: navigate('/reader'); break;
                 default: navigate('/');

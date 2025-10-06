@@ -148,7 +148,7 @@ function ManageAuthorsPage() {
   };
 
   return (
-    <Container size="lg" py="xl">
+        <Container size="lg" py="xl">
       <Title order={2} c="cyan" ta="center" mb="sm">
         Quản Lý Tác Giả
       </Title>
@@ -200,33 +200,33 @@ function ManageAuthorsPage() {
           </Group>
         </Paper>
         <Divider my="sm" />
-        <Table highlightOnHover verticalAlign="center">
+        <Table highlightOnHover verticalAlign="center" style={{ tableLayout: 'fixed', width: '100%' }}>
           <thead>
             <tr>
-              <th>Mã tác giả</th>
-              <th>Tên tác giả</th>
-              <th>Quốc tịch</th>
-              <th>Tiểu sử</th>
-              <th style={{ textAlign: 'center' }}>Hành động</th>
+              <th style={{ textAlign: 'center', padding: '8px' }}>Mã tác giả</th>
+              <th style={{ textAlign: 'center', padding: '8px' }}>Tên tác giả</th>
+              <th style={{ textAlign: 'center', padding: '8px' }}>Quốc tịch</th>
+              <th style={{ textAlign: 'center', padding: '8px' }}>Tiểu sử</th>
+              <th style={{ textAlign: 'center', padding: '8px' }}>Hành động</th>
             </tr>
           </thead>
           <tbody>
             {authors.map((author) => (
               <tr key={author.MaTG} style={{ backgroundColor: author.hasBooks ? 'white' : '#fff9db' }}>
-                <td>{author.MaTG}</td>
-                <td>{author.TenTacGia}</td>
-                <td>{author.QuocTich || '-'}</td>
-                <td>
+                <td style={{ textAlign: 'center', padding: '8px' }}>{author.MaTG}</td>
+                <td style={{ textAlign: 'center', padding: '8px' }}>{author.TenTacGia}</td>
+                <td style={{ textAlign: 'center', padding: '8px' }}>{author.QuocTich || '-'}</td>
+                <td style={{ textAlign: 'center', padding: '8px' }}>
                   <Text size="sm">{author.TieuSu || '-'}</Text>
                 </td>
-                <td>
+                <td style={{ textAlign: 'center', padding: '8px' }}>
                   <Group gap="xs" justify="center">
                     <Button
                       variant="subtle"
                       size="xs"
                       color="cyan"
                       leftSection={<IconPencil size={20} />}
-                      style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
+                      style={{ fontSize: '14px', display: 'flex', alignItems: 'center' }}
                       onClick={() => handleEdit(author)}
                     >
                       Sửa
@@ -236,7 +236,7 @@ function ManageAuthorsPage() {
                       size="xs"
                       color="red"
                       leftSection={<IconTrash size={20} />}
-                      style={{ fontSize: '12px', display: 'flex', alignItems: 'center' }}
+                      style={{ fontSize: '14px', display: 'flex', alignItems: 'center' }}
                       onClick={() => {
                         setDeleteId(author.MaTG);
                         setDeleteModalOpen(true);
@@ -295,7 +295,7 @@ function ManageAuthorsPage() {
             />
             <Group justify="flex-end" mt="lg">
               <Button type="submit" color="cyan" radius="md">
-                {editId ? 'Cập nhật' : 'Thêm'}
+                {editId ? 'Cập nhật' : 'Thêm tác giả'}
               </Button>
               <Button
                 variant="outline"
@@ -321,7 +321,7 @@ function ManageAuthorsPage() {
           <Text>Bạn có chắc chắn muốn xóa tác giả này?</Text>
           <Group justify="flex-end" mt="md">
             <Button color="red" onClick={handleDelete} radius="md">
-              Xóa
+              Xóa tác giả
             </Button>
             <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
               Hủy
@@ -340,7 +340,7 @@ function ManageAuthorsPage() {
             <Button color="green" onClick={handleExport} radius="md">
               Xuất file
             </Button>
-            <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
+            <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md">
               Hủy
             </Button>
           </Group>
