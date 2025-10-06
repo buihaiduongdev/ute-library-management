@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Title, TextInput, Button, SimpleGrid, Image, Modal, FileInput, Autocomplete, Group, Card, Text, Grid, Pagination } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
-import { IconPencil, IconTrash, IconDownload } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconDownload, IconBook, IconSearch, IconPlus, IconUser, IconCategory, IconBuilding, IconCalendar, IconNumber, IconCurrencyDollar, IconPhoto, IconCheck, IconX, IconCircleCheck, IconCircleX } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 
 function ManageBooksPage() {
@@ -10,7 +10,7 @@ function ManageBooksPage() {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [exportModalOpen, setExportModalOpen] = useState(false); // Thêm trạng thái cho modal xuất file
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
   const [genres, setGenres] = useState([]);
@@ -215,7 +215,6 @@ function ManageBooksPage() {
         responseType: 'blob',
       });
 
-      // Kiểm tra response là Blob
       if (!(response instanceof Blob)) {
         console.error('handleExport: Expected Blob, received:', typeof response);
         throw new Error('Phản hồi không phải là file Excel');
@@ -223,7 +222,6 @@ function ManageBooksPage() {
 
       console.log('handleExport: Received Blob, size:', response.size, 'type:', response.type);
 
-      // Tạo URL từ Blob
       const url = window.URL.createObjectURL(response);
       const link = document.createElement('a');
       link.href = url;
@@ -249,21 +247,22 @@ function ManageBooksPage() {
         window.location.href = '/login';
       }
     }
-    setExportModalOpen(false); // Đóng modal sau khi xuất file
+    setExportModalOpen(false);
   };
 
   const handleOpenExportModal = () => {
-    setExportModalOpen(true); // Mở modal xác nhận xuất file
+    setExportModalOpen(true);
   };
 
   return (
     <Container size="xl" py="xl">
       <Title order={2} c="cyan" ta="center" mb="lg">
+        <IconBook size={32} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
         Quản Lý Sách
       </Title>
       <Group mb="lg" grow>
         <TextInput
-          placeholder="Tìm kiếm sách"
+          placeholder="Tìm kiếm sách..."
           value={search}
           onChange={(e) => {
             setSearch(e.currentTarget.value);
@@ -271,6 +270,7 @@ function ManageBooksPage() {
           }}
           radius="md"
           size="md"
+          leftSection={<IconSearch size={20} />}
         />
         <Group>
           <Button
@@ -282,11 +282,12 @@ function ManageBooksPage() {
             color="cyan"
             radius="md"
             size="md"
+            leftSection={<IconPlus size={20} />}
           >
             Thêm Sách
           </Button>
           <Button
-            onClick={handleOpenExportModal} // Sửa đổi để mở modal xác nhận
+            onClick={handleOpenExportModal}
             color="green"
             radius="md"
             size="md"
@@ -315,7 +316,14 @@ function ManageBooksPage() {
                 <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Số lượng: {book.SoLuong}</Text>
                 <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Giá sách: {book.GiaSach || 'N/A'}</Text>
                 <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
-                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Trạng thái: {book.TrangThai}</Text>
+                <Text style={{ fontSize: '12px' }} ta="left" truncate="end">
+                  Trạng thái: {book.TrangThai}{' '}
+                  {book.TrangThai === 'Còn sách' ? (
+                    <IconCircleCheck size={16} color="green" style={{ verticalAlign: 'middle' }} />
+                  ) : (
+                    <IconCircleX size={16} color="red" style={{ verticalAlign: 'middle' }} />
+                  )}
+                </Text>
                 <Group gap={4} mt="sm" justify="flex-end" style={{ flexWrap: 'nowrap' }}>
                   <Button
                     variant="subtle"
@@ -323,7 +331,7 @@ function ManageBooksPage() {
                     color="cyan"
                     leftSection={<IconPencil size={23} />}
                     onClick={() => handleEdit(book)}
-                    style={{ fontSize: '12px' }}
+                   
                   >
                     
                   </Button>
@@ -381,7 +389,12 @@ function ManageBooksPage() {
           form.reset();
           setEditId(null);
         }}
-        title={editId ? 'Sửa Sách' : 'Thêm Sách'}
+        title={
+          <Group>
+            <IconBook size={24} />
+            <Text size="lg">{editId ? 'Sửa Sách' : 'Thêm Sách'}</Text>
+          </Group>
+        }
         size="lg"
         radius="md"
       >
@@ -393,6 +406,7 @@ function ManageBooksPage() {
             required
             radius="md"
             mt="sm"
+            leftSection={<IconBook size={20} />}
           />
           <TextInput
             label="Tác giả"
@@ -401,6 +415,7 @@ function ManageBooksPage() {
             required
             radius="md"
             mt="sm"
+            leftSection={<IconUser size={20} />}
           />
           <Autocomplete
             label="Thể loại"
@@ -409,6 +424,7 @@ function ManageBooksPage() {
             {...form.getInputProps('TheLoai')}
             radius="md"
             mt="sm"
+            leftSection={<IconCategory size={20} />}
           />
           <TextInput
             label="Nhà xuất bản"
@@ -417,6 +433,7 @@ function ManageBooksPage() {
             required
             radius="md"
             mt="sm"
+            leftSection={<IconBuilding size={20} />}
           />
           <TextInput
             label="Năm xuất bản"
@@ -424,6 +441,7 @@ function ManageBooksPage() {
             {...form.getInputProps('NamXuatBan')}
             radius="md"
             mt="sm"
+            leftSection={<IconCalendar size={20} />}
           />
           <TextInput
             label="Số lượng"
@@ -432,6 +450,7 @@ function ManageBooksPage() {
             required
             radius="md"
             mt="sm"
+            leftSection={<IconNumber size={20} />}
           />
           <TextInput
             label="Giá sách"
@@ -440,6 +459,7 @@ function ManageBooksPage() {
             required
             radius="md"
             mt="sm"
+            leftSection={<IconCurrencyDollar size={20} />}
           />
           <TextInput
             label="Vị trí kệ"
@@ -447,6 +467,7 @@ function ManageBooksPage() {
             {...form.getInputProps('ViTriKe')}
             radius="md"
             mt="sm"
+            leftSection={<IconBook size={20} />}
           />
           <FileInput
             label="Ảnh bìa"
@@ -455,6 +476,7 @@ function ManageBooksPage() {
             onChange={handleFileChange}
             radius="md"
             mt="sm"
+            leftSection={<IconPhoto size={20} />}
             clearable
           />
           {form.values.AnhBia && (
@@ -468,7 +490,7 @@ function ManageBooksPage() {
             />
           )}
           <Group justify="flex-end" mt="lg">
-            <Button type="submit" color="cyan" radius="md">
+            <Button type="submit" color="cyan" radius="md" leftSection={<IconCheck size={20} />}>
               {editId ? 'Cập nhật' : 'Thêm sách'}
             </Button>
             <Button
@@ -479,6 +501,7 @@ function ManageBooksPage() {
                 setEditId(null);
               }}
               radius="md"
+              leftSection={<IconX size={20} />}
             >
               Hủy
             </Button>
@@ -489,16 +512,21 @@ function ManageBooksPage() {
       <Modal
         opened={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
-        title="Xác nhận xóa"
+        title={
+          <Group>
+            <IconTrash size={24} />
+            <Text size="lg">Xác nhận xóa</Text>
+          </Group>
+        }
         size="sm"
         radius="md"
       >
         <Text>Bạn có chắc chắn muốn xóa sách này?</Text>
         <Group justify="flex-end" mt="md">
-          <Button color="red" onClick={handleDelete} radius="md">
+          <Button color="red" onClick={handleDelete} radius="md" leftSection={<IconTrash size={20} />}>
             Xóa sách
           </Button>
-          <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
+          <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md" leftSection={<IconX size={20} />}>
             Hủy
           </Button>
         </Group>
@@ -507,16 +535,21 @@ function ManageBooksPage() {
       <Modal
         opened={exportModalOpen}
         onClose={() => setExportModalOpen(false)}
-        title="Xác nhận xuất file"
+        title={
+          <Group>
+            <IconDownload size={24} />
+            <Text size="lg">Xác nhận xuất file</Text>
+          </Group>
+        }
         size="sm"
         radius="md"
       >
         <Text>Bạn có muốn xác nhận xuất file danh sách sách?</Text>
         <Group justify="flex-end" mt="md">
-          <Button color="green" onClick={handleExport} radius="md">
+          <Button color="green" onClick={handleExport} radius="md" leftSection={<IconDownload size={20} />}>
             Xuất file
           </Button>
-          <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md">
+          <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md" leftSection={<IconX size={20} />}>
             Hủy
           </Button>
         </Group>

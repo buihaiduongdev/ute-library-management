@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Container, Title, TextInput, Button, Table, Modal, Group, Paper, Divider, Text, Pagination, Box } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
-import { IconPencil, IconTrash, IconDownload } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconDownload, IconCategory, IconSearch, IconPlus, IconInfoCircle, IconCheck, IconX } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
-import { rem } from '@mantine/core';
 
 function ManageGenresPage() {
   const [genres, setGenres] = useState([]);
@@ -149,8 +148,9 @@ function ManageGenresPage() {
   };
 
   return (
-        <Container size="lg" py="xl">
+    <Container size="lg" py="xl">
       <Title order={2} c="cyan" ta="center" mb="sm">
+        <IconCategory size={32} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
         Quản Lý Thể Loại
       </Title>
       <Paper shadow="sm" p="md" radius="md" withBorder>
@@ -163,6 +163,7 @@ function ManageGenresPage() {
               setPage(1);
             }}
             radius="md"
+            leftSection={<IconSearch size={20} />}
           />
           <Group>
             <Button
@@ -173,6 +174,7 @@ function ManageGenresPage() {
               }}
               color="cyan"
               radius="md"
+              leftSection={<IconPlus size={20} />}
             >
               Thêm thể loại
             </Button>
@@ -266,7 +268,12 @@ function ManageGenresPage() {
             form.reset();
             setEditId(null);
           }}
-          title={editId ? 'Sửa thể loại' : 'Thêm thể loại'}
+          title={
+            <Group>
+              <IconCategory size={24} />
+              <Text size="lg">{editId ? 'Sửa thể loại' : 'Thêm thể loại'}</Text>
+            </Group>
+          }
           size="md"
           radius="md"
         >
@@ -277,6 +284,7 @@ function ManageGenresPage() {
               {...form.getInputProps('TenTheLoai')}
               required
               radius="md"
+              leftSection={<IconCategory size={20} />}
             />
             <TextInput
               label="Mô tả"
@@ -284,9 +292,10 @@ function ManageGenresPage() {
               mt="md"
               {...form.getInputProps('MoTa')}
               radius="md"
+              leftSection={<IconInfoCircle size={20} />}
             />
             <Group justify="flex-end" mt="lg">
-              <Button type="submit" color="cyan" radius="md">
+              <Button type="submit" color="cyan" radius="md" leftSection={<IconCheck size={20} />}>
                 {editId ? 'Cập nhật' : 'Thêm thể loại'}
               </Button>
               <Button
@@ -297,6 +306,7 @@ function ManageGenresPage() {
                   setEditId(null);
                 }}
                 radius="md"
+                leftSection={<IconX size={20} />}
               >
                 Hủy
               </Button>
@@ -306,16 +316,21 @@ function ManageGenresPage() {
         <Modal
           opened={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
-          title="Xác nhận xóa"
+          title={
+            <Group>
+              <IconTrash size={24} />
+              <Text size="lg">Xác nhận xóa</Text>
+            </Group>
+          }
           size="sm"
           radius="md"
         >
           <Text>Bạn có chắc chắn muốn xóa thể loại này?</Text>
           <Group justify="flex-end" mt="md">
-            <Button color="red" onClick={handleDelete} radius="md">
+            <Button color="red" onClick={handleDelete} radius="md" leftSection={<IconTrash size={20} />}>
               Xóa thể loại
             </Button>
-            <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
+            <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md" leftSection={<IconX size={20} />}>
               Hủy
             </Button>
           </Group>
@@ -323,16 +338,21 @@ function ManageGenresPage() {
         <Modal
           opened={exportModalOpen}
           onClose={() => setExportModalOpen(false)}
-          title="Xác nhận xuất file"
+          title={
+            <Group>
+              <IconDownload size={24} />
+              <Text size="lg">Xác nhận xuất file</Text>
+            </Group>
+          }
           size="sm"
           radius="md"
         >
           <Text>Bạn có muốn xác nhận xuất file danh sách thể loại?</Text>
           <Group justify="flex-end" mt="md">
-            <Button color="green" onClick={handleExport} radius="md">
+            <Button color="green" onClick={handleExport} radius="md" leftSection={<IconDownload size={20} />}>
               Xuất file
             </Button>
-            <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md">
+            <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md" leftSection={<IconX size={20} />}>
               Hủy
             </Button>
           </Group>
