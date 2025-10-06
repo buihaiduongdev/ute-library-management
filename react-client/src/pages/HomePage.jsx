@@ -23,6 +23,8 @@ import '../assets/css/HomePage.css';
 // --- BookCard ---
 const BookCard = ({ book }) => {
   const authors = book.Sach_TacGia?.map(a => a.TacGia.TenTacGia).join(', ') || 'Chưa có thông tin';
+  const categories = book.Sach_TheLoai?.map(st => st.TheLoai.TenTheLoai).join(', ') || 'Chưa có thông tin';
+
   const theme = useMantineTheme();
   
   return (
@@ -61,12 +63,9 @@ const BookCard = ({ book }) => {
         {authors}
       </Text>
       
-      {/* Thêm badge nhỏ cho thể loại nếu có, ví dụ */}
-      {book.TheLoai && (
-        <Badge variant="light" color="indigo" size="sm">
-          {book.TheLoai}
+        <Badge variant="light" color="indigo" size="sm" mr="xs">
+          {categories}
         </Badge>
-      )}
 
     <Button
       fullWidth

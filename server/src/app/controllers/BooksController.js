@@ -542,6 +542,7 @@ const BooksController = {
         where: { MaSach: { in: uniqueSachIds.slice(0, 10) } },
         include: {
           Sach_TacGia: { include: { TacGia: true } },
+          Sach_TheLoai: { include: { TheLoai: true } },
         },
       });
 
@@ -572,6 +573,7 @@ const BooksController = {
         take: 10,
         include: {
           Sach_TacGia: { include: { TacGia: true } },
+          Sach_TheLoai: { include: { TheLoai: true } },
         },
       });
 
@@ -639,10 +641,26 @@ const BooksController = {
       console.error("Lỗi trong getRecommendedBooks:", err);
       res.status(500).json({ message: err.message });
     }
+  },
+  
+  
+  async getBookCopies(req, res){
+    try{
+      const id = Number(req.params.id);
+      const copies = await prisma.cuonSach.findMany({
+        where: { MaSach: id },
+        select: {
+          MaCuonSach: true,
+          TrangThaiCS: true,
+        },
+      });
+      console.log(`getBookCopies: Lấy bản sao sách ${id}`);
+      res.json({ message: "Thành công", data: copies });
+    }
+    catch(err){
+      res.status(500).json({ message: err.message });
+    }
   }
-  
-  
-  //Ket thu Phan cho home
 };
 
 module.exports = BooksController;

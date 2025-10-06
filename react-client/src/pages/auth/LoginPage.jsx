@@ -39,11 +39,12 @@ function LoginPage() {
             localStorage.setItem('token', data.token);
             localStorage.setItem('role', data.role);
             localStorage.setItem('username', data.username);
+            localStorage.setItem('idDG', data.idDG);
             
             switch (data.role) {
                 case 0: navigate('/'); break;
-                case 1: navigate('/staff'); break;
-                case 2: navigate('/reader'); break;
+                case 1: navigate('/'); break;
+                case 2: navigate('/'); break;
                 default: navigate('/');
             }
 
