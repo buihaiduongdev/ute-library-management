@@ -9,6 +9,7 @@ import {
   HomePage,
   LoginPage,
   ReaderPage,
+  ReaderStatsPage,
   RegisterPage,
   StaffPage,
 } from './pages';
@@ -103,6 +104,16 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['0', '1']}>
                 <CardManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 📊 Reader Statistics - Only Admin */}
+          <Route 
+            path="/reader-stats" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <ReaderStatsPage />
               </ProtectedRoute>
             }
           />

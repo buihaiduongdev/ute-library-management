@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const readerStatsController = require('../controllers/ReaderStatsController');
 const prisma = require('../models/db');
+
+// Route mới để lấy trạng thái mượn sách của độc giả
+// GET /api/reader-stats/borrowing-status
+router.get('/borrowing-status', readerStatsController.getBorrowingStatus);
+
+
+// CÁC ROUTE HIỆN CÓ KHÁC...
 
 // 👥 Thống kê tổng quan độc giả
 router.get('/readers-overview', async (req, res) => {

@@ -105,7 +105,7 @@ function Navbar() {
                         Quản lý Độc giả
                     </Button>
                 )}
-                 {(role === '0' || role === '1') && (
+                {(role === '0' || role === '1') && (
                     <Button 
                         component={Link} 
                         to="/card-management"
@@ -113,6 +113,16 @@ function Navbar() {
                         size="md"
                     >
                         🎴 Quản lý Thẻ
+                    </Button>
+                )}
+                {role === '0' && (
+                    <Button 
+                        component={Link} 
+                        to="/reader-stats"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        📊 Thống kê Độc giả
                     </Button>
                 )}
             </Group>
