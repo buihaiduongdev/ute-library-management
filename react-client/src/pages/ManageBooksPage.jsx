@@ -321,24 +321,24 @@ function ManageBooksPage() {
                     variant="subtle"
                     size="xs"
                     color="cyan"
-                    leftSection={<IconPencil size={20} />}
+                    leftSection={<IconPencil size={23} />}
                     onClick={() => handleEdit(book)}
                     style={{ fontSize: '12px' }}
                   >
-                    Sửa
+                    
                   </Button>
                   <Button
                     variant="subtle"
                     size="xs"
                     color="red"
-                    leftSection={<IconTrash size={20} />}
+                    leftSection={<IconTrash size={23} />}
                     onClick={() => {
                       setDeleteId(book.MaSach);
                       setDeleteModalOpen(true);
                     }}
-                    style={{ fontSize: '12px' }}
+                    
                   >
-                    Xóa
+                    
                   </Button>
                 </Group>
               </Grid.Col>
@@ -469,7 +469,7 @@ function ManageBooksPage() {
           )}
           <Group justify="flex-end" mt="lg">
             <Button type="submit" color="cyan" radius="md">
-              {editId ? 'Cập nhật' : 'Thêm'}
+              {editId ? 'Cập nhật' : 'Thêm sách'}
             </Button>
             <Button
               variant="outline"
@@ -496,7 +496,7 @@ function ManageBooksPage() {
         <Text>Bạn có chắc chắn muốn xóa sách này?</Text>
         <Group justify="flex-end" mt="md">
           <Button color="red" onClick={handleDelete} radius="md">
-            Xóa
+            Xóa sách
           </Button>
           <Button variant="outline" onClick={() => setDeleteModalOpen(false)} radius="md">
             Hủy
