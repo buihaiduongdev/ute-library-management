@@ -14,7 +14,15 @@ class AuthController {
             const user = await prisma.taiKhoan.findUnique({
                 where: { TenDangNhap: username },
             });
+            let idDG = null;
 
+            if (user.VaiTro === 2) {
+            const dg = await prisma.docGia.findUnique({
+                where: { MaTK: user.MaTK },
+            });
+            idDG = dg.IdDG;
+        }
+            
             if (!user) {
                 return res.status(401).json({ message: 'Tên đăng nhập không tồn tại.' });
             }
@@ -39,7 +47,8 @@ class AuthController {
                 message: 'Đăng nhập thành công',
                 token,
                 username: user.TenDangNhap,
-                role: user.VaiTro
+                role: user.VaiTro,
+                idDG: idDG
             });
         } catch (error) {
             console.error(error);
