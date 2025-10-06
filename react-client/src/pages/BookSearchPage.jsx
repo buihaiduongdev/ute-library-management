@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button } from '@mantine/core';
-import { IconPencil } from '@tabler/icons-react';
+import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button, Input, Tabs } from '@mantine/core';
 import { get } from '../utils/api';
+import { IconBook, IconSearch, IconEye, IconX, IconUser, IconCategory, IconBuilding, IconCalendar, IconPackage, IconCash, IconMapPin, IconFlag, IconInfoCircle, IconPhone, IconMail } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 
 function BookSearchPage() {
@@ -43,6 +43,9 @@ function BookSearchPage() {
       AnhBia: book.AnhBia || null,
       MaSach: book.MaSach,
       TrangThai: book.TrangThai,
+      Sach_TacGia: book.Sach_TacGia || [], // Danh sách tác giả
+      Sach_TheLoai: book.Sach_TheLoai || [], // Danh sách thể loại
+      NhaXuatBan: book.NhaXuatBan || {}, // Thông tin NXB
     });
     setModalOpen(true);
   };
@@ -50,6 +53,7 @@ function BookSearchPage() {
   return (
     <Container size="xl" py="xl">
       <Title order={2} c="cyan" ta="center" mb="lg">
+        <IconBook size={32} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
         Tra Cứu Sách
       </Title>
       <Group mb="lg" grow>
@@ -62,6 +66,7 @@ function BookSearchPage() {
           }}
           radius="md"
           size="md"
+          leftSection={<IconSearch size={20} />}
         />
       </Group>
 
@@ -84,6 +89,16 @@ function BookSearchPage() {
                 <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Giá sách: {book.GiaSach || 'N/A'}</Text>
                 <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
                 <Text style={{ fontSize: '12px' }} ta="left" truncate="end">Trạng thái: {book.TrangThai}</Text>
+                <Button
+                  variant="light"
+                  color="cyan"
+                  size="xs"
+                  mt="xs"
+                  leftSection={<IconEye size={16} />}
+                  onClick={() => handleView(book)}
+                >
+                  Xem chi tiết
+                </Button>
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }} style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Image
@@ -123,85 +138,178 @@ function BookSearchPage() {
           setModalOpen(false);
           setSelectedBook(null);
         }}
-        title="Xem Sách"
+        title={
+          <Group>
+            <IconBook size={24} />
+            <Text size="lg">Xem Chi Tiết</Text>
+          </Group>
+        }
         size="lg"
         radius="md"
       >
         {selectedBook && (
-          <div>
-            <TextInput
-              label="Tiêu đề"
-              value={selectedBook.TieuDe}
-              disabled
-              radius="md"
-              mt="sm"
-            />
-            <TextInput
-              label="Tác giả"
-              value={selectedBook.TenTacGia}
-              disabled
-              radius="md"
-              mt="sm"
-            />
-            <TextInput
-              label="Thể loại"
-              value={selectedBook.TheLoai}
-              disabled
-              radius="md"
-              mt="sm"
-            />
-            <TextInput
-              label="Nhà xuất bản"
-              value={selectedBook.TenNXB}
-              disabled
-              radius="md"
-              mt="sm"
-            />
-            <TextInput
-              label="Năm xuất bản"
-              value={selectedBook.NamXuatBan}
-              disabled
-              radius="md"
-              mt="sm"
-            />
-            <TextInput
-              label="Số lượng"
-              value={selectedBook.SoLuong}
-              disabled
-              radius="md"
-              mt="sm"
-            />
-            <TextInput
-              label="Giá sách"
-              value={selectedBook.GiaSach}
-              disabled
-              radius="md"
-              mt="sm"
-            />
-            <TextInput
-              label="Vị trí kệ"
-              value={selectedBook.ViTriKe}
-              disabled
-              radius="md"
-              mt="sm"
-            />
-            <TextInput
-              label="Trạng thái"
-              value={selectedBook.TrangThai}
-              disabled
-              radius="md"
-              mt="sm"
-            />
-            {selectedBook.AnhBia && (
-              <Image
-                src={selectedBook.AnhBia}
-                height={100}
-                fit="contain"
-                radius="md"
-                mt="sm"
-                fallbackSrc="https://via.placeholder.com/100?text=Preview"
-              />
-            )}
+          <Tabs defaultValue="book">
+            <Tabs.List>
+              <Tabs.Tab value="book" icon={<IconBook size={20} />}>Xem Sách</Tabs.Tab>
+              <Tabs.Tab value="author" icon={<IconUser size={20} />}>Xem Tác Giả</Tabs.Tab>
+              <Tabs.Tab value="genre" icon={<IconCategory size={20} />}>Xem Thể Loại</Tabs.Tab>
+              <Tabs.Tab value="publisher" icon={<IconBuilding size={20} />}>Xem NXB</Tabs.Tab>
+            </Tabs.List>
+
+            <Tabs.Panel value="book" pt="xs">
+              <Input.Wrapper label="Tiêu đề" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconBook size={20} />
+                  <Text size="md">{selectedBook.TieuDe}</Text>
+                </Group>
+              </Input.Wrapper>
+              <Input.Wrapper label="Tác giả" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconUser size={20} />
+                  <Text size="md">{selectedBook.TenTacGia}</Text>
+                </Group>
+              </Input.Wrapper>
+              <Input.Wrapper label="Thể loại" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconCategory size={20} />
+                  <Text size="md">{selectedBook.TheLoai}</Text>
+                </Group>
+              </Input.Wrapper>
+              <Input.Wrapper label="Nhà xuất bản" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconBuilding size={20} />
+                  <Text size="md">{selectedBook.TenNXB}</Text>
+                </Group>
+              </Input.Wrapper>
+              <Input.Wrapper label="Năm xuất bản" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconCalendar size={20} />
+                  <Text size="md">{selectedBook.NamXuatBan}</Text>
+                </Group>
+              </Input.Wrapper>
+              <Input.Wrapper label="Số lượng" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconPackage size={20} />
+                  <Text size="md">{selectedBook.SoLuong}</Text>
+                </Group>
+              </Input.Wrapper>
+              <Input.Wrapper label="Giá sách" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconCash size={20} />
+                  <Text size="md">{selectedBook.GiaSach}</Text>
+                </Group>
+              </Input.Wrapper>
+              <Input.Wrapper label="Vị trí kệ" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconMapPin size={20} />
+                  <Text size="md">{selectedBook.ViTriKe}</Text>
+                </Group>
+              </Input.Wrapper>
+              <Input.Wrapper label="Trạng thái" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconPackage size={20} />
+                  <Text size="md">{selectedBook.TrangThai}</Text>
+                </Group>
+              </Input.Wrapper>
+              {selectedBook.AnhBia && (
+                <Image
+                  src={selectedBook.AnhBia}
+                  height={100}
+                  fit="contain"
+                  radius="md"
+                  mt="sm"
+                  fallbackSrc="https://via.placeholder.com/100?text=Preview"
+                />
+              )}
+            </Tabs.Panel>
+
+            <Tabs.Panel value="author" pt="xs">
+              {selectedBook.Sach_TacGia.length > 0 ? (
+                selectedBook.Sach_TacGia.map((author, index) => (
+                  <div key={author.TacGia.MaTG}>
+                    <Text size="md" mt="sm" fw={500}>Tác giả {index + 1}</Text>
+                    <Input.Wrapper label="Tên tác giả" mt="sm">
+                      <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                        <IconUser size={20} />
+                        <Text size="md">{author.TacGia.TenTacGia || 'N/A'}</Text>
+                      </Group>
+                    </Input.Wrapper>
+                    <Input.Wrapper label="Quốc tịch" mt="sm">
+                      <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                        <IconFlag size={20} />
+                        <Text size="md">{author.TacGia.QuocTich || 'N/A'}</Text>
+                      </Group>
+                    </Input.Wrapper>
+                    <Input.Wrapper label="Tiểu sử" mt="sm">
+                      <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                        <IconInfoCircle size={20} />
+                        <Text size="md">{author.TacGia.TieuSu || 'N/A'}</Text>
+                      </Group>
+                    </Input.Wrapper>
+                  </div>
+                ))
+              ) : (
+                <Text ta="center" c="dimmed" mt="lg">Không có thông tin tác giả</Text>
+              )}
+            </Tabs.Panel>
+
+            <Tabs.Panel value="genre" pt="xs">
+              {selectedBook.Sach_TheLoai.length > 0 ? (
+                selectedBook.Sach_TheLoai.map((genre, index) => (
+                  <div key={genre.TheLoai.MaTL}>
+                    <Text size="md" mt="sm" fw={500}>Thể loại {index + 1}</Text>
+                    <Input.Wrapper label="Tên thể loại" mt="sm">
+                      <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                        <IconCategory size={20} />
+                        <Text size="md">{genre.TheLoai.TenTheLoai || 'N/A'}</Text>
+                      </Group>
+                    </Input.Wrapper>
+                    <Input.Wrapper label="Mô tả" mt="sm">
+                      <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                        <IconInfoCircle size={20} />
+                        <Text size="md">{genre.TheLoai.MoTa || 'N/A'}</Text>
+                      </Group>
+                    </Input.Wrapper>
+                  </div>
+                ))
+              ) : (
+                <Text ta="center" c="dimmed" mt="lg">Không có thông tin thể loại</Text>
+              )}
+            </Tabs.Panel>
+
+            <Tabs.Panel value="publisher" pt="xs">
+              {selectedBook.NhaXuatBan && Object.keys(selectedBook.NhaXuatBan).length > 0 ? (
+                <div>
+                  <Input.Wrapper label="Tên nhà xuất bản" mt="sm">
+                    <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                      <IconBuilding size={20} />
+                      <Text size="md">{selectedBook.NhaXuatBan.TenNXB || 'N/A'}</Text>
+                    </Group>
+                  </Input.Wrapper>
+                  <Input.Wrapper label="Số điện thoại" mt="sm">
+                    <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                      <IconPhone size={20} />
+                      <Text size="md">{selectedBook.NhaXuatBan.SoDienThoai || 'N/A'}</Text>
+                    </Group>
+                  </Input.Wrapper>
+                  <Input.Wrapper label="Địa chỉ" mt="sm">
+                    <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                      <IconMapPin size={20} />
+                      <Text size="md">{selectedBook.NhaXuatBan.DiaChi || 'N/A'}</Text>
+                    </Group>
+                  </Input.Wrapper>
+                  <Input.Wrapper label="Email" mt="sm">
+                    <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                      <IconMail size={20} />
+                      <Text size="md">{selectedBook.NhaXuatBan.Email || 'N/A'}</Text>
+                    </Group>
+                  </Input.Wrapper>
+                </div>
+              ) : (
+                <Text ta="center" c="dimmed" mt="lg">Không có thông tin nhà xuất bản</Text>
+              )}
+            </Tabs.Panel>
+
             <Group justify="flex-end" mt="lg">
               <Button
                 variant="outline"
@@ -210,11 +318,12 @@ function BookSearchPage() {
                   setSelectedBook(null);
                 }}
                 radius="md"
+                leftSection={<IconX size={20} />}
               >
                 Đóng
               </Button>
             </Group>
-          </div>
+          </Tabs>
         )}
       </Modal>
     </Container>
