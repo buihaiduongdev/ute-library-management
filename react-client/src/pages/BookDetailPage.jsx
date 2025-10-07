@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
   Container,
   Grid,
@@ -23,6 +23,7 @@ import RequestBorrowModal from '../modals/RequestBorrowModal';
 const BookDetailPage = () => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
+  const [related, setRelated] = useState(null);
   const [modalOpened, setModalOpened] = useState(false);
   const [copies, setCopies] = useState(null);
   const [activeTab, setActiveTab] = useState("details");
@@ -42,6 +43,20 @@ const BookDetailPage = () => {
       });
     }
   };
+  const fetchBookRelated = async () => {
+    try {
+      const response = await authGet(`/books/${id}/related`);
+      setRelated(response.data);
+      console.log("TESTTTTTTTTTTT");
+    } catch (error) {
+      console.error("Lỗi khi tải chi tiết sách:", error);
+      notifications.show({
+        title: "Lỗi",
+        message: "Không thể tải sách liên quan.",
+        color: "red",
+      });
+    }
+  };
 
   const fetchBookCopies = async () => {
     try{
@@ -57,6 +72,7 @@ const BookDetailPage = () => {
   }
   useEffect(() => {
     fetchBookDetails();
+    fetchBookRelated();
     fetchBookCopies();
   }, [id]);
 
@@ -222,7 +238,7 @@ const BookDetailPage = () => {
       <Paper withBorder shadow="sm" p="md" radius="md" mt="lg">
         <Title order={3} mb="md">Sách liên quan</Title>
         <Grid>
-          {book.RelatedBooks?.map(relBook => {
+          {related?.map(relBook => {
             const authors = relBook.Sach_TacGia?.map(a => a.TacGia.TenTacGia).join(', ') || 'Chưa có thông tin';
             const categories = relBook.Sach_TheLoai?.map(st => st.TheLoai.TenTheLoai).join(', ') || 'Chưa có thông tin';
 
@@ -239,21 +255,25 @@ const BookDetailPage = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-start',
-                    height: 180,
+                    height: 250,
                     padding: '0.5rem',
                   }}
                 >
                   <Card.Section>
                     <img
-                      src={relBook.AnhBia || 'https://via.placeholder.com/50x50?text=No+Image'}
+                src={'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+                   || relBook.AnhBia }
                       alt={relBook.TieuDe}
-                      style={{ height: 50, width: '100%', objectFit: 'cover', marginBottom: '0.5rem' }}
-                    />
+                      style={{
+                        height: 200,
+                        width: '100%',
+                        objectFit: 'cover',
+                        objectPosition: 'center',
+                        marginBottom: '0.5rem'
+                      }}
+                                          />
                   </Card.Section>
-
-                  <Text fw={600} size="sm" lineClamp={1} mb="2px">{relBook.TieuDe}</Text>
-                  <Text size="xs" c="dimmed" lineClamp={1} mb="2px">{authors}</Text>
-                  <Badge variant="light" color="indigo" size="xs">{categories}</Badge>
+                  <Text fw={600} ta='center' size="sm" lineClamp={1} mb="2px">{relBook.TieuDe}</Text>
                 </Card>
               </Grid.Col>
             );

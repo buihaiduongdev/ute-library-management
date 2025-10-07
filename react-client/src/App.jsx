@@ -5,6 +5,7 @@ import {
   BorrowBooks,
   HomePage,
   LoginPage,
+  AdminPage,
   ReaderPage,
   ReaderStatsPage,
   RegisterPage,
@@ -34,6 +35,14 @@ function App() {
           <Route path="/search-books" element={<BookSearchPage />} />
 
           {/* Các Route được bảo vệ */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <AdminPage />
+              </ProtectedRoute>
+            }
+          />
           <Route 
             path="/admin/readers" 
             element={

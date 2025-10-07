@@ -1,6 +1,6 @@
 import React from 'react';
 import { Title, Text, Container } from '@mantine/core';
-import DashboardStats from '../components/DashboardStats';
+import DashboardStats from '../../components/DashboardStats';
 
 function AdminPage() {
     return (
