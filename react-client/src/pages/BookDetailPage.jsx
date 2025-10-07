@@ -20,8 +20,12 @@ import {
 import { authGet } from '../utils/api';
 import { notifications } from "@mantine/notifications";
 import RequestBorrowModal from '../modals/RequestBorrowModal';
+import '../assets/css/HomePage.css';
+
 const BookDetailPage = () => {
   const { id } = useParams();
+  const [loading, setLoading] = useState(false);
+
   const [book, setBook] = useState(null);
   const [related, setRelated] = useState(null);
   const [modalOpened, setModalOpened] = useState(false);
@@ -30,51 +34,31 @@ const BookDetailPage = () => {
   const theme = useMantineTheme();
 
   const role = localStorage.getItem('role');
-  const fetchBookDetails = async () => {
-    try {
-      const response = await authGet(`/books/${id}`);
-      setBook(response.data);
-    } catch (error) {
-      console.error("Lỗi khi tải chi tiết sách:", error);
-      notifications.show({
-        title: "Lỗi",
-        message: "Không thể tải chi tiết sách.",
-        color: "red",
-      });
-    }
-  };
-  const fetchBookRelated = async () => {
-    try {
-      const response = await authGet(`/books/${id}/related`);
-      setRelated(response.data);
-      console.log("TESTTTTTTTTTTT");
-    } catch (error) {
-      console.error("Lỗi khi tải chi tiết sách:", error);
-      notifications.show({
-        title: "Lỗi",
-        message: "Không thể tải sách liên quan.",
-        color: "red",
-      });
-    }
-  };
-
-  const fetchBookCopies = async () => {
-    try{
-      const response = await authGet(`/books/${id}/copies`);
-      setCopies(response.data);
-    } catch (error) {
-      notifications.show({
-        title: "Lỗi",
-        message: "Không thể tải bản sao sách.",
-        color: "red",
-      });
-    }
-  }
   useEffect(() => {
-    fetchBookDetails();
-    fetchBookRelated();
-    fetchBookCopies();
+    setLoading(true);
+    const fetchAll = async () => {
+      try {
+        const [bookRes, relatedRes, copiesRes] = await Promise.all([
+          authGet(`/books/${id}`),
+          authGet(`/books/${id}/related`),
+          authGet(`/books/${id}/copies`)
+        ]);
+        setBook(bookRes.data);
+        setRelated(relatedRes.data);
+        setCopies(copiesRes.data);
+      } catch (err) {
+        notifications.show({
+          title: "Lỗi",
+          message: "Không thể tải dữ liệu sách.",
+          color: "red",
+        });
+      } finally {
+        setLoading(false); // ⬅️
+    }
+    };
+    fetchAll();
   }, [id]);
+  
 
 
   const handleReserve = () => {
@@ -94,6 +78,7 @@ const BookDetailPage = () => {
           </Center>
     );
   }
+  // if (loading) {
   return (
     <Container size="lg" my="lg">
       <Grid>
@@ -114,7 +99,7 @@ const BookDetailPage = () => {
                 {book.TrangThai}
                 </Badge>
                 <Badge color="blue" variant="light">
-                    {book.SoLuong} quyển
+                {copies ? copies.length : 0}/{book.SoLuong} quyển
                 </Badge>
             </Group>
           </Card>
@@ -149,7 +134,6 @@ const BookDetailPage = () => {
                         opened={modalOpened} 
                         onClose={() => setModalOpened(false)} 
                         selectedBook={book} 
-                        refresh={fetchBookDetails} 
                       />
                       <Button variant="outline" onClick={handleReserve} disabled={isBookAvailable}>Đặt trước</Button>
                     </Group>
@@ -245,17 +229,18 @@ const BookDetailPage = () => {
             return (
               <Grid.Col span={3} key={relBook.MaSach}>
                 <Card
+                  className="book-detail"
                   component={Link}
                   to={`/book-detail/${relBook.MaSach}`}
                   shadow="none"
                   radius="md"
-                  withBorder={false}
+                  withBorder={true}
                   style={{
                     cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-start',
-                    height: 250,
+                    height: 300,
                     padding: '0.5rem',
                   }}
                 >
@@ -274,6 +259,12 @@ const BookDetailPage = () => {
                                           />
                   </Card.Section>
                   <Text fw={600} ta='center' size="sm" lineClamp={1} mb="2px">{relBook.TieuDe}</Text>
+                  <Text size="sm" c="dimmed" lineClamp={1} mb="sm" pl='4px'>
+                    {authors}
+                  </Text>
+                  <Badge variant="light" color="indigo" size="sm" mr="xs">
+                    {categories}
+                  </Badge>
                 </Card>
               </Grid.Col>
             );
@@ -284,6 +275,7 @@ const BookDetailPage = () => {
 
     </Container>
   );
+  // }
 };
 
 export default BookDetailPage;
