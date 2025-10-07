@@ -1,4 +1,3 @@
-export { default as AdminPage } from './admin/AdminPage';
 export { default as BookSearchPage } from './BookSearchPage';
 export { default as BorrowBooks } from './BorrowBooks';
 export { default as CardManagement } from './CardManagement';

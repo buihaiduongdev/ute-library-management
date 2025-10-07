@@ -62,7 +62,7 @@ function DashboardStats() {
 
     return (
         <div>
-            <Title order={2} mb="lg">Tổng Quan</Title>
+            <Title order={2} mb="lg" c="#34699A" style={{ fontWeight: 800 }}>Tổng Quan</Title>
             <Grid>
                 <Grid.Col span={{ base: 12, md: 6, lg: 3 }}>
                     <StatCard title="Tổng Số Độc Giả" value={stats.readers.total} icon={IconUsers} />
