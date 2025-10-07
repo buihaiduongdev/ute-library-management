@@ -42,7 +42,6 @@ model NhanVien {
   PhieuMuon   PhieuMuon[]
   TraSach     TraSach[]
   YeuCauMuon  YeuCauMuon[]
-  YeuCauMuon  YeuCauMuon[]
 }
 
 model DocGia {
@@ -59,7 +58,6 @@ model DocGia {
   TrangThai   String       @db.VarChar(50)
   TaiKhoan    TaiKhoan     @relation(fields: [MaTK], references: [MaTK], onDelete: Cascade, onUpdate: NoAction, map: "FK_DocGia_TaiKhoan")
   PhieuMuon   PhieuMuon[]
-  YeuCauMuon  YeuCauMuon[]
   YeuCauMuon  YeuCauMuon[]
 }
 
@@ -111,7 +109,6 @@ model CuonSach {
   ChiTietTraSach ChiTietTraSach[]
   Sach           Sach             @relation(fields: [MaSach], references: [MaSach], onUpdate: NoAction, map: "FK_CuonSach_Sach")
   ThePhat        ThePhat[]
-  YeuCauMuon     YeuCauMuon[]
   YeuCauMuon     YeuCauMuon[]
 }
 
@@ -167,7 +164,6 @@ model TraSach {
   DaThongBao     Boolean          @default(false, map: "DF__TraSach__DaThong__797309D9")
   ChiTietTraSach ChiTietTraSach[]
   ThePhat        ThePhat[]
-  NhanVien       NhanVien?        @relation(fields: [IdNV], references: [IdNV], onDelete: NoAction, onUpdate: NoAction, map: "FK_TraSach_NV")
   NhanVien       NhanVien?        @relation(fields: [IdNV], references: [IdNV], onDelete: NoAction, onUpdate: NoAction, map: "FK_TraSach_NV")
   PhieuMuon      PhieuMuon        @relation(fields: [MaPM], references: [MaPM], onDelete: Cascade, onUpdate: NoAction, map: "FK_TraSach_PM")
 }

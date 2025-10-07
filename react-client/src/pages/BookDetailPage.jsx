@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
   Container,
   Grid,
@@ -20,45 +20,44 @@ import {
 import { authGet } from '../utils/api';
 import { notifications } from "@mantine/notifications";
 import RequestBorrowModal from '../modals/RequestBorrowModal';
+import '../assets/css/HomePage.css';
+
 const BookDetailPage = () => {
   const { id } = useParams();
+
   const [book, setBook] = useState(null);
+  const [related, setRelated] = useState(null);
   const [modalOpened, setModalOpened] = useState(false);
   const [copies, setCopies] = useState(null);
   const [activeTab, setActiveTab] = useState("details");
   const theme = useMantineTheme();
 
   const role = localStorage.getItem('role');
-  const fetchBookDetails = async () => {
-    try {
-      const response = await authGet(`/books/${id}`);
-      setBook(response.data);
-    } catch (error) {
-      console.error("Lỗi khi tải chi tiết sách:", error);
-      notifications.show({
-        title: "Lỗi",
-        message: "Không thể tải chi tiết sách.",
-        color: "red",
-      });
-    }
-  };
-
-  const fetchBookCopies = async () => {
-    try{
-      const response = await authGet(`/books/${id}/copies`);
-      setCopies(response.data);
-    } catch (error) {
-      notifications.show({
-        title: "Lỗi",
-        message: "Không thể tải bản sao sách.",
-        color: "red",
-      });
-    }
-  }
   useEffect(() => {
-    fetchBookDetails();
-    fetchBookCopies();
+    setBook(null);
+    setRelated(null);
+    setCopies(null);
+    const fetchAll = async () => {
+      try {
+        const [bookRes, relatedRes, copiesRes] = await Promise.all([
+          authGet(`/books/${id}`),
+          authGet(`/books/${id}/related`),
+          authGet(`/books/${id}/copies`)
+        ]);
+        setBook(bookRes.data);
+        setRelated(relatedRes.data);
+        setCopies(copiesRes.data);
+      } catch (err) {
+        notifications.show({
+          title: "Lỗi",
+          message: "Không thể tải dữ liệu sách.",
+          color: "red",
+        });
+      }
+    };
+    fetchAll();
   }, [id]);
+  
 
 
   const handleReserve = () => {
@@ -69,7 +68,7 @@ const BookDetailPage = () => {
     });
   };
 
-  const isBookAvailable = book?.TrangThai === "Còn sách";
+  const isBookAvailable = copies?.some(copy => copy.TrangThaiCS === "Con");
 
   if (!book) {
     return  (
@@ -94,11 +93,20 @@ const BookDetailPage = () => {
               <Text fw={500} size="xl">{book.TieuDe}</Text>
             </Group>
              <Group justify="center" mt="md" mb="xs">
-                 <Badge color={book.TrangThai === "Còn sách" ? "green" : "red"}>
-                {book.TrangThai}
-                </Badge>
+             <Badge
+                color={
+                  isBookAvailable
+                    ? "green"
+                    : "red"
+                }
+              >
+                {isBookAvailable
+                  ? "Còn sách"
+                  : "Hết sách"}
+              </Badge>
+
                 <Badge color="blue" variant="light">
-                    {book.SoLuong} quyển
+                {copies ? copies.filter(c => c.TrangThaiCS === "Con").length : 0}/{book.SoLuong} quyển
                 </Badge>
             </Group>
           </Card>
@@ -128,12 +136,11 @@ const BookDetailPage = () => {
                     <Text><strong>Giá sách:</strong> {book.GiaSach}</Text>
                     <Text><strong>Vị trí kệ:</strong> {book.ViTriKe}</Text>
                     <Group mt="md">
-                      <Button  onClick={() => setModalOpened(true)} disabled={!isBookAvailable}>Mượn ngay</Button>
+                      <Button  onClick={() => setModalOpened(true)} disabled={!isBookAvailable}>Yêu cầu mượn</Button>
                       <RequestBorrowModal 
                         opened={modalOpened} 
                         onClose={() => setModalOpened(false)} 
                         selectedBook={book} 
-                        refresh={fetchBookDetails} 
                       />
                       <Button variant="outline" onClick={handleReserve} disabled={isBookAvailable}>Đặt trước</Button>
                     </Group>
@@ -222,46 +229,55 @@ const BookDetailPage = () => {
       <Paper withBorder shadow="sm" p="md" radius="md" mt="lg">
         <Title order={3} mb="md">Sách liên quan</Title>
         <Grid>
-          {book.RelatedBooks?.map(relBook => {
+          {related?.map(relBook => {
             const authors = relBook.Sach_TacGia?.map(a => a.TacGia.TenTacGia).join(', ') || 'Chưa có thông tin';
             const categories = relBook.Sach_TheLoai?.map(st => st.TheLoai.TenTheLoai).join(', ') || 'Chưa có thông tin';
 
             return (
               <Grid.Col span={3} key={relBook.MaSach}>
                 <Card
+                  className="book-detail"
                   component={Link}
                   to={`/book-detail/${relBook.MaSach}`}
                   shadow="none"
                   radius="md"
-                  withBorder={false}
+                  withBorder={true}
                   style={{
                     cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-start',
-                    height: 180,
+                    height: 300,
                     padding: '0.5rem',
                   }}
                 >
                   <Card.Section>
                     <img
-                      src={relBook.AnhBia || 'https://via.placeholder.com/50x50?text=No+Image'}
+                src={'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+                   || relBook.AnhBia }
                       alt={relBook.TieuDe}
-                      style={{ height: 50, width: '100%', objectFit: 'cover', marginBottom: '0.5rem' }}
-                    />
+                      style={{
+                        height: 200,
+                        width: '100%',
+                        objectFit: 'cover',
+                        objectPosition: 'center',
+                        marginBottom: '0.5rem'
+                      }}
+                                          />
                   </Card.Section>
-
-                  <Text fw={600} size="sm" lineClamp={1} mb="2px">{relBook.TieuDe}</Text>
-                  <Text size="xs" c="dimmed" lineClamp={1} mb="2px">{authors}</Text>
-                  <Badge variant="light" color="indigo" size="xs">{categories}</Badge>
+                  <Text fw={600} ta='center' size="sm" lineClamp={1} mb="2px">{relBook.TieuDe}</Text>
+                  <Text size="sm" c="dimmed" lineClamp={1} mb="sm" pl='4px'>
+                    {authors}
+                  </Text>
+                  <Badge variant="light" color="indigo" size="sm" mr="xs">
+                    {categories}
+                  </Badge>
                 </Card>
               </Grid.Col>
             );
           })}
         </Grid>
       </Paper>
-
-
     </Container>
   );
 };

@@ -136,7 +136,7 @@ export default function RequestBorrowModal({ opened, onClose, selectedBook, refr
     <Modal
       opened={opened}
       onClose={onClose}
-      title={<Text size="xl" fw={700} color="#667eea">Tạo Yêu Cầu Mượn Sách</Text>}
+      title={<Text size="xl" fw={700} c="#667eea">Tạo Yêu Cầu Mượn Sách</Text>}
       size="lg"
       radius="md"
       overlayProps={{ blur: 3 }}

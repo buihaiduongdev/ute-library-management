@@ -17,7 +17,9 @@ import {
 import HeroSection from '../components/HeroSecition';
 import { Carousel } from '@mantine/carousel';
 import { authGet } from '../utils/api';
+import StatsSection from '../components/StatsSection'
 import '../assets/css/HomePage.css';
+const role = localStorage.getItem('role');
 
 
 // --- BookCard ---
@@ -59,7 +61,7 @@ const BookCard = ({ book }) => {
         {book.TieuDe}
       </Text>
 
-      <Text size="sm" c="dimmed" lineClamp={1} mb="sm">
+      <Text size="sm" c="dimmed" lineClamp={1} mb="sm" pl='4px'>
         {authors}
       </Text>
       
@@ -201,6 +203,12 @@ const HomePage = () => {
         </Carousel>
       </Paper>
       )}
+
+      {/* Sats Section */}
+      {(role === '0' || role === '1') &&   
+      <div style={{ padding: "32px 80px" }}>
+        <StatsSection />
+      </div>}
 
       {/* --- Sách Xu Hướng --- */}
       {trendingBooks.length > 0 && (

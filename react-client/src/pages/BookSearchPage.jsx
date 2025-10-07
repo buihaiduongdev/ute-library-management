@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import {Link} from 'react-router-dom';
 import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button, Input, Tabs, Divider } from '@mantine/core';
 import { get } from '../utils/api';
 import { IconBook, IconSearch, IconEye, IconX, IconUser, IconCategory, IconBuilding, IconCalendar, IconPackage, IconCash, IconMapPin, IconFlag, IconInfoCircle, IconPhone, IconMail } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
+const usn = localStorage.getItem('username');
 
 function BookSearchPage() {
   const [books, setBooks] = useState([]);
@@ -149,7 +151,9 @@ function BookSearchPage() {
           <Group>
             <IconBook size={24} />
             <Text size="lg">Xem Chi Tiết</Text>
+
           </Group>
+
         }
         size="lg"
         radius="md"
@@ -342,6 +346,24 @@ function BookSearchPage() {
             </Tabs.Panel>
 
             <Group justify="flex-end" mt="lg">
+
+              {/* Duong them link toi yeu cau muon */}
+              <Button  
+                component={Link}
+                to={usn ? `/book-detail/${selectedBook.MaSach}` : '/'}
+                // disabled={selectedBook.TrangThai !== 'Con'}
+                onClick={() => {
+                  Notifications.show({
+                    title: 'Lỗi',
+                    message: 'Bạn cần đăng nhập trước khi mượn sách',
+                    color: 'red',
+                  });
+                  navigate('/');
+                }}
+              >
+                Yêu cầu mượn
+              </Button>
+
               <Button
                 variant="outline"
                 onClick={() => {
