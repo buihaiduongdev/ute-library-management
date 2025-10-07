@@ -59,7 +59,7 @@ const BookCard = ({ book }) => {
         {book.TieuDe}
       </Text>
 
-      <Text size="sm" c="dimmed" lineClamp={1} mb="sm">
+      <Text size="sm" c="dimmed" lineClamp={1} mb="sm" pl='4px'>
         {authors}
       </Text>
       

@@ -6,8 +6,7 @@ import Footer from './Footer';
 function AppLayout() {
   return (
     <AppShell
-    fixed          // cố định header + navbar
-    header={{ height: 60 }}
+    header={{ height: 60, fixed: true }} 
     styles={{
       main: { paddingLeft: 0 }
     }}
