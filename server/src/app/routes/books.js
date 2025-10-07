@@ -8,6 +8,7 @@ router.get('/trending', verifyToken(), BooksController.getTrendingBooks);
 router.get('/new-arrivals', verifyToken(), BooksController.getNewArrivals);
 router.get('/recommended/', verifyToken(), BooksController.getRecommendedBooks);
 router.get("/:id/copies",verifyToken(), BooksController.getBookCopies);
+router.get("/:id/related",verifyToken(), BooksController.getRelated);
 
 //
 router.get('/export', verifyToken(), BooksController.exportBooks); 

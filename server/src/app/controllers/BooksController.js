@@ -643,6 +643,56 @@ const BooksController = {
     }
   },
   
+  async getRelated(req, res) {
+    try {
+      const id = Number(req.params.id);
+  
+      // 1. Lấy sách hiện tại + các thể loại của nó
+      const currentBook = await prisma.sach.findUnique({
+        where: { MaSach: id },
+        include: { Sach_TheLoai: true },
+      });
+  
+      if (!currentBook) {
+        return res.status(404).json({ message: "Không tìm thấy sách" });
+      }
+  
+      // 2. Lấy danh sách mã thể loại
+      const maTLList = currentBook.Sach_TheLoai.map(stl => stl.MaTL);
+  
+      if (maTLList.length === 0) {
+        return res.json({ message: "Sách này chưa có thể loại", data: [] });
+      }
+  
+      // 3. Lấy các sách khác có cùng thể loại (kèm thông tin thể loại và tác giả)
+      const related = await prisma.sach.findMany({
+        where: {
+          MaSach: { not: id },
+          Sach_TheLoai: {
+            some: { MaTL: { in: maTLList } },
+          },
+        },
+        include: {
+          Sach_TacGia: { include: { TacGia: true } },
+          Sach_TheLoai: { include: { TheLoai: true } },
+        },
+        take: 5,
+      });
+  
+      const relatedWithBase64 = related.map(book => ({
+        ...book,
+        AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
+        TacGia: book.Sach_TacGia.map(st => st.TacGia.TenTacGia).join(', '),
+        TheLoai: book.Sach_TheLoai.map(st => st.TheLoai.TenTheLoai).join(', '),
+      }));
+  
+      console.log(`Lấy ${relatedWithBase64.length} sách liên quan với ID ${id}`);
+      res.json({ message: "Lấy sách liên quan thành công", data: relatedWithBase64 });
+    } catch (err) {
+      console.error("Lỗi chi tiết trong getRelated:", err);
+      res.status(500).json({ message: "Lỗi server", error: err.message });
+    }
+  },
   
   async getBookCopies(req, res){
     try{
@@ -655,7 +705,7 @@ const BooksController = {
         },
       });
       console.log(`getBookCopies: Lấy bản sao sách ${id}`);
-      res.json({ message: "Thành công", data: copies });
+      res.json({ message: "Lấy copies thành công", data: copies });
     }
     catch(err){
       res.status(500).json({ message: err.message });

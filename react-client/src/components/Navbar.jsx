@@ -83,6 +83,7 @@ function Navbar() {
                 >
                     Tra cứu sách
                 </Button>
+
                 {(role === '0' || role === '1') && (
                     <>
                         <Button 
@@ -99,7 +100,7 @@ function Navbar() {
                                     variant="subtle" 
                                     size="md"
                                 >
-                                    Quản lý
+                                    Quản lý kho sách
                                 </Button>
                             </Menu.Target>
                             <Menu.Dropdown>
@@ -115,9 +116,40 @@ function Navbar() {
                                 <Menu.Item component={Link} to="/manage-publishers">
                                     Quản lý nhà xuất bản
                                 </Menu.Item>
+
                             </Menu.Dropdown>
                         </Menu>
                     </>
+                )}
+                {role === '0' && (
+                    <Button 
+                        component={Link} 
+                        to="/admin/readers"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        Quản lý Độc giả
+                    </Button>
+                )}
+                {(role === '0' || role === '1') && (
+                    <Button 
+                        component={Link} 
+                        to="/card-management"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        Quản lý Thẻ
+                    </Button>
+                )}
+                {role === '0' && (
+                    <Button 
+                        component={Link} 
+                        to="/reader-stats"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        Thống kê Độc giả
+                    </Button>
                 )}
             </Group>
             <Group>

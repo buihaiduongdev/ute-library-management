@@ -6,14 +6,17 @@ import {
   HomePage,
   LoginPage,
   ReaderPage,
+  ReaderStatsPage,
   RegisterPage,
   StaffPage,
   ManageBooksPage,
   ManageAuthorsPage,
   ManageGenresPage,
   ManagePublishersPage,
-  BookDetailPage
+  BookDetailPage,
+  CardManagement
 } from './pages';
+import ReaderForm from './components/ReaderForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
 import './assets/css/App.css';
@@ -31,6 +34,31 @@ function App() {
           <Route path="/search-books" element={<BookSearchPage />} />
 
           {/* Các Route được bảo vệ */}
+
+          <Route 
+            path="/admin/readers" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <ReaderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/admin/readers/new" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <ReaderForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/admin/readers/edit/:id" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <ReaderForm />
+              </ProtectedRoute>
+            }
+          />
           <Route 
             path="/staff" 
             element={
@@ -87,6 +115,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
+          {/* 🎴 Card Management - Only Admin & Staff */}
+          <Route 
+            path="/card-management" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <CardManagement />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
           path="/book-detail/:id"
@@ -95,6 +133,16 @@ function App() {
               <BookDetailPage />
             </ProtectedRoute>
           }
+          />
+
+          {/* 📊 Reader Statistics - Only Admin */}
+          <Route 
+            path="/reader-stats" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <ReaderStatsPage />
+              </ProtectedRoute>
+            }
           />
 
         </Route>
