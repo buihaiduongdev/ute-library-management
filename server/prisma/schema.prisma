@@ -9,58 +9,62 @@ datasource db {
 }
 
 model TaiKhoan {
-  MaTK         Int       @id @default(autoincrement())
-  TenDangNhap  String    @unique
+  MaTK         Int       @id(map: "PK__TaiKhoan__272500708F171D77") @default(autoincrement())
+  TenDangNhap  String    @unique(map: "UQ__TaiKhoan__55F68FC03530223F") @db.VarChar(50)
   MatKhauMaHoa String    @db.VarChar(255)
   VaiTro       Int       @db.TinyInt
-  TrangThai    Int       @default(1) @db.TinyInt
+  TrangThai    Int       @default(1, map: "DF__TaiKhoan__TrangT__37A5467C") @db.TinyInt
   Admin        Admin?
   DocGia       DocGia?
   NhanVien     NhanVien?
 }
 
 model Admin {
-  MaTK        Int       @id
+  MaTK        Int       @id(map: "PK__Admin__27250070E900D226")
   HoTen       String    @db.NVarChar(50)
   NgaySinh    DateTime? @db.Date
-  Email       String?   @unique
-  SoDienThoai String?   @unique
-  TaiKhoan    TaiKhoan  @relation(fields: [MaTK], references: [MaTK], onDelete: Cascade, map: "FK_Admin_TaiKhoan")
+  Email       String?   @unique(map: "UQ__Admin__A9D10534D8EB7D58") @db.VarChar(50)
+  SoDienThoai String?   @unique(map: "UQ__Admin__0389B7BDCBC0CDDE") @db.VarChar(20)
+  TaiKhoan    TaiKhoan  @relation(fields: [MaTK], references: [MaTK], onDelete: Cascade, onUpdate: NoAction, map: "FK_Admin_TaiKhoan")
 }
 
 model NhanVien {
-  IdNV        Int         @id @default(autoincrement())
-  MaTK        Int         @unique
-  MaNV        String?     @unique
-  HoTen       String      @db.NVarChar(50)
-  NgaySinh    DateTime?   @db.Date
-  Email       String?     @unique
-  SoDienThoai String?     @unique
-  DiaChi      String?     @db.NVarChar(255)
-  ChucVu      String?     @db.NVarChar(50)
-  TaiKhoan    TaiKhoan    @relation(fields: [MaTK], references: [MaTK], onDelete: Cascade, map: "FK_NhanVien_TaiKhoan")
+  IdNV        Int          @id(map: "PK__NhanVien__B773C970C06235EE") @default(autoincrement())
+  MaTK        Int          @unique(map: "UQ__NhanVien__272500718DBD3BEC")
+  MaNV        String?      @db.VarChar(50)
+  HoTen       String       @db.NVarChar(50)
+  NgaySinh    DateTime?    @db.Date
+  Email       String?      @unique(map: "UQ__NhanVien__A9D10534442E4F03") @db.VarChar(50)
+  SoDienThoai String?      @unique(map: "UQ__NhanVien__0389B7BD9D9C541B") @db.VarChar(20)
+  DiaChi      String?      @db.NVarChar(255)
+  ChucVu      String?      @db.NVarChar(50)
+  TaiKhoan    TaiKhoan     @relation(fields: [MaTK], references: [MaTK], onDelete: Cascade, onUpdate: NoAction, map: "FK_NhanVien_TaiKhoan")
   PhieuMuon   PhieuMuon[]
   TraSach     TraSach[]
+  YeuCauMuon  YeuCauMuon[]
+  YeuCauMuon  YeuCauMuon[]
 }
 
 model DocGia {
-  IdDG        Int         @id @default(autoincrement())
-  MaTK        Int         @unique
-  MaDG        String?     @unique
-  HoTen       String      @db.NVarChar(50)
-  NgaySinh    DateTime?   @db.Date
-  DiaChi      String?     @db.NVarChar(255)
-  Email       String?     @unique
-  SoDienThoai String?     @unique
-  NgayDangKy  DateTime    @default(now(), map: "DF__DocGia__NgayDang__4AB81AF0") @db.Date
-  NgayHetHan  DateTime    @db.Date
-  TrangThai   String      @db.VarChar(50)
-  TaiKhoan    TaiKhoan    @relation(fields: [MaTK], references: [MaTK], onDelete: Cascade, map: "FK_DocGia_TaiKhoan")
+  IdDG        Int          @id(map: "PK__DocGia__B77398A5251E8370") @default(autoincrement())
+  MaTK        Int          @unique(map: "UQ__DocGia__27250071EC889DA1")
+  MaDG        String?      @db.VarChar(50)
+  HoTen       String       @db.NVarChar(50)
+  NgaySinh    DateTime?    @db.Date
+  DiaChi      String?      @db.NVarChar(255)
+  Email       String?      @unique(map: "UQ__DocGia__A9D105348FB5EB95") @db.VarChar(50)
+  SoDienThoai String?      @unique(map: "UQ__DocGia__0389B7BDD89AE9B1") @db.VarChar(20)
+  NgayDangKy  DateTime     @default(now(), map: "DF__DocGia__NgayDang__4AB81AF0") @db.Date
+  NgayHetHan  DateTime     @db.Date
+  TrangThai   String       @db.VarChar(50)
+  TaiKhoan    TaiKhoan     @relation(fields: [MaTK], references: [MaTK], onDelete: Cascade, onUpdate: NoAction, map: "FK_DocGia_TaiKhoan")
   PhieuMuon   PhieuMuon[]
+  YeuCauMuon  YeuCauMuon[]
+  YeuCauMuon  YeuCauMuon[]
 }
 
 model TacGia {
-  MaTG        Int           @id(map: "PK__TacGia__272500744BF15A78") @default(autoincrement())
+  MaTG        Int           @id(map: "PK__TacGia__272500746D224B1F") @default(autoincrement())
   TenTacGia   String        @db.NVarChar(100)
   TieuSu      String?       @db.NVarChar(Max)
   QuocTich    String?       @db.NVarChar(50)
@@ -68,15 +72,15 @@ model TacGia {
 }
 
 model TheLoai {
-  MaTL         Int            @id(map: "PK__TheLoai__27250071519B73FF") @default(autoincrement())
-  TenTheLoai   String         @unique(map: "UQ__TheLoai__327F958F4C70B6F7") @db.NVarChar(100)
+  MaTL         Int            @id(map: "PK__TheLoai__27250071BACCE4D1") @default(autoincrement())
+  TenTheLoai   String         @unique(map: "UQ__TheLoai__327F958F46521523") @db.NVarChar(100)
   MoTa         String?        @db.NVarChar(Max)
   Sach_TheLoai Sach_TheLoai[]
 }
 
 model NhaXuatBan {
-  MaNXB       Int     @id(map: "PK__NhaXuatB__3A19482C90BC9455") @default(autoincrement())
-  TenNXB      String  @unique(map: "UQ__NhaXuatB__CCE3868DA901E70A") @db.NVarChar(255)
+  MaNXB       Int     @id(map: "PK__NhaXuatB__3A19482CD6FC0BC4") @default(autoincrement())
+  TenNXB      String  @unique(map: "UQ__NhaXuatB__CCE3868DA04281A8") @db.NVarChar(255)
   DiaChi      String? @db.NVarChar(255)
   SoDienThoai String? @db.VarChar(20)
   Email       String? @db.VarChar(50)
@@ -84,14 +88,15 @@ model NhaXuatBan {
 }
 
 model Sach {
-  MaSach       Int            @id(map: "PK__Sach__B235742D8CE51893") @default(autoincrement())
+  MaSach       Int            @id(map: "PK__Sach__B235742D6A0A527F") @default(autoincrement())
   TieuDe       String         @db.NVarChar(255)
   NamXuatBan   Int?
-  GiaSach      Decimal        @default(0, map: "DF__Sach__GiaSach__367C1819") @db.Decimal(10, 2)
+  GiaSach      Float          @default(0, map: "DF__Sach__GiaSach__571DF1D5")
   MaNXB        Int?
-  SoLuong      Int            @default(0, map: "DF__Sach__SoLuong__37703C52")
+  SoLuong      Int            @default(0, map: "DF__Sach__SoLuong__5812160E")
   ViTriKe      String?        @db.NVarChar(50)
   TrangThai    String         @db.VarChar(50)
+  AnhBia       String?        @db.NVarChar(Max)
   CuonSach     CuonSach[]
   NhaXuatBan   NhaXuatBan?    @relation(fields: [MaNXB], references: [MaNXB], onDelete: NoAction, onUpdate: NoAction, map: "FK_Sach_NXB")
   Sach_TacGia  Sach_TacGia[]
@@ -99,13 +104,15 @@ model Sach {
 }
 
 model CuonSach {
-  MaCuonSach     Int              @id(map: "PK__CuonSach__A00E686DB35FEE84") @default(autoincrement())
+  MaCuonSach     Int              @id(map: "PK__CuonSach__A00E686D0547E52A") @default(autoincrement())
   MaSach         Int
   TrangThaiCS    String           @db.VarChar(50)
   ChiTietMuon    ChiTietMuon[]
   ChiTietTraSach ChiTietTraSach[]
   Sach           Sach             @relation(fields: [MaSach], references: [MaSach], onUpdate: NoAction, map: "FK_CuonSach_Sach")
   ThePhat        ThePhat[]
+  YeuCauMuon     YeuCauMuon[]
+  YeuCauMuon     YeuCauMuon[]
 }
 
 model Sach_TacGia {
@@ -115,7 +122,7 @@ model Sach_TacGia {
   Sach   Sach    @relation(fields: [MaSach], references: [MaSach], onUpdate: NoAction, map: "FK_STG_Sach")
   TacGia TacGia  @relation(fields: [MaTG], references: [MaTG], onUpdate: NoAction, map: "FK_STG_TacGia")
 
-  @@id([MaSach, MaTG], map: "PK__Sach_Tac__E047242A393CCE5D")
+  @@id([MaSach, MaTG], map: "PK__Sach_Tac__E047242ACF5451D6")
 }
 
 model Sach_TheLoai {
@@ -124,11 +131,11 @@ model Sach_TheLoai {
   Sach    Sach    @relation(fields: [MaSach], references: [MaSach], onUpdate: NoAction, map: "FK_STL_Sach")
   TheLoai TheLoai @relation(fields: [MaTL], references: [MaTL], onUpdate: NoAction, map: "FK_STL_TheLoai")
 
-  @@id([MaSach, MaTL], map: "PK__Sach_The__B047242AE081EB12")
+  @@id([MaSach, MaTL], map: "PK__Sach_The__B047242A03976017")
 }
 
 model PhieuMuon {
-  MaPM        Int           @id(map: "PK__PhieuMuo__2725E7FF99CB9197") @default(autoincrement())
+  MaPM        Int           @id(map: "PK__PhieuMuo__2725E7FFF8EEC34E") @default(autoincrement())
   IdDG        Int
   IdNV        Int
   ChiTietMuon ChiTietMuon[]
@@ -138,28 +145,30 @@ model PhieuMuon {
 }
 
 model ChiTietMuon {
-  MaPM       Int
-  MaCuonSach Int
-  NgayMuon   DateTime  @db.Date
-  NgayHenTra DateTime  @db.Date
-  NgayTra    DateTime? @db.Date
-  TrangThai  String    @db.VarChar(50)
-  CuonSach   CuonSach  @relation(fields: [MaCuonSach], references: [MaCuonSach], onUpdate: NoAction, map: "FK_CTM_CuonSach")
-  PhieuMuon  PhieuMuon @relation(fields: [MaPM], references: [MaPM], onUpdate: NoAction, map: "FK_CTM_PM")
+  MaPM        Int
+  MaCuonSach  Int
+  NgayMuon    DateTime  @db.Date
+  NgayHenTra  DateTime  @db.Date
+  NgayTra     DateTime? @db.Date
+  TrangThai   String    @db.VarChar(50)
+  SoLanGiaHan Int       @default(0, map: "DF__ChiTietMu__SoLan__6E01572D")
+  CuonSach    CuonSach  @relation(fields: [MaCuonSach], references: [MaCuonSach], onUpdate: NoAction, map: "FK_CTM_CuonSach")
+  PhieuMuon   PhieuMuon @relation(fields: [MaPM], references: [MaPM], onUpdate: NoAction, map: "FK_CTM_PM")
 
-  @@id([MaPM, MaCuonSach], map: "PK__ChiTietM__ED250179F2F07524")
+  @@id([MaPM, MaCuonSach], map: "PK__ChiTietM__ED250179D4736A26")
 }
 
 model TraSach {
-  MaTraSach      Int              @id(map: "PK__TraSach__A136C95F5BFA2F73") @default(autoincrement())
+  MaTraSach      Int              @id(map: "PK__TraSach__A136C95F130101A0") @default(autoincrement())
   MaPM           Int
   IdNV           Int?
   NgayTra        DateTime         @db.Date
   GhiChu         String?          @db.NVarChar(255)
-  DaThongBao     Boolean          @default(false, map: "DF__TraSach__DaThong__51300E55")
+  DaThongBao     Boolean          @default(false, map: "DF__TraSach__DaThong__797309D9")
   ChiTietTraSach ChiTietTraSach[]
   ThePhat        ThePhat[]
-  NhanVien       NhanVien?        @relation(fields: [IdNV], references: [IdNV], onUpdate: NoAction, map: "FK_TraSach_NV")
+  NhanVien       NhanVien?        @relation(fields: [IdNV], references: [IdNV], onDelete: NoAction, onUpdate: NoAction, map: "FK_TraSach_NV")
+  NhanVien       NhanVien?        @relation(fields: [IdNV], references: [IdNV], onDelete: NoAction, onUpdate: NoAction, map: "FK_TraSach_NV")
   PhieuMuon      PhieuMuon        @relation(fields: [MaPM], references: [MaPM], onDelete: Cascade, onUpdate: NoAction, map: "FK_TraSach_PM")
 }
 
@@ -170,11 +179,11 @@ model ChiTietTraSach {
   CuonSach      CuonSach @relation(fields: [MaCuonSach], references: [MaCuonSach], onDelete: Cascade, onUpdate: NoAction, map: "FK_CTTra_CuonSach")
   TraSach       TraSach  @relation(fields: [MaTraSach], references: [MaTraSach], onDelete: Cascade, onUpdate: NoAction, map: "FK_CTTra_TraSach")
 
-  @@id([MaTraSach, MaCuonSach], map: "PK__ChiTietT__6B362FD9CA41F5CE")
+  @@id([MaTraSach, MaCuonSach], map: "PK__ChiTietT__6B362FD98880CD64")
 }
 
 model ThePhat {
-  MaPhat             Int       @id(map: "PK__ThePhat__4AC072E28F027F7A") @default(autoincrement())
+  MaPhat             Int       @id(map: "PK__ThePhat__4AC072E245FC9CC7") @default(autoincrement())
   MaTraSach          Int
   MaCuonSach         Int
   SoTienPhat         Decimal   @db.Decimal(10, 2)
@@ -187,14 +196,40 @@ model ThePhat {
 }
 
 model CauHinhHeThong {
-  MaCH         Int      @id(map: "PK__CauHinhH__27258E006C305AF7") @default(autoincrement())
+  MaCH         Int      @id(map: "PK__CauHinhH__27258E00A29BE7AA") @default(autoincrement())
   Nhom         String   @db.NVarChar(50)
   TenThamSo    String   @db.NVarChar(100)
   GiaTri       String   @db.NVarChar(255)
   KieuDuLieu   String   @db.NVarChar(50)
   MoTa         String?  @db.NVarChar(255)
-  NgayCapNhat  DateTime @default(now(), map: "DF__CauHinhHe__NgayC__625A9A57") @db.DateTime
+  NgayCapNhat  DateTime @default(now(), map: "DF__CauHinhHe__NgayC__0A9D95DB") @db.DateTime
   NguoiCapNhat String?  @db.NVarChar(50)
 
   @@unique([Nhom, TenThamSo], map: "UQ_CauHinh")
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B615787A697") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
+}
+
+model YeuCauMuon {
+  MaYeuCau   Int       @id(map: "PK__YeuCauMu__CFA5DF4E8C827008") @default(autoincrement())
+  IdDG       Int
+  MaCuonSach Int
+  NgayYeuCau DateTime  @default(now(), map: "DF__YeuCauMuo__NgayY__72C60C4A") @db.DateTime
+  NgayHenTra DateTime  @db.Date
+  TrangThai  String    @db.VarChar(20)
+  LyDoTuChoi String?   @db.NVarChar(255)
+  IdNVXuLy   Int?
+  NgayXuLy   DateTime? @db.DateTime
+  GhiChu     String?   @db.NVarChar(255)
+  CuonSach   CuonSach  @relation(fields: [MaCuonSach], references: [MaCuonSach], onUpdate: NoAction, map: "FK_YCM_CuonSach")
+  DocGia     DocGia    @relation(fields: [IdDG], references: [IdDG], onUpdate: NoAction, map: "FK_YCM_DocGia")
+  NhanVien   NhanVien? @relation(fields: [IdNVXuLy], references: [IdNV], onDelete: NoAction, onUpdate: NoAction, map: "FK_YCM_NhanVien")
 }

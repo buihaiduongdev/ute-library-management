@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -8,7 +9,7 @@ import {
     Avatar,
     rem
 } from '@mantine/core';
-import { IconLogout, IconUserCircle } from '@tabler/icons-react';
+import { IconLogout, IconUserCircle, IconSettings } from '@tabler/icons-react';
 
 function Navbar() {
     const navigate = useNavigate();
@@ -23,7 +24,6 @@ function Navbar() {
         window.location.reload(); // Tải lại để Navbar cập nhật trạng thái mới nhất
     };
 
-    // Menu dành cho người dùng ĐÃ ĐĂNG NHẬP
     const LoggedInMenu = () => (
         <Menu shadow="md" width={200}>
             <Menu.Target>
@@ -36,7 +36,6 @@ function Navbar() {
                     </Group>
                 </Button>
             </Menu.Target>
-
             <Menu.Dropdown>
                 <Menu.Label>Tài khoản</Menu.Label>
                 <Menu.Item leftSection={<IconUserCircle />}>
@@ -54,10 +53,9 @@ function Navbar() {
         </Menu>
     );
 
-    // Các nút dành cho khách CHƯA ĐĂNG NHẬP
     const LoggedOutButtons = () => (
         <Group h="100%">
-            <Button  component={Link} to="/login">
+            <Button component={Link} to="/login">
                 Đăng nhập
             </Button>
             <Button component={Link} to="/register" variant="default">
@@ -71,7 +69,7 @@ function Navbar() {
             <Group>
                 <Button 
                     component={Link} 
-                    to={"/"}
+                    to="/"
                     variant="subtle" 
                     size="md"
                 >
@@ -79,21 +77,47 @@ function Navbar() {
                 </Button>
                 <Button 
                     component={Link} 
-                    to={token ? "/search-books" : "/"} // Nếu đã đăng nhập thì link tới search, nếu không thì về trang chủ
+                    to="/search-books"
                     variant="subtle" 
                     size="md"
                 >
-                    Tra cứu sách
+                    Tra cứu sách
                 </Button>
                 {(role === '0' || role === '1') && (
-                    <Button 
-                        component={Link} 
-                        to="/borrow-books"
-                        variant="subtle" 
-                        size="md"
-                    >
-                        Mượn-Trả sách
-                    </Button>
+                    <>
+                        <Button 
+                            component={Link} 
+                            to="/borrow-books"
+                            variant="subtle" 
+                            size="md"
+                        >
+                            Mượn-Trả sách
+                        </Button>
+                        <Menu shadow="md" width={200}>
+                            <Menu.Target>
+                                <Button 
+                                    variant="subtle" 
+                                    size="md"
+                                >
+                                    Quản lý
+                                </Button>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                                <Menu.Item component={Link} to="/manage-books">
+                                    Quản lý sách
+                                </Menu.Item>
+                                <Menu.Item component={Link} to="/manage-authors">
+                                    Quản lý tác giả
+                                </Menu.Item>
+                                <Menu.Item component={Link} to="/manage-genres">
+                                    Quản lý thể loại
+                                </Menu.Item>
+                                <Menu.Item component={Link} to="/manage-publishers">
+                                    Quản lý nhà xuất bản
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
+                    </>
                 )}
                  {role === '0' && (
                     <Button 
@@ -126,7 +150,6 @@ function Navbar() {
                     </Button>
                 )}
             </Group>
-            {/* Dựa vào token để hiển thị UI phù hợp */}
             <Group>
                 {token ? <LoggedInMenu /> : <LoggedOutButtons />}
             </Group>

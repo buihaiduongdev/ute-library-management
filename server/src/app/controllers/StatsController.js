@@ -14,12 +14,12 @@ class StatsController {
 
             // 3. Đếm số cuốn sách đang được mượn (truy vấn trên "ChiTietMuon")
             const borrowedCount = await prisma.ChiTietMuon.count({
-                where: { TrangThai: 'Đang mượn' } // Giả định trạng thái này là chính xác
+                where: { NgayTra: null } // Chưa trả sách
             });
 
             // 4. Đếm số độc giả có thẻ bị khóa (truy vấn trên "DocGia")
             const lockedCardCount = await prisma.DocGia.count({
-                where: { TrangThai: 'Khóa' } // Giả định trạng thái này là chính xác
+                where: { TrangThai: 'Khoa' } // Trạng thái khóa
             });
 
             // Trả về dữ liệu với cấu trúc đúng như frontend mong đợi

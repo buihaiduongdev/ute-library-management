@@ -6,16 +6,14 @@ import {
     Button, 
     Paper, 
     Title, 
-    Container, 
-    Group,
+    Container,
     Anchor,
-    Alert,
     Center
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 
-import {post} from '../utils/api';
+import {post} from '../../utils/api';
 
 function LoginPage() {
     const [username, setUsername] = useState('');
@@ -41,11 +39,12 @@ function LoginPage() {
             localStorage.setItem('token', data.token);
             localStorage.setItem('role', data.role);
             localStorage.setItem('username', data.username);
+            localStorage.setItem('idDG', data.idDG);
             
             switch (data.role) {
-                case 0: navigate('/admin'); break;
-                case 1: navigate('/staff'); break;
-                case 2: navigate('/reader'); break;
+                case 0: navigate('/'); break;
+                case 1: navigate('/'); break;
+                case 2: navigate('/'); break;
                 default: navigate('/');
             }
 

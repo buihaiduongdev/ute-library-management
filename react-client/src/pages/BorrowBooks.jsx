@@ -1,230 +1,270 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Title,
-  TextInput,
-  Select,
-  Button,
-  Table,
-  Badge,
-  Group,
-  Stack,
-  Paper,
-  Image,
-  Text,
-  Modal,
-  NumberInput,
-  Checkbox,
-  Alert,
+  Tabs,
   Loader,
   Center,
-  Tabs
-} from '@mantine/core';
-import { DateInput } from '@mantine/dates';
-import { IconSearch, IconBook, IconCalendar, IconUser, IconArrowBack } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
-import { get, post } from '../utils/api';
+  Select,
+  Button,
+  Group,
+  Paper,
+  Text,
+  Badge,
+  Box,
+} from "@mantine/core";
+import {
+  IconArrowBack,
+  IconBook,
+  IconBooks,
+  IconClipboardList,
+  IconRefresh,
+  IconFileText,
+  IconBookmark,
+  IconCircleCheck,
+  IconAlertCircle,
+  IconMailOpened,
+  IconCheck,
+  IconX,
+  IconCash,
+} from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
+
+// Component hiển thị
+import AvailableBooksCards from "../components/AvailableBooksCards";
+import BorrowListTable from "../components/BorrowListTable";
+import CustomPagination from "../components/CustomPagination";
+import RequestsTable from "../components/RequestsTable";
+import FinesTable from "../components/FinesTable";
+
+// Modal
+import BorrowModal from "../modals/BorrowModal";
+import ReturnModal from "../modals/ReturnModal";
+import DetailModal from "../modals/DetailModal";
+import PayFineModal from "../modals/PayFineModal";
 
 function BorrowBooks() {
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("books");
+
+  // Tab 1: danh sách sách
   const [cuonSachs, setCuonSachs] = useState([]);
+  const [selectedBooks, setSelectedBooks] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [booksPagination, setBooksPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+
+  // Tab 2: phiếu mượn
   const [phieuMuons, setPhieuMuons] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [activeTab, setActiveTab] = useState('available');
-  
-  // Modal states
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [borrowsPagination, setBorrowsPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+
+  // Tab 3: yêu cầu mượn (mới)
+  const [yeuCauList, setYeuCauList] = useState([]);
+  const [requestStatusFilter, setRequestStatusFilter] = useState("ChoXuLy");
+  const [requestsPagination, setRequestsPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+
+  // Tab 4: phí phạt
+  const [fines, setFines] = useState([]);
+  const [fineStatusFilter, setFineStatusFilter] = useState("ChuaThanhToan");
+  const [finesPagination, setFinesPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+  const [totalFineAmount, setTotalFineAmount] = useState(0);
+
+  // Modal state
   const [borrowModalOpened, setBorrowModalOpened] = useState(false);
   const [returnModalOpened, setReturnModalOpened] = useState(false);
-  const [selectedBooks, setSelectedBooks] = useState([]);
-  const [readerInfo, setReaderInfo] = useState({ IdDG: '' });
-  const [dueDate, setDueDate] = useState(null);
-  
-  // Return states
-  const [returnMaPM, setReturnMaPM] = useState('');
-  const [returnBooks, setReturnBooks] = useState([]);
+  const [detailModalOpened, setDetailModalOpened] = useState(false);
+  const [payFineModalOpened, setPayFineModalOpened] = useState(false);
+  const [selectedPhieuMuon, setSelectedPhieuMuon] = useState(null);
+  const [selectedFine, setSelectedFine] = useState(null);
 
-  // Fetch danh sách cuốn sách có sẵn
+  // Fetch tất cả data ngay khi component mount để hiển thị badge
   useEffect(() => {
     fetchAvailableBooks();
-    fetchBorrowedBooks();
-  }, []);
+    fetchBorrows();
+    fetchRequests();
+    fetchFines();
+  }, []); // Chỉ chạy 1 lần khi mount
 
+  // Fetch data khi chuyển tab hoặc filter thay đổi
+  useEffect(() => {
+    if (activeTab === "books") {
+      fetchAvailableBooks();
+    } else if (activeTab === "borrows") {
+      fetchBorrows();
+    } else if (activeTab === "requests") {
+      fetchRequests();
+    } else if (activeTab === "fines") {
+      fetchFines();
+    }
+  }, [activeTab, booksPagination.page, borrowsPagination.page, requestsPagination.page, finesPagination.page, statusFilter, requestStatusFilter, fineStatusFilter]);
+
+  // Fetch danh sách sách có thể mượn
   const fetchAvailableBooks = async () => {
     setLoading(true);
     try {
-      // Tạo API endpoint để lấy cuốn sách có sẵn (TrangThaiCS = 'Con')
-      const response = await get('/api/books/available-copies');
-      setCuonSachs(response.data || []);
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/borrow/available-copies", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const allBooks = data.data || [];
+        setCuonSachs(allBooks);
+        // Tính toán pagination
+        const total = allBooks.length;
+        const totalPages = Math.ceil(total / booksPagination.limit);
+        setBooksPagination((prev) => ({ ...prev, total, totalPages }));
+      } else throw new Error(data.message);
     } catch (error) {
-      console.error('Error fetching books:', error);
       notifications.show({
-        title: 'Lỗi',
-        message: 'Không thể tải danh sách sách',
-        color: 'red'
+        title: "Lỗi",
+        message: "Không thể tải danh sách sách",
+        color: "red",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchBorrowedBooks = async () => {
+  // Fetch danh sách phiếu mượn
+  const fetchBorrows = async () => {
+    setLoading(true);
     try {
-      const response = await get('/api/borrow?page=1&limit=50');
-      setPhieuMuons(response.data || []);
-    } catch (error) {
-      console.error('Error fetching borrowed books:', error);
-    }
-  };
-
-  const handleBorrowClick = () => {
-    if (selectedBooks.length === 0) {
-      notifications.show({
-        title: 'Lỗi',
-        message: 'Vui lòng chọn ít nhất một cuốn sách',
-        color: 'red'
+      const token = localStorage.getItem("token");
+      let url = `/api/borrow?page=${borrowsPagination.page}&limit=${borrowsPagination.limit}`;
+      if (statusFilter !== "All") url += `&trangThai=${statusFilter}`;
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      return;
-    }
-    setBorrowModalOpened(true);
-  };
-
-  const handleBorrowSubmit = async () => {
-    if (!readerInfo.IdDG || !dueDate) {
-      notifications.show({
-        title: 'Lỗi',
-        message: 'Vui lòng điền đầy đủ thông tin độc giả và ngày hẹn trả',
-        color: 'red'
-      });
-      return;
-    }
-
-    try {
-      const sachMuon = selectedBooks.map(MaCuonSach => ({
-        maCuonSach: MaCuonSach,
-        ngayHenTra: dueDate.toISOString().split('T')[0]
-      }));
-
-      const response = await post('/api/borrow', {
-        idDG: parseInt(readerInfo.IdDG),
-        sachMuon
-      });
-
-      notifications.show({
-        title: 'Thành công',
-        message: 'Tạo phiếu mượn thành công',
-        color: 'green'
-      });
-
-      setBorrowModalOpened(false);
-      setSelectedBooks([]);
-      setReaderInfo({ IdDG: '' });
-      setDueDate(null);
-      fetchAvailableBooks();
-      fetchBorrowedBooks();
+      const data = await res.json();
+      if (res.ok) {
+        setPhieuMuons(data.data || []);
+        setBorrowsPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+          totalPages: data.pagination?.totalPages || 1,
+        }));
+      } else throw new Error(data.message);
     } catch (error) {
       notifications.show({
-        title: 'Lỗi',
-        message: error.message || 'Không thể tạo phiếu mượn',
-        color: 'red'
+        title: "Lỗi",
+        message: "Không thể tải danh sách phiếu mượn",
+        color: "red",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleReturnClick = async () => {
-    if (!returnMaPM || returnBooks.length === 0) {
-      notifications.show({
-        title: 'Lỗi',
-        message: 'Vui lòng nhập mã phiếu mượn và chọn sách cần trả',
-        color: 'red'
-      });
-      return;
-    }
-
+  // Fetch danh sách yêu cầu mượn
+  const fetchRequests = async () => {
+    setLoading(true);
     try {
-      const sachTra = returnBooks.map(item => ({
-        maCuonSach: item.MaCuonSach,
-        chatLuong: item.chatLuong || 'Tot'
-      }));
-
-      const response = await post('/api/borrow/return', {
-        maPM: parseInt(returnMaPM),
-        sachTra
-      });
-
-      notifications.show({
-        title: 'Thành công',
-        message: `Trả sách thành công. Tổng phí: ${response.tongPhat?.toLocaleString()} VNĐ`,
-        color: 'green'
-      });
-
-      setReturnModalOpened(false);
-      setReturnMaPM('');
-      setReturnBooks([]);
-      fetchAvailableBooks();
-      fetchBorrowedBooks();
-    } catch (error) {
-      notifications.show({
-        title: 'Lỗi',
-        message: error.message || 'Không thể trả sách',
-        color: 'red'
-      });
-    }
-  };
-
-  const loadBorrowDetails = async () => {
-    if (!returnMaPM) return;
-    
-    try {
-      const response = await get(`/api/borrow/${returnMaPM}`);
-      const chiTietMuon = response.data.ChiTietMuon.filter(ct => ct.TrangThai === 'DangMuon');
+      const token = localStorage.getItem("token");
+      let url = `/api/requests?page=${requestsPagination.page}&limit=${requestsPagination.limit}`;
+      if (requestStatusFilter !== "All") url += `&trangThai=${requestStatusFilter}`;
       
-      setReturnBooks(chiTietMuon.map(ct => ({
-        MaCuonSach: ct.MaCuonSach,
-        TieuDe: ct.CuonSach.Sach.TieuDe,
-        chatLuong: 'Tot'
-      })));
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setYeuCauList(data.data || []);
+        setRequestsPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+          totalPages: data.pagination?.totalPages || 1,
+        }));
+      } else throw new Error(data.message);
     } catch (error) {
       notifications.show({
-        title: 'Lỗi',
-        message: 'Không tìm thấy phiếu mượn',
-        color: 'red'
+        title: "Lỗi",
+        message: "Không thể tải danh sách yêu cầu",
+        color: "red",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch danh sách phí phạt
+  const fetchFines = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      let url = `/api/borrow/fines?page=${finesPagination.page}&limit=${finesPagination.limit}`;
+      if (fineStatusFilter !== "All") url += `&trangThai=${fineStatusFilter}`;
+      
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setFines(data.data || []);
+        setFinesPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+          totalPages: data.pagination?.totalPages || 1,
+        }));
+        setTotalFineAmount(data.summary?.tongTienPhat || 0);
+      } else throw new Error(data.message);
+    } catch (error) {
+      notifications.show({
+        title: "Lỗi",
+        message: "Không thể tải danh sách phạt",
+        color: "red",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Xem chi tiết phiếu mượn
+  const handleViewDetail = async (maPM) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/borrow/${maPM}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSelectedPhieuMuon(data.data);
+        setDetailModalOpened(true);
+      }
+    } catch {
+      notifications.show({
+        title: "Lỗi",
+        message: "Không thể tải chi tiết",
+        color: "red",
       });
     }
   };
 
-  const handleBookSelect = (MaCuonSach, checked) => {
-    if (checked) {
-      setSelectedBooks([...selectedBooks, MaCuonSach]);
-    } else {
-      setSelectedBooks(selectedBooks.filter(id => id !== MaCuonSach));
-    }
+  // Mở modal thanh toán phạt
+  const handlePayFine = (fine) => {
+    setSelectedFine(fine);
+    setPayFineModalOpened(true);
   };
-
-  const getStatusBadge = (TrangThaiCS) => {
-    switch (TrangThaiCS) {
-      case 'Con':
-        return <Badge color="green">In-Shelf</Badge>;
-      case 'DangMuon':
-        return <Badge color="blue">Borrowed</Badge>;
-      case 'Hong':
-        return <Badge color="orange">Damaged</Badge>;
-      case 'Mat':
-        return <Badge color="red">Lost</Badge>;
-      default:
-        return <Badge color="gray">{TrangThaiCS}</Badge>;
-    }
-  };
-
-  const filteredBooks = cuonSachs.filter(cuon => {
-    const sach = cuon.Sach;
-    const matchSearch = sach?.TieuDe?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                       sach?.Sach_TacGia?.some(st => st.TacGia.TenTacGia.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchStatus = statusFilter === 'All' || cuon.TrangThaiCS === statusFilter;
-    
-    return matchSearch && matchStatus;
-  });
 
   if (loading) {
     return (
@@ -235,241 +275,318 @@ function BorrowBooks() {
   }
 
   return (
-    <Container size="xl" py="md">
-      <Title order={2} mb="lg">Quản Lý Mượn Trả Sách</Title>
-
-      <Tabs value={activeTab} onChange={setActiveTab} mb="lg">
-        <Tabs.List>
-          <Tabs.Tab value="available">Sách Có Sẵn</Tabs.Tab>
-          <Tabs.Tab value="borrowed">Đang Mượn</Tabs.Tab>
-          <Tabs.Tab value="overdue">Quá Hạn</Tabs.Tab>
-        </Tabs.List>
-      </Tabs>
-
-      {/* Search and Filters */}
-      <Paper p="md" mb="lg" withBorder>
-        <Group grow>
-          <Select
-            placeholder="Trạng thái"
-            data={['All', 'Con', 'DangMuon', 'Hong', 'Mat']}
-            value={statusFilter}
-            onChange={setStatusFilter}
-          />
-          
-          <TextInput
-            placeholder="Tìm theo tên sách, tác giả..."
-            leftSection={<IconSearch size={16} />}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.currentTarget.value)}
-          />
-
-          <Button 
-            leftSection={<IconCalendar size={16} />}
-            variant="light"
-          >
-            {new Date().toLocaleDateString('vi-VN')}
-          </Button>
+    <Container size="xl" py="xl">
+      {/* Header Section */}
+      <Paper
+        shadow="sm"
+        p="xl"
+        radius="md"
+        mb="xl"
+        withBorder
+        style={{
+          backgroundColor: "#ffffff",
+          borderTop: "4px solid #228be6",
+        }}
+      >
+        <Group justify="space-between" align="center">
+          <Box>
+            <Group gap="sm" mb="xs">
+              <IconBooks size={36} color="#228be6" stroke={1.5} />
+              <Title
+                order={1}
+                style={{ color: "#228be6", marginBottom: 0 }}
+              >
+                Quản Lý Mượn Trả Sách
+              </Title>
+            </Group>
+            <Text size="lg" c="dimmed" mt="xs">
+              Hệ thống quản lý mượn trả tài liệu thư viện
+            </Text>
+          </Box>
+          <Group>
+            <Badge size="xl" variant="light" color="blue">
+              {cuonSachs.length} sách có sẵn
+            </Badge>
+            <Badge size="xl" variant="light" color="green">
+              {phieuMuons.length} phiếu mượn
+            </Badge>
+            <Badge size="xl" variant="light" color="orange">
+              {yeuCauList.length} yêu cầu
+            </Badge>
+            <Badge size="xl" variant="light" color="red">
+              {fines.length} phạt
+            </Badge>
+          </Group>
         </Group>
       </Paper>
 
-      {/* Action Buttons */}
-      <Group mb="md">
-        <Button 
-          variant="filled" 
-          color="blue"
-          leftSection={<IconBook size={16} />}
-          onClick={handleBorrowClick}
-          disabled={selectedBooks.length === 0}
-        >
-          Tạo Phiếu Mượn ({selectedBooks.length})
-        </Button>
-        <Button 
-          variant="outline" 
-          color="green"
-          leftSection={<IconArrowBack size={16} />}
-          onClick={() => setReturnModalOpened(true)}
-        >
-          Trả Sách
-        </Button>
-      </Group>
+      <Tabs value={activeTab} onChange={setActiveTab} radius="md">
+        <Tabs.List mb="xl">
+          <Tabs.Tab value="books" leftSection={<IconBook size={18} />}>
+            Danh Sách Sách
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="borrows"
+            leftSection={<IconClipboardList size={18} />}
+          >
+            Phiếu Mượn
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="requests"
+            leftSection={<IconMailOpened size={18} />}
+          >
+            Yêu Cầu Mượn
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="fines"
+            leftSection={<IconCash size={18} />}
+          >
+            Quản Lý Phạt
+          </Tabs.Tab>
+        </Tabs.List>
 
-      {/* Books Table */}
-      <Paper withBorder>
-        <Table highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Chọn</Table.Th>
-              <Table.Th>Tiêu Đề</Table.Th>
-              <Table.Th>Tác Giả</Table.Th>
-              <Table.Th>Thể Loại</Table.Th>
-              <Table.Th>Năm XB</Table.Th>
-              <Table.Th>Vị Trí</Table.Th>
-              <Table.Th>Trạng Thái</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {filteredBooks.map((cuon) => (
-              <Table.Tr key={cuon.MaCuonSach}>
-                <Table.Td>
-                  <Checkbox
-                    checked={selectedBooks.includes(cuon.MaCuonSach)}
-                    onChange={(e) => handleBookSelect(cuon.MaCuonSach, e.currentTarget.checked)}
-                    disabled={cuon.TrangThaiCS !== 'Con'}
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <Group>
-                    <div>
-                      <Text fw={500}>{cuon.Sach?.TieuDe}</Text>
-                      <Text size="sm" c="dimmed">
-                        Mã cuốn: {cuon.MaCuonSach}
-                      </Text>
-                    </div>
-                  </Group>
-                </Table.Td>
-                <Table.Td>
-                  <Stack gap={4}>
-                    {cuon.Sach?.Sach_TacGia?.map((st, idx) => (
-                      <Text key={idx} size="sm">{st.TacGia.TenTacGia}</Text>
-                    ))}
-                  </Stack>
-                </Table.Td>
-                <Table.Td>
-                  <Stack gap={4}>
-                    {cuon.Sach?.Sach_TheLoai?.map((stl, idx) => (
-                      <Badge key={idx} size="sm" variant="light">
-                        {stl.TheLoai.TenTheLoai}
-                      </Badge>
-                    ))}
-                  </Stack>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{cuon.Sach?.NamXuatBan || '-'}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Badge color="gray" size="sm">
-                    {cuon.Sach?.ViTriKe || 'N/A'}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  {getStatusBadge(cuon.TrangThaiCS)}
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Paper>
+        {/* TAB SÁCH */}
+        <Tabs.Panel value="books">
+          <AvailableBooksCards
+            cuonSachs={cuonSachs}
+            selectedBooks={selectedBooks}
+            setSelectedBooks={setSelectedBooks}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onCreateBorrow={() => setBorrowModalOpened(true)}
+            pagination={booksPagination}
+            onPaginationChange={(updates) =>
+              setBooksPagination((prev) => ({ ...prev, ...updates }))
+            }
+          />
 
-      {/* Borrow Modal */}
-      <Modal
+          {/* Pagination cho sách */}
+          <CustomPagination
+            currentPage={booksPagination.page}
+            totalPages={booksPagination.totalPages || 1}
+            onPageChange={(newPage) =>
+              setBooksPagination((prev) => ({ ...prev, page: newPage }))
+            }
+          />
+        </Tabs.Panel>
+
+        {/* TAB PHIẾU MƯỢN */}
+        <Tabs.Panel value="borrows">
+          <Paper
+            shadow="sm"
+            p="md"
+            radius="md"
+            mb="lg"
+            withBorder
+            style={{ backgroundColor: "#f8f9fa" }}
+          >
+            <Group justify="space-between">
+              <Group>
+                <Select
+                  placeholder="Lọc theo trạng thái"
+                  data={[
+                    { value: "All", label: "Tất cả" },
+                    { value: "DangMuon", label: "Đang mượn" },
+                    { value: "DaTra", label: "Đã trả" },
+                    { value: "TreHan", label: "Trễ hạn" },
+                  ]}
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                  style={{ width: 220 }}
+                  size="md"
+                />
+                <Button
+                  variant="light"
+                  leftSection={<IconRefresh size={18} />}
+                  onClick={fetchBorrows}
+                  size="md"
+                >
+                  Làm mới
+                </Button>
+              </Group>
+              <Button
+                color="green"
+                size="md"
+                leftSection={<IconArrowBack size={18} />}
+                onClick={() => setReturnModalOpened(true)}
+              >
+                Trả Sách
+              </Button>
+            </Group>
+          </Paper>
+          <BorrowListTable
+            phieuMuons={phieuMuons}
+            onViewDetail={handleViewDetail}
+          />
+
+          {/* Pagination cho phiếu mượn */}
+          <CustomPagination
+            currentPage={borrowsPagination.page}
+            totalPages={borrowsPagination.totalPages || 1}
+            onPageChange={(newPage) =>
+              setBorrowsPagination((prev) => ({ ...prev, page: newPage }))
+            }
+          />
+        </Tabs.Panel>
+
+        {/* TAB YÊU CẦU MƯỢN */}
+        <Tabs.Panel value="requests">
+          <Paper
+            shadow="sm"
+            p="md"
+            radius="md"
+            mb="lg"
+            withBorder
+            style={{ backgroundColor: "#f8f9fa" }}
+          >
+            <Group justify="space-between">
+              <Group>
+                <Select
+                  placeholder="Lọc theo trạng thái"
+                  data={[
+                    { value: "All", label: "Tất cả" },
+                    { value: "ChoXuLy", label: "Chờ xử lý" },
+                    { value: "DaDuyet", label: "Đã duyệt" },
+                    { value: "TuChoi", label: "Từ chối" },
+                  ]}
+                  value={requestStatusFilter}
+                  onChange={setRequestStatusFilter}
+                  style={{ width: 220 }}
+                  size="md"
+                />
+                <Button
+                  variant="light"
+                  leftSection={<IconRefresh size={18} />}
+                  onClick={fetchRequests}
+                  size="md"
+                >
+                  Làm mới
+                </Button>
+              </Group>
+              <Badge size="xl" variant="filled" color="orange">
+                {yeuCauList.filter(yc => yc.TrangThai === 'ChoXuLy').length} chờ xử lý
+              </Badge>
+            </Group>
+          </Paper>
+          
+          <RequestsTable
+            yeuCauList={yeuCauList}
+            onRefresh={fetchRequests}
+          />
+
+          {/* Pagination cho yêu cầu */}
+          <CustomPagination
+            currentPage={requestsPagination.page}
+            totalPages={requestsPagination.totalPages || 1}
+            onPageChange={(newPage) =>
+              setRequestsPagination((prev) => ({ ...prev, page: newPage }))
+            }
+          />
+        </Tabs.Panel>
+
+        {/* TAB QUẢN LÝ PHẠT */}
+        <Tabs.Panel value="fines">
+          <Paper
+            shadow="sm"
+            p="md"
+            radius="md"
+            mb="lg"
+            withBorder
+            style={{ backgroundColor: "#f8f9fa" }}
+          >
+            <Group justify="space-between">
+              <Group>
+                <Select
+                  placeholder="Lọc theo trạng thái"
+                  data={[
+                    { value: "All", label: "Tất cả" },
+                    { value: "ChuaThanhToan", label: "Chưa thanh toán" },
+                    { value: "DaThanhToan", label: "Đã thanh toán" },
+                  ]}
+                  value={fineStatusFilter}
+                  onChange={setFineStatusFilter}
+                  style={{ width: 220 }}
+                  size="md"
+                />
+                <Button
+                  variant="light"
+                  leftSection={<IconRefresh size={18} />}
+                  onClick={fetchFines}
+                  size="md"
+                >
+                  Làm mới
+                </Button>
+              </Group>
+              <Group>
+                <Badge size="xl" variant="filled" color="red">
+                  {fines.filter(f => f.TrangThaiThanhToan === 'ChuaThanhToan').length} chưa thanh toán
+                </Badge>
+                <Paper p="sm" withBorder style={{ backgroundColor: '#fff' }}>
+                  <Text size="xs" c="dimmed" tt="uppercase" fw={600}>Tổng tiền</Text>
+                  <Text fw={700} size="lg" c="red">
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalFineAmount)}
+                  </Text>
+                </Paper>
+              </Group>
+            </Group>
+          </Paper>
+
+          <FinesTable
+            fines={fines}
+            onPayFine={handlePayFine}
+            loading={loading}
+          />
+
+          {/* Pagination cho phạt */}
+          <CustomPagination
+            currentPage={finesPagination.page}
+            totalPages={finesPagination.totalPages || 1}
+            onPageChange={(newPage) =>
+              setFinesPagination((prev) => ({ ...prev, page: newPage }))
+            }
+          />
+        </Tabs.Panel>
+      </Tabs>
+
+      {/* Modal tạo phiếu */}
+      <BorrowModal
         opened={borrowModalOpened}
         onClose={() => setBorrowModalOpened(false)}
-        title="Tạo Phiếu Mượn Sách"
-        size="lg"
-      >
-        <Stack>
-          <NumberInput
-            label="ID Độc Giả"
-            placeholder="Nhập ID độc giả"
-            leftSection={<IconUser size={16} />}
-            value={readerInfo.IdDG}
-            onChange={(val) => setReaderInfo({ ...readerInfo, IdDG: val })}
-            required
-          />
+        selectedBooks={selectedBooks}
+        refresh={fetchAvailableBooks}
+      />
 
-          <DateInput
-            label="Ngày Hẹn Trả"
-            placeholder="Chọn ngày hẹn trả"
-            leftSection={<IconCalendar size={16} />}
-            value={dueDate}
-            onChange={setDueDate}
-            minDate={new Date()}
-            required
-          />
-
-          <Alert title="Sách Đã Chọn" color="blue">
-            <Text size="sm">
-              Đã chọn {selectedBooks.length} cuốn sách
-            </Text>
-          </Alert>
-
-          <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={() => setBorrowModalOpened(false)}>
-              Hủy
-            </Button>
-            <Button onClick={handleBorrowSubmit}>
-              Tạo Phiếu Mượn
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
-
-      {/* Return Modal */}
-      <Modal
+      {/* Modal trả sách */}
+      <ReturnModal
         opened={returnModalOpened}
         onClose={() => setReturnModalOpened(false)}
-        title="Trả Sách"
-        size="lg"
-      >
-        <Stack>
-          <Group>
-            <NumberInput
-              label="Mã Phiếu Mượn"
-              placeholder="Nhập mã phiếu mượn"
-              value={returnMaPM}
-              onChange={setReturnMaPM}
-              style={{ flex: 1 }}
-              required
-            />
-            <Button mt={22} onClick={loadBorrowDetails}>
-              Tải Thông Tin
-            </Button>
-          </Group>
+        refresh={fetchBorrows}
+      />
 
-          {returnBooks.length > 0 && (
-            <>
-              <Text fw={500} mt="md">Danh sách sách cần trả:</Text>
-              <Stack gap="xs">
-                {returnBooks.map((book, idx) => (
-                  <Paper key={idx} p="xs" withBorder>
-                    <Group justify="space-between">
-                      <div>
-                        <Text size="sm" fw={500}>{book.TieuDe}</Text>
-                        <Text size="xs" c="dimmed">Mã cuốn: {book.MaCuonSach}</Text>
-                      </div>
-                      <Select
-                        placeholder="Chất lượng"
-                        data={[
-                          { value: 'Tot', label: 'Tốt' },
-                          { value: 'HuHong', label: 'Hư Hỏng' },
-                          { value: 'Mat', label: 'Mất' }
-                        ]}
-                        value={book.chatLuong}
-                        onChange={(val) => {
-                          const updated = [...returnBooks];
-                          updated[idx].chatLuong = val;
-                          setReturnBooks(updated);
-                        }}
-                        size="xs"
-                        style={{ width: 120 }}
-                      />
-                    </Group>
-                  </Paper>
-                ))}
-              </Stack>
-            </>
-          )}
+      {/* Modal chi tiết */}
+      <DetailModal
+        opened={detailModalOpened}
+        onClose={() => setDetailModalOpened(false)}
+        phieuMuon={selectedPhieuMuon}
+        onRefresh={() => {
+          fetchBorrows();
+          if (selectedPhieuMuon) {
+            handleViewDetail(selectedPhieuMuon.MaPM);
+          }
+        }}
+      />
 
-          <Group justify="flex-end" mt="md">
-            <Button variant="outline" onClick={() => setReturnModalOpened(false)}>
-              Hủy
-            </Button>
-            <Button onClick={handleReturnClick} disabled={returnBooks.length === 0}>
-              Xác Nhận Trả Sách
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+      {/* Modal thanh toán phạt */}
+      <PayFineModal
+        opened={payFineModalOpened}
+        onClose={() => setPayFineModalOpened(false)}
+        fine={selectedFine}
+        onSuccess={() => {
+          fetchFines();
+          setPayFineModalOpened(false);
+          setSelectedFine(null);
+        }}
+      />
     </Container>
   );
 }

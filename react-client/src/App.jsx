@@ -1,9 +1,6 @@
-// Import các công cụ cần thiết từ react-router-dom
+// src/App.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-// Import các component trang và layout của chúng ta
 import {
-  AdminPage,
   BookSearchPage,
   BorrowBooks,
   HomePage,
@@ -12,35 +9,31 @@ import {
   ReaderStatsPage,
   RegisterPage,
   StaffPage,
+  ManageBooksPage,
+  ManageAuthorsPage,
+  ManageGenresPage,
+  ManagePublishersPage,
+  BookDetailPage,
+  CardManagement
 } from './pages';
-import CardManagement from './pages/CardManagement';
 import ReaderForm from './components/ReaderForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './components/AppLayout';
-
-import './App.css';
-
+import './assets/css/App.css';
+import '@mantine/core/styles.css';
+import '@mantine/carousel/styles.css';
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Sử dụng AppLayout làm layout chung cho tất cả các trang */}
         <Route element={<AppLayout />}>
-
-          {/* === Các Route công khai === */}
+          {/* Các Route công khai */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} /> 
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/search-books" element={<BookSearchPage />} />
 
-          {/* === Các Route được bảo vệ === */}
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute allowedRoles={['0']}>
-                <AdminPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* Các Route được bảo vệ */}
           <Route 
             path="/admin/readers" 
             element={
@@ -82,18 +75,42 @@ function App() {
             }
           />
           <Route 
-            path="/search-books" 
-            element={
-              <ProtectedRoute allowedRoles={['0', '1', '2']}> {/* Bất kỳ ai đã đăng nhập */}
-                <BookSearchPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route 
             path="/borrow-books" 
             element={
               <ProtectedRoute allowedRoles={['0', '1']}>
                 <BorrowBooks />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/manage-books" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <ManageBooksPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/manage-authors" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <ManageAuthorsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/manage-genres" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <ManageGenresPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/manage-publishers" 
+            element={
+              <ProtectedRoute allowedRoles={['0', '1']}>
+                <ManagePublishersPage />
               </ProtectedRoute>
             }
           />
@@ -106,6 +123,15 @@ function App() {
                 <CardManagement />
               </ProtectedRoute>
             }
+          />
+
+          <Route
+          path="/book-detail/:id"
+          element={
+            <ProtectedRoute allowedRoles={['0', '1', '2']}>
+              <BookDetailPage />
+            </ProtectedRoute>
+          }
           />
 
           {/* 📊 Reader Statistics - Only Admin */}

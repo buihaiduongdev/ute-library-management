@@ -16,7 +16,15 @@ class AuthController {
             const user = await prisma.taiKhoan.findUnique({
                 where: { TenDangNhap: username },
             });
+            let idDG = null;
 
+            if (user.VaiTro === 2) {
+            const dg = await prisma.docGia.findUnique({
+                where: { MaTK: user.MaTK },
+            });
+            idDG = dg.IdDG;
+        }
+            
             if (!user) {
                 return res.status(401).json({ message: 'Tên đăng nhập không tồn tại.' });
             }
@@ -41,7 +49,8 @@ class AuthController {
                 message: 'Đăng nhập thành công',
                 token,
                 username: user.TenDangNhap,
-                role: user.VaiTro
+                role: user.VaiTro,
+                idDG: idDG
             });
         } catch (error) {
             console.error(error);
@@ -52,19 +61,39 @@ class AuthController {
 
     // [POST] /api/auth/register
     async register(req, res) {
-        const { username, password } = req.body;
+        console.log("Register body:", req.body);
 
-        if (!username || !password) {
-            return res.status(400).json({ message: 'Vui lòng cung cấp đủ tên đăng nhập và mật khẩu.' });
+        const { fullname, birthdate, address, email, phone ,username, password } = req.body;
+
+        if (!username || !password || !fullname || !birthdate || !address || !email || !phone) {
+            return res.status(400).json({ message: 'Vui lòng cung cấp đủ thông tin' });
         }
 
         try {
             const userExists = await prisma.taiKhoan.findUnique({
                 where: { TenDangNhap: username },
             });
-
+            
             if (userExists) {
                 return res.status(409).json({ message: 'Tên đăng nhập đã tồn tại.' });
+            }
+
+            const contactExists = await prisma.docGia.findFirst({
+                where:{
+                    OR: [
+                        {Email: email},
+                        {SoDienThoai: phone}
+                    ]
+                }
+            });
+
+            if (contactExists) {
+                if (contactExists.Email === email) {
+                    return res.status(409).json({ message: 'Email đã tồn tại.' });
+                }
+                if (contactExists.SoDienThoai === phone){
+                    return res.status(409).json({ message: 'Số điện thoại đã tồn tại.' });
+                }
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -81,23 +110,27 @@ class AuthController {
                     },
                 });
 
-                const tenDocGia = 'New User';
                 const ngayHetHan = new Date();
                 ngayHetHan.setFullYear(ngayHetHan.getFullYear() + 1);
 
-                await prisma.docGia.create({
+                const newDocGia = await prisma.docGia.create({
                     data: {
                         MaTK: newUser.MaTK,
-                        HoTen: tenDocGia,
+                        HoTen: fullname,
+                        NgaySinh: birthdate ? new Date(birthdate) : null,
+                        DiaChi: address,
+                        Email: email,
+                        SoDienThoai: phone,
+                        NgayDangKy: new Date(),
                         NgayHetHan: ngayHetHan,
                         TrangThai: 'ConHan',
                     },
                 });
 
-                return newUser;
+                return newDocGia;
             });
 
-            res.status(201).json({ message: 'Đăng ký tài khoản độc giả thành công.', userId: result.MaTK });
+            res.status(201).json({ message: 'Đăng ký tài khoản độc giả thành công.', hoTen: result.HoTen });
 
         } catch (error) {
             console.error(error);
