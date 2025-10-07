@@ -4,6 +4,7 @@ export { default as CardManagement } from './CardManagement';
 export { default as HomePage } from './HomePage';
 export { default as LoginPage } from './auth/LoginPage';
 export { default as ReaderPage } from './ReaderPage';
+export { default as ReaderDashboard } from './ReaderDashboard';
 export { default as ReaderStatsPage } from './ReaderStatsPage';
 export { default as RegisterPage } from './auth/RegisterPage';
 export { default as StaffPage } from './StaffPage';
