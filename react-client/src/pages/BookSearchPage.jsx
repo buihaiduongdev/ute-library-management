@@ -4,6 +4,7 @@ import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Car
 import { get } from '../utils/api';
 import { IconBook, IconSearch, IconEye, IconX, IconUser, IconCategory, IconBuilding, IconCalendar, IconPackage, IconCash, IconMapPin, IconFlag, IconInfoCircle, IconPhone, IconMail } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
+const usn = localStorage.getItem('username');
 
 function BookSearchPage() {
   const [books, setBooks] = useState([]);
@@ -349,12 +350,20 @@ function BookSearchPage() {
               {/* Duong them link toi yeu cau muon */}
               <Button  
                 component={Link}
-                to={`/book-detail/${selectedBook.MaSach}`}  
-                onClick={() =>1 } 
-                // disabled={!selectedBook.TrangThai === 'Con'}
-                >Yêu cầu mượn
+                to={usn ? `/book-detail/${selectedBook.MaSach}` : '/'}
+                // disabled={selectedBook.TrangThai !== 'Con'}
+                onClick={() => {
+                  Notifications.show({
+                    title: 'Lỗi',
+                    message: 'Bạn cần đăng nhập trước khi mượn sách',
+                    color: 'red',
+                  });
+                  navigate('/');
+                }}
+              >
+                Yêu cầu mượn
               </Button>
-              
+
               <Button
                 variant="outline"
                 onClick={() => {
