@@ -169,6 +169,7 @@ Invalid value for argument `NgaySinh`: Provided Date object is invalid. Expected
     at $n (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:5747)
     at /home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:10104
     at Object.runInChildSpan (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:1549)
+<<<<<<< HEAD
 2025-10-05T08:29:48.190Z - CREATE READER ERROR: PrismaClientValidationError: 
 Invalid `db.docGia.create()` invocation in
 /home/user/ute-library-management/server/src/app/controllers/ReaderController.js:54:47
@@ -198,3 +199,5 @@ Invalid value for argument `NgaySinh`: Provided Date object is invalid. Expected
     at $n (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:5747)
     at /home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:10104
     at Object.runInChildSpan (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:1549)
+=======
+>>>>>>> main
