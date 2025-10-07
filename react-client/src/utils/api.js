@@ -175,7 +175,7 @@ export const authCreateAuthor = async (authorData, options = {}) => {
 };
 
 // Reader APIs
-export const getAllReaders = () => get(`${API_URL}/readers`);
+export const getAllReaders = () => authGet('/readers');
 export const getReaderById = (id) => get(`${API_URL}/readers/${id}`);
 export const createReader = (readerData) => post(`${API_URL}/readers`, readerData);
 export const updateReader = (id, readerData) => put(`${API_URL}/readers/${id}`, readerData);
@@ -203,7 +203,7 @@ export const getBookStatus = () => get(`${API_URL}/stats/book-status`);
 // 👥 Reader Statistics APIs
 export const getReadersOverview = () => get(`${API_URL}/reader-stats/readers-overview`);
 export const getReadersRegistrationTimeline = () => get(`${API_URL}/reader-stats/readers-registration-timeline`);
-export const getReadersByAge = () => get(`${API_URL}/reader-stats/readers-by-age`);
+export const getReadersByAge = () => get(`${API_M_URL}/reader-stats/readers-by-age`);
 export const getReadersByLocation = () => get(`${API_URL}/reader-stats/readers-by-location`);
 export const getTopActiveReaders = (limit = 10) => get(`${API_URL}/reader-stats/top-active-readers?limit=${limit}`);
 export const getExpiringCards = () => get(`${API_URL}/reader-stats/expiring-cards`);
