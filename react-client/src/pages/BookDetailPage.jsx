@@ -24,7 +24,6 @@ import '../assets/css/HomePage.css';
 
 const BookDetailPage = () => {
   const { id } = useParams();
-  const [loading, setLoading] = useState(false);
 
   const [book, setBook] = useState(null);
   const [related, setRelated] = useState(null);
@@ -35,7 +34,9 @@ const BookDetailPage = () => {
 
   const role = localStorage.getItem('role');
   useEffect(() => {
-    setLoading(true);
+    setBook(null);
+    setRelated(null);
+    setCopies(null);
     const fetchAll = async () => {
       try {
         const [bookRes, relatedRes, copiesRes] = await Promise.all([
@@ -52,9 +53,7 @@ const BookDetailPage = () => {
           message: "Không thể tải dữ liệu sách.",
           color: "red",
         });
-      } finally {
-        setLoading(false); // ⬅️
-    }
+      }
     };
     fetchAll();
   }, [id]);
@@ -69,7 +68,7 @@ const BookDetailPage = () => {
     });
   };
 
-  const isBookAvailable = book?.TrangThai === "Còn sách";
+  const isBookAvailable = copies?.some(copy => copy.TrangThaiCS === "Con");
 
   if (!book) {
     return  (
@@ -78,7 +77,6 @@ const BookDetailPage = () => {
           </Center>
     );
   }
-  // if (loading) {
   return (
     <Container size="lg" my="lg">
       <Grid>
@@ -95,11 +93,20 @@ const BookDetailPage = () => {
               <Text fw={500} size="xl">{book.TieuDe}</Text>
             </Group>
              <Group justify="center" mt="md" mb="xs">
-                 <Badge color={book.TrangThai === "Còn sách" ? "green" : "red"}>
-                {book.TrangThai}
-                </Badge>
+             <Badge
+                color={
+                  isBookAvailable
+                    ? "green"
+                    : "red"
+                }
+              >
+                {isBookAvailable
+                  ? "Còn sách"
+                  : "Hết sách"}
+              </Badge>
+
                 <Badge color="blue" variant="light">
-                {copies ? copies.length : 0}/{book.SoLuong} quyển
+                {copies ? copies.filter(c => c.TrangThaiCS === "Con").length : 0}/{book.SoLuong} quyển
                 </Badge>
             </Group>
           </Card>
@@ -129,7 +136,7 @@ const BookDetailPage = () => {
                     <Text><strong>Giá sách:</strong> {book.GiaSach}</Text>
                     <Text><strong>Vị trí kệ:</strong> {book.ViTriKe}</Text>
                     <Group mt="md">
-                      <Button  onClick={() => setModalOpened(true)} disabled={!isBookAvailable}>Mượn ngay</Button>
+                      <Button  onClick={() => setModalOpened(true)} disabled={!isBookAvailable}>Yêu cầu mượn</Button>
                       <RequestBorrowModal 
                         opened={modalOpened} 
                         onClose={() => setModalOpened(false)} 
@@ -271,11 +278,8 @@ const BookDetailPage = () => {
           })}
         </Grid>
       </Paper>
-
-
     </Container>
   );
-  // }
 };
 
 export default BookDetailPage;

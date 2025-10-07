@@ -83,6 +83,7 @@ function Navbar() {
                 >
                     Tra cứu sách
                 </Button>
+
                 {(role === '0' || role === '1') && (
                     <>
                         <Button 
@@ -99,7 +100,7 @@ function Navbar() {
                                     variant="subtle" 
                                     size="md"
                                 >
-                                    Quản lý
+                                    Quản lý kho sách
                                 </Button>
                             </Menu.Target>
                             <Menu.Dropdown>
@@ -115,11 +116,12 @@ function Navbar() {
                                 <Menu.Item component={Link} to="/manage-publishers">
                                     Quản lý nhà xuất bản
                                 </Menu.Item>
+
                             </Menu.Dropdown>
                         </Menu>
                     </>
                 )}
-                 {role === '0' && (
+                {role === '0' && (
                     <Button 
                         component={Link} 
                         to="/admin/readers"
@@ -136,7 +138,7 @@ function Navbar() {
                         variant="subtle" 
                         size="md"
                     >
-                        🎴 Quản lý Thẻ
+                        Quản lý Thẻ
                     </Button>
                 )}
                 {role === '0' && (
@@ -146,7 +148,7 @@ function Navbar() {
                         variant="subtle" 
                         size="md"
                     >
-                        📊 Thống kê Độc giả
+                        Thống kê Độc giả
                     </Button>
                 )}
             </Group>
