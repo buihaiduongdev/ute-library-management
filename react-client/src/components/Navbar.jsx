@@ -121,6 +121,16 @@ function Navbar() {
                         </Menu>
                     </>
                 )}
+                {role === '2' && (
+                    <Button 
+                        component={Link} 
+                        to="/reader/dashboard"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        Thư Viện Của Tôi
+                    </Button>
+                )}
                 {role === '0' && (
                     <Button 
                         component={Link} 

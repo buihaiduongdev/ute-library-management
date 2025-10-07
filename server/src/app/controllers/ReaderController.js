@@ -418,6 +418,86 @@ class ReaderController {
         }
     }
 
+    // [GET] /api/readers/:id/borrow-info - Lấy thông tin đầy đủ để mượn sách
+    async getReaderBorrowInfo(req, res) {
+        const { id } = req.params;
+        try {
+            console.log('📚 GET /api/readers/' + id + '/borrow-info - Request received');
+
+            // Tìm độc giả
+            const reader = await db.docGia.findUnique({
+                where: { IdDG: parseInt(id) },
+                include: {
+                    TaiKhoan: {
+                        select: {
+                            TenDangNhap: true,
+                            TrangThai: true
+                        }
+                    }
+                }
+            });
+
+            if (!reader) {
+                return res.status(404).json({ message: 'Không tìm thấy độc giả.' });
+            }
+
+            // Đếm số sách đang mượn
+            const soSachDangMuon = await db.chiTietMuon.count({
+                where: {
+                    PhieuMuon: {
+                        IdDG: parseInt(id)
+                    },
+                    TrangThai: 'DangMuon'
+                }
+            });
+
+            // Tính tổng tiền phạt chưa thanh toán
+            const unpaidFines = await db.thePhat.findMany({
+                where: {
+                    TraSach: {
+                        PhieuMuon: {
+                            IdDG: parseInt(id)
+                        }
+                    },
+                    TrangThaiThanhToan: 'ChuaThanhToan'
+                },
+                select: {
+                    SoTienPhat: true,
+                    LyDoPhat: true
+                }
+            });
+
+            const tongTienPhat = unpaidFines.reduce(
+                (sum, fine) => sum + parseFloat(fine.SoTienPhat),
+                0
+            );
+
+            // Kiểm tra trạng thái có thể mượn sách không
+            const coTheMuonSach = reader.TrangThai === 'ConHan' && new Date() <= new Date(reader.NgayHetHan);
+
+            // Trả về thông tin đầy đủ
+            const borrowInfo = {
+                ...reader,
+                soSachDangMuon,
+                tongTienPhat,
+                coNoPhat: tongTienPhat > 0,
+                soLuongNoPhat: unpaidFines.length,
+                coTheMuonSach,
+                lyDoKhongMuon: !coTheMuonSach ? 
+                    (reader.TrangThai !== 'ConHan' ? 'Tài khoản không còn hạn' : 'Thẻ đã hết hạn') : null
+            };
+
+            console.log('✅ Reader borrow info retrieved successfully');
+            res.status(200).json(borrowInfo);
+        } catch (error) {
+            console.error('❌ Error in getReaderBorrowInfo:', error);
+            res.status(500).json({ 
+                message: 'Lỗi hệ thống khi lấy thông tin độc giả.', 
+                error: error.message 
+            });
+        }
+    }
+
     // [DELETE] /api/readers/:id - SIMPLIFIED VERSION
     async deleteReader(req, res) {
         const { id } = req.params;

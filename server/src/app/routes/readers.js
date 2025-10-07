@@ -7,6 +7,9 @@ const { verifyToken } = require('../middlewares/auth.middleware');
 router.get('/', verifyToken([0]), readerController.getAllReaders);
 
 // 🎴 CARD MANAGEMENT ROUTES (must be before /:id routes):
+// Route for getting reader borrow information (for BorrowModal)
+router.get('/:id/borrow-info', verifyToken([0, 1]), readerController.getReaderBorrowInfo);
+
 // Route for getting reader card information
 router.get('/:id/card-info', verifyToken([0, 1]), readerController.getReaderCardInfo);
 

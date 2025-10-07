@@ -33,7 +33,7 @@ router.get("/statistics", staffOrAdmin, borrowController.getStatistics);
 router.get("/overdue", staffOrAdmin, borrowController.getOverdueBooks);
 
 // [GET] Danh sách phạt chưa thanh toán
-router.get("/fines", staffOrAdmin, borrowController.getUnpaidFines);
+router.get("/fines", allRoles, borrowController.getUnpaidFines);
 
 // [GET] Lịch sử mượn của độc giả
 router.get("/reader/:idDG", allRoles, borrowController.getReaderHistory);
