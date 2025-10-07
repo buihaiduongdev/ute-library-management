@@ -42,7 +42,7 @@ function LoginPage() {
             localStorage.setItem('idDG', data.idDG);
             
             switch (data.role) {
-                case 0: navigate('/admin'); break;
+                case 0: navigate('/'); break;
                 case 1: navigate('/'); break;
                 case 2: navigate('/'); break;
                 default: navigate('/');
