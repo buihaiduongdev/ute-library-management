@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, TextInput, Button, SimpleGrid, Image, Modal, FileInput, Autocomplete, Group, Card, Text, Grid, Pagination } from '@mantine/core';
+import { Container, Title, TextInput, Button, SimpleGrid, Image, Modal, FileInput, Autocomplete, Group, Card, Text, Grid, Pagination, Badge } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
 import { IconPencil, IconTrash, IconDownload, IconBook, IconSearch, IconPlus, IconUser, IconCategory, IconBuilding, IconCalendar, IconNumber, IconCurrencyDollar, IconPhoto, IconCheck, IconX } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
+import imageCompression from 'browser-image-compression';
 
 function ManageBooksPage() {
   const [books, setBooks] = useState([]);
@@ -16,7 +17,7 @@ function ManageBooksPage() {
   const [genres, setGenres] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalBooks, setTotalBooks] = useState(0);
-  const booksPerPage = 12;
+  const booksPerPage = 9;
 
   const form = useForm({
     initialValues: {
@@ -41,8 +42,8 @@ function ManageBooksPage() {
           ? 'Năm xuất bản phải từ 0 đến 2025'
           : null,
       AnhBia: (value) =>
-        value && typeof value === 'string' && !value.match(/^data:image\/(jpeg|png);base64,/)
-          ? 'Ảnh bìa phải là base64 hợp lệ (jpeg hoặc png)'
+        value && typeof value === 'string' && !value.match(/^data:image\/[^;]+;base64,/)
+          ? 'Ảnh bìa phải là base64 hợp lệ của một file ảnh'
           : null,
     },
   });
@@ -81,27 +82,65 @@ function ManageBooksPage() {
     }
   };
 
-  const handleFileChange = (file) => {
+  const handleFileChange = async (file) => {
     if (file) {
       const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        Notifications.show({ title: 'Lỗi', message: 'Ảnh bìa quá lớn, tối đa 5MB', color: 'red' });
+      let compressedFile = file;
+      try {
+        const img = new window.Image();
+        img.src = URL.createObjectURL(file);
+        await new Promise((resolve) => {
+          img.onload = () => resolve();
+        });
+        if (file.size > maxSize || img.width > 1920 || img.height > 1920) {
+          compressedFile = await imageCompression(file, {
+            maxSizeMB: 5,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+          });
+          console.log('Compressed file size:', compressedFile.size, 'Original size:', file.size, 'Dimensions:', `${img.width}x${img.height}`);
+        }
+      } catch (err) {
+        Notifications.show({ title: 'Lỗi', message: 'Lỗi khi xử lý ảnh', color: 'red' });
+        form.setFieldValue('AnhBia', null);
+        return;
+      }
+      if (compressedFile.size > maxSize) {
+        Notifications.show({
+          title: 'Lỗi',
+          message: `Ảnh bìa quá lớn (${(compressedFile.size / 1024 / 1024).toFixed(2)}MB). Tối đa 5MB.`,
+          color: 'red',
+        });
         form.setFieldValue('AnhBia', null);
         return;
       }
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64Str = reader.result;
-        console.log('File converted to base64:', base64Str.substring(0, 50) + '...');
-        const base64Data = base64Str.replace(/^data:image\/(jpeg|png);base64,/, '');
+        console.log('File converted to base64:', base64Str.substring(0, 50) + '...', 'Size:', compressedFile.size);
+        const base64Data = base64Str.replace(/^data:image\/[^;]+;base64,/, '');
         if (!/^[A-Za-z0-9+/=]+$/.test(base64Data)) {
           Notifications.show({ title: 'Lỗi', message: 'Chuỗi base64 không hợp lệ', color: 'red' });
           form.setFieldValue('AnhBia', null);
           return;
         }
+        const base64Size = (base64Data.length * 3) / 4;
+        if (base64Size > maxSize) {
+          Notifications.show({
+            title: 'Lỗi',
+            message: `Dữ liệu base64 quá lớn (${(base64Size / 1024 / 1024).toFixed(2)}MB). Tối đa 5MB.`,
+            color: 'red',
+          });
+          form.setFieldValue('AnhBia', null);
+          return;
+        }
         form.setFieldValue('AnhBia', base64Str);
       };
-      reader.readAsDataURL(file);
+      reader.onerror = () => {
+        Notifications.show({ title: 'Lỗi', message: 'Lỗi khi đọc file ảnh', color: 'red' });
+        form.setFieldValue('AnhBia', null);
+      };
+      reader.readAsDataURL(compressedFile);
     } else {
       form.setFieldValue('AnhBia', null);
     }
@@ -159,7 +198,11 @@ function ManageBooksPage() {
       setEditId(null);
     } catch (err) {
       console.error('Submit error:', err);
-      Notifications.show({ title: 'Lỗi', message: err.message || 'Không thể lưu sách', color: 'red' });
+      let errorMessage = err.message || 'Không thể lưu sách';
+      if (err.response?.status === 413) {
+        errorMessage = 'Ảnh bìa quá lớn. Vui lòng chọn ảnh dưới 5MB.';
+      }
+      Notifications.show({ title: 'Lỗi', message: errorMessage, color: 'red' });
       if (err.message.includes('No authentication token')) {
         window.location.href = '/login';
       }
@@ -298,62 +341,66 @@ function ManageBooksPage() {
         </Group>
       </Group>
 
-      <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
         {books.map((book) => (
           <Card key={book.MaSach} shadow="sm" padding="md" radius="md" withBorder style={{ height: '270px', maxWidth: '400px', marginBottom: '16px' }}>
             <Grid align="stretch" gutter="sm">
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Text style={{ fontSize: '13px' }} ta="left" fw={500} truncate="end">Mã sách: {book.MaSach}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Tiêu đề: {book.TieuDe}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">
+                
+                <Text style={{ fontSize: '20px' }} ta="left" truncate="end">{book.TieuDe}</Text>
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">
                   Tác giả: {book.Sach_TacGia.map((t) => t.TacGia.TenTacGia).join(', ') || 'N/A'}
                 </Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">
                   Thể loại: {book.Sach_TheLoai.map((t) => t.TheLoai.TenTheLoai).join(', ') || 'N/A'}
                 </Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">NXB: {book.NhaXuatBan?.TenNXB || 'N/A'}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Năm XB: {book.NamXuatBan || 'N/A'}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Số lượng: {book.SoLuong ? `${book.SoLuong} cuốn` : '0 cuốn'}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Giá sách: {book.GiaSach ? `${book.GiaSach} VNĐ` : 'N/A'}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
-                <Text
-                  style={{ fontSize: '16px' }}
-                  ta="left"
-                  truncate="end"
-                  c={book.TrangThai === 'Còn sách' ? '#28a745' : book.TrangThai === 'Hết sách' ? '#dc3545' : 'dimmed'}
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">NXB: {book.NhaXuatBan?.TenNXB || 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">Năm XB: {book.NamXuatBan || 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">Số lượng: {book.SoLuong ? `${book.SoLuong} cuốn` : '0 cuốn'}</Text>
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">Giá sách: {book.GiaSach ? `${book.GiaSach} VNĐ` : 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
+                <Badge
+                  color={book.TrangThai === 'Còn sách' ? '#28a745' : book.TrangThai === 'Hết sách' ? '#dc3545' : 'gray'}
+                  size="md"
+                  radius="sm"
+                  style={{ fontSize: '14px', fontWeight: 500, marginTop: '8px' }}
                 >
                   {book.TrangThai || 'N/A'}
-                </Text>
+                </Badge>
                 <Group gap={4} mt="sm" justify="flex-end" style={{ flexWrap: 'nowrap' }}>
                   <Button
                     variant="subtle"
                     size="xs"
                     color="cyan"
-                    leftSection={<IconPencil size={23} />}
+                    leftSection={<IconPencil size={18} />}
                     onClick={() => handleEdit(book)}
+                    styles={{ label: { fontSize: '12px' } }}
                   >
+                    Cập nhật
                   </Button>
                   <Button
                     variant="subtle"
                     size="xs"
                     color="red"
-                    leftSection={<IconTrash size={23} />}
+                    leftSection={<IconTrash size={17} />}
                     onClick={() => {
                       setDeleteId(book.MaSach);
                       setDeleteModalOpen(true);
                     }}
+                    styles={{ label: { fontSize: '12px' } }}
                   >
+                    Xóa
                   </Button>
                 </Group>
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }} style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Image
-                  src={book.AnhBia || 'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
+                  src={book.AnhBia || 'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
                   height="100%"
                   fit="contain"
                   radius="md"
                   fallbackSrc="https://via.placeholder.com/150?text=No+Image"
-                  style={{ width: '100%', maxWidth: '150px', objectFit: 'fill' }}
+                  style={{ width: '100%', objectFit: 'contain' }}
                 />
               </Grid.Col>
             </Grid>
@@ -468,7 +515,7 @@ function ManageBooksPage() {
           <FileInput
             label="Ảnh bìa"
             placeholder="Chọn ảnh bìa (tùy chọn, tối đa 5MB)"
-            accept="image/jpeg,image/png"
+            accept="image/*"
             onChange={handleFileChange}
             radius="md"
             mt="sm"
