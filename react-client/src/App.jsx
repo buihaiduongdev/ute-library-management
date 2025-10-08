@@ -6,6 +6,7 @@ import {
   HomePage,
   LoginPage,
   ReaderPage,
+  ReaderDashboard,
   ReaderStatsPage,
   RegisterPage,
   StaffPage,
@@ -72,6 +73,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['2']}>
                 <ReaderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/reader/dashboard" 
+            element={
+              <ProtectedRoute allowedRoles={['2']}>
+                <ReaderDashboard />
               </ProtectedRoute>
             }
           />

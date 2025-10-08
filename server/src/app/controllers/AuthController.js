@@ -16,17 +16,17 @@ class AuthController {
             const user = await prisma.taiKhoan.findUnique({
                 where: { TenDangNhap: username },
             });
-            let idDG = null;
-
-            if (user.VaiTro === 2) {
-            const dg = await prisma.docGia.findUnique({
-                where: { MaTK: user.MaTK },
-            });
-            idDG = dg.IdDG;
-        }
             
             if (!user) {
                 return res.status(401).json({ message: 'Tên đăng nhập không tồn tại.' });
+            }
+
+            let idDG = null;
+            if (user.VaiTro === 2) {
+                const dg = await prisma.docGia.findUnique({
+                    where: { MaTK: user.MaTK },
+                });
+                idDG = dg?.IdDG || null;
             }
 
             const isPasswordValid = await bcrypt.compare(password, user.MatKhauMaHoa);

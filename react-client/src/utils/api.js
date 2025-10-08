@@ -176,35 +176,35 @@ export const authCreateAuthor = async (authorData, options = {}) => {
 
 // Reader APIs
 export const getAllReaders = () => authGet('/readers');
-export const getReaderById = (id) => get(`${API_URL}/readers/${id}`);
-export const createReader = (readerData) => post(`${API_URL}/readers`, readerData);
-export const updateReader = (id, readerData) => put(`${API_URL}/readers/${id}`, readerData);
-export const deleteReader = (id) => del(`${API_URL}/readers/${id}`);
+export const getReaderById = (id) => authGet(`/readers/${id}`);
+export const createReader = (readerData) => authPost(`/readers`, readerData);
+export const updateReader = (id, readerData) => put(`/readers/${id}`, readerData);
+export const deleteReader = (id) => del(`/readers/${id}`);
 
 // 🎴 Card Management APIs
 export const getReaderCardInfo = (id) => {
     console.log('🎴 getReaderCardInfo called with id:', id, 'type:', typeof id);
-    const url = `${API_URL}/readers/${id}/card-info`;
+    const url = `/readers/${id}/card-info`;
     console.log('🔗 Requesting URL:', url);
-    return get(url);
+    return authGet(url);
 };
-export const renewReaderCard = (id, renewData) => put(`${API_URL}/readers/${id}/renew`, renewData);
-export const deactivateReaderCard = (id) => put(`${API_URL}/readers/${id}/deactivate`);
+export const renewReaderCard = (id, renewData) => put(`/readers/${id}/renew`, renewData);
+export const deactivateReaderCard = (id) => put(`/readers/${id}/deactivate`);
 
 // 📊 Statistics APIs
-export const getDashboardStats = () => get(`${API_URL}/stats/dashboard`);
-export const getBooksByCategory = () => get(`${API_URL}/stats/books-by-category`);
-export const getBooksByPublisher = () => get(`${API_URL}/stats/books-by-publisher`);
-export const getTopBorrowedBooks = (limit = 10) => get(`${API_URL}/stats/top-borrowed-books?limit=${limit}`);
-export const getReadersByStatus = () => get(`${API_URL}/stats/readers-by-status`);
-export const getBorrowsByMonth = () => get(`${API_URL}/stats/borrows-by-month`);
-export const getBookStatus = () => get(`${API_URL}/stats/book-status`);
+export const getDashboardStats = () => get(`/stats/dashboard`);
+export const getBooksByCategory = () => get(`/stats/books-by-category`);
+export const getBooksByPublisher = () => get(`/stats/books-by-publisher`);
+export const getTopBorrowedBooks = (limit = 10) => get(`/stats/top-borrowed-books?limit=${limit}`);
+export const getReadersByStatus = () => get(`/stats/readers-by-status`);
+export const getBorrowsByMonth = () => get(`/stats/borrows-by-month`);
+export const getBookStatus = () => get(`/stats/book-status`);
 
 // 👥 Reader Statistics APIs
-export const getReadersOverview = () => get(`${API_URL}/reader-stats/readers-overview`);
-export const getReadersRegistrationTimeline = () => get(`${API_URL}/reader-stats/readers-registration-timeline`);
-export const getReadersByAge = () => get(`${API_M_URL}/reader-stats/readers-by-age`);
-export const getReadersByLocation = () => get(`${API_URL}/reader-stats/readers-by-location`);
-export const getTopActiveReaders = (limit = 10) => get(`${API_URL}/reader-stats/top-active-readers?limit=${limit}`);
-export const getExpiringCards = () => get(`${API_URL}/reader-stats/expiring-cards`);
-export const getReaderBorrowingActivity = () => get(`${API_URL}/reader-stats/reader-borrowing-activity`);
+export const getReadersOverview = () => get(`/reader-stats/readers-overview`);
+export const getReadersRegistrationTimeline = () => get(`/reader-stats/readers-registration-timeline`);
+export const getReadersByAge = () => get(`/reader-stats/readers-by-age`);
+export const getReadersByLocation = () => get(`/reader-stats/readers-by-location`);
+export const getTopActiveReaders = (limit = 10) => get(`/reader-stats/top-active-readers?limit=${limit}`);
+export const getExpiringCards = () => get(`/reader-stats/expiring-cards`);
+export const getReaderBorrowingActivity = () => get(`/reader-stats/reader-borrowing-activity`);

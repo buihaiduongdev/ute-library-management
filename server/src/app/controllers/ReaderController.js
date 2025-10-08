@@ -60,7 +60,8 @@ class ReaderController {
             let finalMaTK = MaTK;
             if (!MaTK) {
                 console.log('🔑 Creating new account for reader...');
-                const username = Email ? Email.split('@')[0] : `reader_${Date.now()}`;
+                const randomString = Math.random().toString(36).substring(2, 7);
+                const username = Email ? `${Email.split('@')[0]}_${randomString}` : `reader_${Date.now()}`;
                 const hashedPassword = await bcrypt.hash('123456', 10); // Default password
                 
                 const newAccount = await db.taiKhoan.create({
@@ -418,68 +419,128 @@ class ReaderController {
         }
     }
 
-    // [DELETE] /api/readers/:id - SIMPLIFIED VERSION
-    async deleteReader(req, res) {
+    // [GET] /api/readers/:id/borrow-info - Lấy thông tin đầy đủ để mượn sách
+    async getReaderBorrowInfo(req, res) {
         const { id } = req.params;
         try {
-            console.log('🗑️ DELETE /api/readers/' + id + ' - Request received');
-            
-            // Kiểm tra reader có tồn tại không (SIMPLE CHECK)
-            console.log('🔍 Checking if reader exists...');
+            console.log('📚 GET /api/readers/' + id + '/borrow-info - Request received');
+
+            // Tìm độc giả
             const reader = await db.docGia.findUnique({
-                where: { IdDG: parseInt(id) }
+                where: { IdDG: parseInt(id) },
+                include: {
+                    TaiKhoan: {
+                        select: {
+                            TenDangNhap: true,
+                            TrangThai: true
+                        }
+                    }
+                }
             });
 
             if (!reader) {
-                console.log('❌ Reader not found');
                 return res.status(404).json({ message: 'Không tìm thấy độc giả.' });
             }
 
-            console.log('✅ Reader found:', reader.HoTen);
-
-            // TRY CASCADE DELETE - Đơn giản nhất
-            console.log('🗑️ Attempting cascade delete...');
-            await db.docGia.delete({
-                where: { IdDG: parseInt(id) }
+            // Đếm số sách đang mượn
+            const soSachDangMuon = await db.chiTietMuon.count({
+                where: {
+                    PhieuMuon: {
+                        IdDG: parseInt(id)
+                    },
+                    TrangThai: 'DangMuon'
+                }
             });
-            
-            console.log('✅ Reader deleted successfully');
-            res.status(200).json({ message: 'Xóa độc giả thành công.' });
-            
+
+            // Tính tổng tiền phạt chưa thanh toán
+            const unpaidFines = await db.thePhat.findMany({
+                where: {
+                    TraSach: {
+                        PhieuMuon: {
+                            IdDG: parseInt(id)
+                        }
+                    },
+                    TrangThaiThanhToan: 'ChuaThanhToan'
+                },
+                select: {
+                    SoTienPhat: true,
+                    LyDoPhat: true
+                }
+            });
+
+            const tongTienPhat = unpaidFines.reduce(
+                (sum, fine) => sum + parseFloat(fine.SoTienPhat),
+                0
+            );
+
+            // Kiểm tra trạng thái có thể mượn sách không
+            const coTheMuonSach = reader.TrangThai === 'ConHan' && new Date() <= new Date(reader.NgayHetHan);
+
+            // Trả về thông tin đầy đủ
+            const borrowInfo = {
+                ...reader,
+                soSachDangMuon,
+                tongTienPhat,
+                coNoPhat: tongTienPhat > 0,
+                soLuongNoPhat: unpaidFines.length,
+                coTheMuonSach,
+                lyDoKhongMuon: !coTheMuonSach ? 
+                    (reader.TrangThai !== 'ConHan' ? 'Tài khoản không còn hạn' : 'Thẻ đã hết hạn') : null
+            };
+
+            console.log('✅ Reader borrow info retrieved successfully');
+            res.status(200).json(borrowInfo);
+        } catch (error) {
+            console.error('❌ Error in getReaderBorrowInfo:', error);
+            res.status(500).json({ 
+                message: 'Lỗi hệ thống khi lấy thông tin độc giả.', 
+                error: error.message 
+            });
+        }
+    }
+
+    // [DELETE] /api/readers/:id
+    async deleteReader(req, res) {
+        const { id } = req.params;
+        try {
+            console.log(`🗑️ DELETE /api/readers/${id} - Request received`);
+
+            const reader = await db.docGia.findUnique({
+                where: { IdDG: parseInt(id) },
+                select: { MaTK: true } 
+            });
+
+            if (!reader) {
+                return res.status(404).json({ message: 'Không tìm thấy độc giả.' });
+            }
+
+            const maTK = reader.MaTK;
+
+            const [deletedReader, deletedAccount] = await db.$transaction([
+                db.docGia.delete({
+                    where: { IdDG: parseInt(id) }
+                }),
+                db.taiKhoan.delete({
+                    where: { MaTK: maTK }
+                })
+            ]);
+
+            console.log('✅ Reader and associated account deleted successfully');
+            res.status(200).json({ message: 'Xóa độc giả và tài khoản liên kết thành công.' });
+
         } catch (error) {
             console.error('❌ Error in deleteReader:', error);
-            
-            // Nếu là foreign key constraint error
-            if (error.code === 'P2003') {
-                console.log('🔒 Foreign key constraint - attempting manual cleanup');
-                
-                try {
-                    // Xóa PhieuMuon trước (SỬA FIELD NAME)
-                    await db.phieuMuon.deleteMany({
-                        where: { IdDG: parseInt(id) }
-                    });
-                    
-                    // Xóa DocGia sau
-                    await db.docGia.delete({
-                        where: { IdDG: parseInt(id) }
-                    });
-                    
-                    console.log('✅ Reader deleted with manual cleanup');
-                    return res.status(200).json({ message: 'Xóa độc giả thành công.' });
-                    
-                } catch (cleanupError) {
-                    console.error('❌ Cleanup failed:', cleanupError);
-                    return res.status(500).json({
-                        message: 'Không thể xóa độc giả vì có liên kết với phiếu mượn sách.',
-                        error: cleanupError.message
-                    });
-                }
+
+            if (error.code === 'P2003') { 
+                 return res.status(400).json({
+                    message: 'Không thể xóa độc giả này vì họ có dữ liệu liên quan (phiếu mượn, thẻ phạt,...). Vui lòng xử lý các dữ liệu liên quan trước.',
+                    error: 'Foreign key constraint failed.'
+                });
             }
-            
-            res.status(500).json({ 
-                message: 'Lỗi hệ thống khi xóa độc giả.', 
-                error: error.message,
-                details: error.code || 'UNKNOWN_ERROR'
+
+            res.status(500).json({
+                message: 'Lỗi hệ thống khi xóa độc giả.',
+                error: error.message
             });
         }
     }

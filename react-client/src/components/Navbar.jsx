@@ -10,6 +10,7 @@ import {
     rem
 } from '@mantine/core';
 import { IconLogout, IconUserCircle, IconSettings } from '@tabler/icons-react';
+import NotificationBell from './NotificationBell';
 
 function Navbar() {
     const navigate = useNavigate();
@@ -121,6 +122,16 @@ function Navbar() {
                         </Menu>
                     </>
                 )}
+                {role === '2' && (
+                    <Button 
+                        component={Link} 
+                        to="/reader/dashboard"
+                        variant="subtle" 
+                        size="md"
+                    >
+                        Thư Viện Của Tôi
+                    </Button>
+                )}
                 {role === '0' && (
                     <Button 
                         component={Link} 
@@ -152,7 +163,8 @@ function Navbar() {
                     </Button>
                 )}
             </Group>
-            <Group>
+            <Group gap="xs">
+                {token && role === '2' && <NotificationBell />}
                 {token ? <LoggedInMenu /> : <LoggedOutButtons />}
             </Group>
         </Group>

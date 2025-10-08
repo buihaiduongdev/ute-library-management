@@ -169,47 +169,17 @@ Invalid value for argument `NgaySinh`: Provided Date object is invalid. Expected
     at $n (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:5747)
     at /home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:10104
     at Object.runInChildSpan (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:1549)
-<<<<<<< HEAD
-2025-10-05T08:29:48.190Z - CREATE READER ERROR: PrismaClientValidationError: 
-Invalid `db.docGia.create()` invocation in
-/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:54:47
+2025-10-08T06:16:33.758Z - CREATE READER ERROR: PrismaClientKnownRequestError: 
+Invalid `db.taiKhoan.create()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:66:54
 
-  51 async createReader(req, res) {
-  52     const { HoTen, NgaySinh, DiaChi, Email, SoDienThoai } = req.body;
-  53     try {
-→ 54         const newReader = await db.docGia.create({
-               data: {
-                 HoTen: "Phùng Văn Đ",
-                 NgaySinh: new Date("Invalid Date"),
-                           ~~~~~~~~~~~~~~~~~~~~~~~~
-                 DiaChi: "120 Yên Lãng",
-                 Email: "ex@gmail.com",
-                 SoDienThoai: "09111223344"
-               }
-             })
-
-Invalid value for argument `NgaySinh`: Provided Date object is invalid. Expected Date.
-    at Nn (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:1363)
-    at e.throwValidationError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:10051)
-    at Sa (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:7488)
-    at Ra (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:8741)
-    at Sa (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:8272)
-    at Ra (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:8741)
-    at Et (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:5845)
-    at $n (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:32:5747)
-    at /home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:10104
-    at Object.runInChildSpan (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:1549)
-=======
->>>>>>> main
-2025-10-08T07:15:38.463Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'IdDG')
-    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:25:23)
-2025-10-08T07:15:44.896Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'IdDG')
-    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:25:23)
-2025-10-08T07:15:47.892Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'IdDG')
-    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:25:23)
-2025-10-08T07:15:52.272Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'VaiTro')
-    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:21:22)
-2025-10-08T07:15:53.580Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'VaiTro')
-    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:21:22)
-2025-10-08T07:16:09.596Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'IdDG')
-    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:25:23)
+  63 const username = Email ? Email.split('@')[0] : `reader_${Date.now()}`;
+  64 const hashedPassword = await bcrypt.hash('123456', 10); // Default password
+  65 
+→ 66 const newAccount = await db.taiKhoan.create(
+Unique constraint failed on the constraint: `dbo.TaiKhoan`
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async createReader (/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:66:36)

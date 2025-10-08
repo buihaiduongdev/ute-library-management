@@ -9,23 +9,49 @@ import {
   Group,
   Button,
   Badge,
+  Paper,
+  Avatar,
+  Divider,
+  Loader,
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates"; // Mantine Dates
-import { IconUser, IconCalendar } from "@tabler/icons-react";
+import { IconUser, IconCalendar, IconMail, IconPhone, IconMapPin, IconAlertCircle, IconCircleCheck, IconBook, IconCash, IconAlertTriangle } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 
 function BorrowModal({ opened, onClose, selectedBooks, refresh }) {
-  const [readerInfo, setReaderInfo] = useState({ IdDG: "" });
+  const [idDG, setIdDG] = useState("");
+  const [readerInfo, setReaderInfo] = useState(null);
+  const [loadingReader, setLoadingReader] = useState(false);
+  const [readerError, setReaderError] = useState(null);
   const [dueDate, setDueDate] = useState(null); // Date | null
   const [maxBorrowDays, setMaxBorrowDays] = useState(14); // Mặc định 14 ngày
   const [loading, setLoading] = useState(false);
 
-  // Load cấu hình và set ngày mặc định khi mở modal
+  // Load cấu hình và reset state khi mở modal
   useEffect(() => {
     if (opened) {
       loadConfig();
+      // Reset state
+      setIdDG("");
+      setReaderInfo(null);
+      setReaderError(null);
     }
   }, [opened]);
+
+  // Fetch thông tin độc giả khi IdDG thay đổi
+  useEffect(() => {
+    if (!idDG || idDG === "") {
+      setReaderInfo(null);
+      setReaderError(null);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      fetchReaderInfo(idDG);
+    }, 500); // Debounce 500ms
+
+    return () => clearTimeout(timer);
+  }, [idDG]);
 
   const loadConfig = async () => {
     try {
@@ -53,11 +79,37 @@ function BorrowModal({ opened, onClose, selectedBooks, refresh }) {
     }
   };
 
+  const fetchReaderInfo = async (readerId) => {
+    setLoadingReader(true);
+    setReaderError(null);
+    try {
+      const token = localStorage.getItem("token");
+      // Sử dụng API mới để lấy thông tin đầy đủ
+      const res = await fetch(`/api/readers/${readerId}/borrow-info`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        setReaderInfo(data);
+        setReaderError(null);
+      } else {
+        setReaderInfo(null);
+        setReaderError(data.message || "Không tìm thấy độc giả");
+      }
+    } catch (error) {
+      setReaderInfo(null);
+      setReaderError("Lỗi khi tải thông tin độc giả");
+    } finally {
+      setLoadingReader(false);
+    }
+  };
+
   const handleBorrowSubmit = async () => {
-    if (!readerInfo.IdDG || !dueDate) {
+    if (!idDG || !readerInfo || !dueDate) {
       notifications.show({
         title: "Lỗi",
-        message: "Vui lòng điền đầy đủ thông tin",
+        message: "Vui lòng điền đầy đủ thông tin và chọn độc giả hợp lệ",
         color: "red",
       });
       return;
@@ -111,7 +163,7 @@ function BorrowModal({ opened, onClose, selectedBooks, refresh }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          idDG: parseInt(readerInfo.IdDG),
+          idDG: parseInt(idDG),
           sachMuon,
         }),
       });
@@ -125,7 +177,9 @@ function BorrowModal({ opened, onClose, selectedBooks, refresh }) {
           color: "green",
         });
         onClose();
-        setReaderInfo({ IdDG: "" });
+        setIdDG("");
+        setReaderInfo(null);
+        setReaderError(null);
         setDueDate(null);
         refresh();
       } else {
@@ -164,12 +218,180 @@ function BorrowModal({ opened, onClose, selectedBooks, refresh }) {
           description="Nhập mã ID của độc giả muốn mượn sách"
           placeholder="VD: 1, 2, 3..."
           leftSection={<IconUser size={18} />}
-          value={readerInfo.IdDG}
-          onChange={(val) => setReaderInfo({ IdDG: val })}
+          value={idDG}
+          onChange={(val) => setIdDG(val)}
           required
           size="md"
           radius="md"
         />
+
+        {/* Loading thông tin độc giả */}
+        {loadingReader && (
+          <Paper p="md" withBorder radius="md" style={{ backgroundColor: "#f8f9fa" }}>
+            <Group gap="sm">
+              <Loader size="sm" />
+              <Text size="sm" c="dimmed">Đang tải thông tin độc giả...</Text>
+            </Group>
+          </Paper>
+        )}
+
+        {/* Thông báo lỗi */}
+        {readerError && (
+          <Alert 
+            icon={<IconAlertCircle size={18} />}
+            title="Không tìm thấy độc giả" 
+            color="red" 
+            variant="light"
+            radius="md"
+          >
+            <Text size="sm">{readerError}</Text>
+          </Alert>
+        )}
+
+        {/* Hiển thị thông tin độc giả */}
+        {readerInfo && !loadingReader && (
+          <Paper 
+            p="lg" 
+            withBorder 
+            radius="md" 
+            style={{ 
+              backgroundColor: "#f0fdf4",
+              borderColor: "#86efac"
+            }}
+          >
+            <Group gap="sm" mb="md">
+              <IconCircleCheck size={24} color="#22c55e" />
+              <Text size="lg" fw={700} c="green">
+                Thông Tin Độc Giả
+              </Text>
+            </Group>
+            
+            <Divider mb="md" />
+
+            <Stack gap="md">
+              <Group gap="md">
+                <Avatar color="blue" radius="xl" size="lg">
+                  <IconUser size={28} />
+                </Avatar>
+                <div style={{ flex: 1 }}>
+                  <Group gap="xs" mb={4}>
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                      Họ tên
+                    </Text>
+                    <Badge 
+                      variant="light" 
+                      color={readerInfo.TrangThai === 'ConHan' ? 'green' : 'red'}
+                      size="sm"
+                    >
+                      {readerInfo.TrangThai === 'ConHan' ? 'Còn hạn' : 'Hết hạn'}
+                    </Badge>
+                  </Group>
+                  <Text fw={700} size="lg">{readerInfo.HoTen}</Text>
+                  <Text size="sm" c="dimmed">Mã ĐG: {readerInfo.MaDG}</Text>
+                </div>
+              </Group>
+
+              {readerInfo.Email && (
+                <Group gap="sm">
+                  <IconMail size={18} color="#6b7280" />
+                  <div>
+                    <Text size="xs" c="dimmed">Email</Text>
+                    <Text size="sm" fw={500}>{readerInfo.Email}</Text>
+                  </div>
+                </Group>
+              )}
+
+              {readerInfo.SoDienThoai && (
+                <Group gap="sm">
+                  <IconPhone size={18} color="#6b7280" />
+                  <div>
+                    <Text size="xs" c="dimmed">Số điện thoại</Text>
+                    <Text size="sm" fw={500}>{readerInfo.SoDienThoai}</Text>
+                  </div>
+                </Group>
+              )}
+
+              {readerInfo.DiaChi && (
+                <Group gap="sm">
+                  <IconMapPin size={18} color="#6b7280" />
+                  <div>
+                    <Text size="xs" c="dimmed">Địa chỉ</Text>
+                    <Text size="sm" fw={500}>{readerInfo.DiaChi}</Text>
+                  </div>
+                </Group>
+              )}
+
+              {readerInfo.NgayHetHan && (
+                <Group gap="sm">
+                  <IconCalendar size={18} color="#6b7280" />
+                  <div>
+                    <Text size="xs" c="dimmed">Ngày hết hạn</Text>
+                    <Text size="sm" fw={500}>
+                      {new Date(readerInfo.NgayHetHan).toLocaleDateString('vi-VN')}
+                    </Text>
+                  </div>
+                </Group>
+              )}
+
+              <Divider />
+
+              {/* Thông tin mượn sách */}
+              <Group gap="sm">
+                <IconBook size={18} color="#3b82f6" />
+                <div style={{ flex: 1 }}>
+                  <Text size="xs" c="dimmed">Số sách đang mượn</Text>
+                  <Group gap="xs">
+                    <Text size="lg" fw={700} c="blue">
+                      {readerInfo.soSachDangMuon || 0}
+                    </Text>
+                    <Text size="sm" c="dimmed">cuốn</Text>
+                  </Group>
+                </div>
+              </Group>
+
+              {/* Thông tin tiền phạt */}
+              <Group gap="sm">
+                <IconCash size={18} color={readerInfo.coNoPhat ? "#ef4444" : "#22c55e"} />
+                <div style={{ flex: 1 }}>
+                  <Text size="xs" c="dimmed">Tiền phạt chưa thanh toán</Text>
+                  {readerInfo.coNoPhat ? (
+                    <>
+                      <Group gap="xs">
+                        <Text size="lg" fw={700} c="red">
+                          {new Intl.NumberFormat('vi-VN', { 
+                            style: 'currency', 
+                            currency: 'VND' 
+                          }).format(readerInfo.tongTienPhat)}
+                        </Text>
+                        <Badge size="sm" color="red" variant="filled">
+                          {readerInfo.soLuongNoPhat} khoản
+                        </Badge>
+                      </Group>
+                      <Alert 
+                        icon={<IconAlertTriangle size={16} />}
+                        color="red" 
+                        variant="light" 
+                        mt="xs"
+                        p="xs"
+                      >
+                        <Text size="xs">
+                          Độc giả có nợ phạt! Vui lòng thanh toán trước khi mượn tiếp.
+                        </Text>
+                      </Alert>
+                    </>
+                  ) : (
+                    <Group gap="xs">
+                      <IconCircleCheck size={20} color="#22c55e" />
+                      <Text size="sm" fw={500} c="green">
+                        Không có nợ
+                      </Text>
+                    </Group>
+                  )}
+                </div>
+              </Group>
+            </Stack>
+          </Paper>
+        )}
 
         <DateInput
           label="Ngày Hẹn Trả"
@@ -220,7 +442,7 @@ function BorrowModal({ opened, onClose, selectedBooks, refresh }) {
             color="blue"
             leftSection={<IconCalendar size={18} />}
             loading={loading}
-            disabled={loading}
+            disabled={loading || !readerInfo || loadingReader}
           >
             Tạo Phiếu Mượn
           </Button>
