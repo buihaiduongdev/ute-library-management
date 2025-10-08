@@ -201,3 +201,15 @@ Invalid value for argument `NgaySinh`: Provided Date object is invalid. Expected
     at Object.runInChildSpan (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:1549)
 =======
 >>>>>>> main
+2025-10-08T07:15:38.463Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'IdDG')
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:25:23)
+2025-10-08T07:15:44.896Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'IdDG')
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:25:23)
+2025-10-08T07:15:47.892Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'IdDG')
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:25:23)
+2025-10-08T07:15:52.272Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'VaiTro')
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:21:22)
+2025-10-08T07:15:53.580Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'VaiTro')
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:21:22)
+2025-10-08T07:16:09.596Z - LOGIN ERROR: TypeError: Cannot read properties of null (reading 'IdDG')
+    at login (/home/user/ute-library-management/server/src/app/controllers/AuthController.js:25:23)

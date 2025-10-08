@@ -111,8 +111,7 @@ function BookSearchPage() {
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }} style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Image
-                  src={book.AnhBia}
-                  height="100%"
+src={book.AnhBia || 'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}                  height="100%"
                   fit="contain"
                   radius="md"
                   fallbackSrc="https://via.placeholder.com/150?text=No+Image"
@@ -352,14 +351,6 @@ function BookSearchPage() {
                 component={Link}
                 to={usn ? `/book-detail/${selectedBook.MaSach}` : '/'}
                 // disabled={selectedBook.TrangThai !== 'Con'}
-                onClick={() => {
-                  Notifications.show({
-                    title: 'Lỗi',
-                    message: 'Bạn cần đăng nhập trước khi mượn sách',
-                    color: 'red',
-                  });
-                  navigate('/');
-                }}
               >
                 Yêu cầu mượn
               </Button>
