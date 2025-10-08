@@ -105,7 +105,12 @@ class BorrowController {
         (total, pm) => total + pm.ChiTietMuon.length,
         0
       );
-      const MAX_SACH = 5;
+      
+      // Lấy giới hạn sách từ cấu hình hệ thống
+      const maxSachConfig = await prisma.cauHinhHeThong.findFirst({
+        where: { Nhom: 'MuonSach', TenThamSo: 'MaxSachMuon' }
+      });
+      const MAX_SACH = parseInt(maxSachConfig?.GiaTri || '5');
 
       if (soSachDangMuon + sachMuon.length > MAX_SACH) {
         return res.status(403).json({
