@@ -141,10 +141,10 @@ const BooksController = {
         throw new Error('Giá sách phải là số không âm');
       if (NamXuatBan && (parseInt(NamXuatBan) > currentYear || parseInt(NamXuatBan) < 0))
         throw new Error(`Năm xuất bản phải từ 0 đến ${currentYear}`);
-      if (AnhBia && !AnhBia.match(/^data:image\/(jpeg|png);base64,/))
-        throw new Error('Ảnh bìa phải là chuỗi base64 hợp lệ (jpeg hoặc png)');
+      if (AnhBia && !AnhBia.match(/^data:image\/[^;]+;base64,/))
+        throw new Error('Ảnh bìa phải là chuỗi base64 hợp lệ của một file ảnh');
 
-      const base64Data = AnhBia ? sanitizeBase64(AnhBia.replace(/^data:image\/(jpeg|png);base64,/, '')) : null;
+      const base64Data = AnhBia ? sanitizeBase64(AnhBia.replace(/^data:image\/[^;]+;base64,/, '')) : null;
       console.log(`createBook: Độ dài ảnh bìa: ${base64Data ? base64Data.length : 'null'}`);
       console.log(`createBook: Xem trước base64: ${base64Data ? base64Data.substring(0, 50) + '...' : 'null'}`);
 
@@ -255,10 +255,10 @@ const BooksController = {
         throw new Error('Giá sách phải là số không âm');
       if (NamXuatBan && (parseInt(NamXuatBan) > currentYear || parseInt(NamXuatBan) < 0))
         throw new Error(`Năm xuất bản phải từ 0 đến ${currentYear}`);
-      if (AnhBia && !AnhBia.match(/^data:image\/(jpeg|png);base64,/))
-        throw new Error('Ảnh bìa phải là chuỗi base64 hợp lệ (jpeg hoặc png)');
+      if (AnhBia && !AnhBia.match(/^data:image\/[^;]+;base64,/))
+        throw new Error('Ảnh bìa phải là chuỗi base64 hợp lệ của một file ảnh');
 
-      const base64Data = AnhBia ? sanitizeBase64(AnhBia.replace(/^data:image\/(jpeg|png);base64,/, '')) : null;
+      const base64Data = AnhBia ? sanitizeBase64(AnhBia.replace(/^data:image\/[^;]+;base64,/, '')) : null;
       console.log(`updateBook: Độ dài ảnh bìa: ${base64Data ? base64Data.length : 'null'}`);
       console.log(`updateBook: Xem trước base64: ${base64Data ? base64Data.substring(0, 50) + '...' : 'null'}`);
 
@@ -515,7 +515,6 @@ const BooksController = {
     }
   },
 
-  // Duong them dung cho home
   async getTrendingBooks(req, res) {
     try {
       const trendingDetails = await prisma.chiTietMuon.groupBy({
@@ -589,6 +588,7 @@ const BooksController = {
       res.status(500).json({ message: err.message });
     }
   },
+
   async getRecommendedBooks(req, res) {
     try {
       const userId = req.user.idDG || req.user.id;
@@ -613,10 +613,6 @@ const BooksController = {
         orderBy: { _count: { MaTL: 'desc' } },
         take: 3,
       });
-  
-      // if (favoriteGenres.length === 0) {
-      //   return res.json({ message: "Chưa có dữ liệu để gợi ý.", data: [] });
-      // }
   
       let genreIds;
       if (favoriteGenres.length === 0) {
