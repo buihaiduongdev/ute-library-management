@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Modal,
   Stack,
@@ -10,7 +10,14 @@ import {
   Avatar,
   Textarea,
   Alert,
-} from '@mantine/core';
+  Image,
+  Tabs,
+  CopyButton,
+  ActionIcon,
+  Tooltip,
+  Center,
+  Box,
+} from "@mantine/core";
 import {
   IconCreditCard,
   IconUser,
@@ -18,25 +25,38 @@ import {
   IconAlertCircle,
   IconInfoCircle,
   IconCash,
-} from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+  IconQrcode,
+  IconCopy,
+  IconCheck,
+} from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
+import { generateFinePaymentQR } from "../utils/vietqr";
 
 function PayFineModal({ opened, onClose, fine, onSuccess }) {
-  const [ghiChu, setGhiChu] = useState('');
+  const [ghiChu, setGhiChu] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [activeTab, setActiveTab] = useState("manual");
+
+  // Cấu hình ngân hàng thư viện (có thể lưu vào CauHinhHeThong)
+  const bankInfo = {
+    bankBin: "970436", // Vietcombank
+    accountNumber: "1040490270", // Số TK thư viện
+    accountName: "Thư Viện Trường Đại Học Sư Phạm Kỹ Thuật TP.HCM",
+    bankName: "Vietcombank",
+  };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
     }).format(amount);
   };
 
   const getLyDoPhatLabel = (lyDo) => {
     const lyDoMap = {
-      TreHan: 'Trễ hạn trả sách',
-      HuHong: 'Hư hỏng sách',
-      Mat: 'Mất sách',
+      TreHan: "Trễ hạn trả sách",
+      HuHong: "Hư hỏng sách",
+      Mat: "Mất sách",
     };
     return lyDoMap[lyDo] || lyDo;
   };
@@ -46,12 +66,12 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
 
     setProcessing(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const res = await fetch(`/api/borrow/pay-fine/${fine.MaPhat}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ghiChu: ghiChu.trim() || null,
@@ -62,22 +82,22 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
 
       if (res.ok) {
         notifications.show({
-          title: 'Thành công',
-          message: 'Thanh toán phạt thành công',
-          color: 'green',
+          title: "Thành công",
+          message: "Thanh toán phạt thành công",
+          color: "green",
           icon: <IconCreditCard />,
         });
         onClose();
-        setGhiChu('');
+        setGhiChu("");
         if (onSuccess) onSuccess();
       } else {
         throw new Error(data.message);
       }
     } catch (error) {
       notifications.show({
-        title: 'Lỗi',
-        message: error.message || 'Không thể thanh toán phạt',
-        color: 'red',
+        title: "Lỗi",
+        message: error.message || "Không thể thanh toán phạt",
+        color: "red",
         icon: <IconAlertCircle />,
       });
     } finally {
@@ -87,6 +107,19 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
 
   if (!fine) return null;
 
+  // Generate QR code URL
+  let qrCodeUrl = "";
+  try {
+    qrCodeUrl = generateFinePaymentQR(fine, bankInfo);
+  } catch (error) {
+    console.error("Error generating QR:", error);
+  }
+
+  // Nội dung chuyển khoản
+  const transferContent = `TT ${fine.MaPhat} DG ${
+    fine.TraSach?.PhieuMuon?.DocGia?.MaDG || ""
+  }`;
+
   return (
     <Modal
       opened={opened}
@@ -94,8 +127,8 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
       title={
         <Group gap="sm">
           <IconCreditCard size={24} color="green" />
-          <Text size="xl" fw={700} style={{ color: 'green' }}>
-            Xác Nhận Thanh Toán Phạt
+          <Text size="xl" fw={700} style={{ color: "green" }}>
+            Thanh Toán Phạt
           </Text>
         </Group>
       }
@@ -105,7 +138,12 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
     >
       <Stack gap="lg">
         {/* Thông tin phạt */}
-        <Paper p="lg" radius="md" withBorder style={{ backgroundColor: '#f0fdf4' }}>
+        <Paper
+          p="lg"
+          radius="md"
+          withBorder
+          style={{ backgroundColor: "#f0fdf4" }}
+        >
           <Stack gap="md">
             <Group justify="apart">
               <Text fw={600} c="dimmed">
@@ -168,7 +206,7 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
                   {getLyDoPhatLabel(fine.LyDoPhat)}
                 </Text>
               </div>
-              <div style={{ textAlign: 'right' }}>
+              <div style={{ textAlign: "right" }}>
                 <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
                   Số tiền phạt
                 </Text>
@@ -185,7 +223,7 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
                   <Text size="xs" c="dimmed" tt="uppercase" fw={600} mb="xs">
                     Ghi chú hiện tại
                   </Text>
-                  <Text size="sm" style={{ fontStyle: 'italic' }}>
+                  <Text size="sm" style={{ fontStyle: "italic" }}>
                     {fine.GhiChu}
                   </Text>
                 </div>
@@ -194,16 +232,186 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
           </Stack>
         </Paper>
 
-        {/* Alert cảnh báo */}
-        <Alert
-          icon={<IconInfoCircle size={20} />}
-          title="Lưu ý"
-          color="blue"
-          variant="light"
-        >
-          Sau khi thanh toán, bạn không thể hoàn tác thao tác này. Vui lòng kiểm tra kỹ
-          thông tin trước khi xác nhận.
-        </Alert>
+        {/* Tabs thanh toán */}
+        <Tabs value={activeTab} onChange={setActiveTab} variant="pills">
+          <Tabs.List grow>
+            <Tabs.Tab value="manual" leftSection={<IconCreditCard size={16} />}>
+              Thanh toán thủ công
+            </Tabs.Tab>
+            <Tabs.Tab value="qr" leftSection={<IconQrcode size={16} />}>
+              QR Code
+            </Tabs.Tab>
+          </Tabs.List>
+
+          {/* Tab thanh toán thủ công */}
+          <Tabs.Panel value="manual" pt="md">
+            <Alert
+              icon={<IconInfoCircle size={20} />}
+              title="Thanh toán trực tiếp"
+              color="blue"
+              variant="light"
+            >
+              Nhân viên xác nhận độc giả đã thanh toán tiền mặt/chuyển khoản
+              trực tiếp tại quầy.
+            </Alert>
+          </Tabs.Panel>
+
+          {/* Tab QR Code */}
+          <Tabs.Panel value="qr" pt="md">
+            <Stack gap="md">
+              <Alert
+                icon={<IconQrcode size={20} />}
+                title="Thanh toán bằng QR Code"
+                color="teal"
+                variant="light"
+              >
+                Độc giả quét mã QR bằng ứng dụng ngân hàng để thanh toán tự
+                động.
+              </Alert>
+
+              {/* QR Code */}
+              <Paper
+                p="lg"
+                withBorder
+                radius="md"
+                style={{ backgroundColor: "#fff" }}
+              >
+                <Stack gap="md" align="center">
+                  <Text fw={600} size="lg" ta="center">
+                    Quét mã để thanh toán
+                  </Text>
+
+                  {qrCodeUrl ? (
+                    <Box
+                      style={{
+                        padding: "1rem",
+                        backgroundColor: "#fff",
+                        borderRadius: "8px",
+                        border: "2px dashed #228be6",
+                      }}
+                    >
+                      <Image
+                        src={qrCodeUrl}
+                        alt="VietQR Payment"
+                        width={280}
+                        height={280}
+                        fit="contain"
+                      />
+                    </Box>
+                  ) : (
+                    <Center h={280}>
+                      <Text c="dimmed">Không thể tạo mã QR</Text>
+                    </Center>
+                  )}
+
+                  <Divider w="100%" />
+
+                  {/* Thông tin chuyển khoản */}
+                  <Stack gap="xs" w="100%">
+                    <Group justify="space-between">
+                      <Text size="sm" c="dimmed">
+                        Ngân hàng:
+                      </Text>
+                      <Text fw={600}>{bankInfo.bankName}</Text>
+                    </Group>
+                    <Group justify="space-between">
+                      <Text size="sm" c="dimmed">
+                        Số tài khoản:
+                      </Text>
+                      <Group gap="xs">
+                        <Text fw={600}>{bankInfo.accountNumber}</Text>
+                        <CopyButton value={bankInfo.accountNumber}>
+                          {({ copied, copy }) => (
+                            <Tooltip
+                              label={copied ? "Đã copy" : "Copy"}
+                              withArrow
+                            >
+                              <ActionIcon
+                                color={copied ? "teal" : "gray"}
+                                variant="subtle"
+                                onClick={copy}
+                                size="sm"
+                              >
+                                {copied ? (
+                                  <IconCheck size={16} />
+                                ) : (
+                                  <IconCopy size={16} />
+                                )}
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
+                        </CopyButton>
+                      </Group>
+                    </Group>
+                    <Group justify="space-between">
+                      <Text size="sm" c="dimmed">
+                        Tên tài khoản:
+                      </Text>
+                      <Text fw={600}>{bankInfo.accountName}</Text>
+                    </Group>
+                    <Group justify="space-between">
+                      <Text size="sm" c="dimmed">
+                        Số tiền:
+                      </Text>
+                      <Text fw={700} size="lg" c="red">
+                        {formatCurrency(fine.SoTienPhat)}
+                      </Text>
+                    </Group>
+                    <Group justify="space-between">
+                      <Text size="sm" c="dimmed">
+                        Nội dung:
+                      </Text>
+                      <Group gap="xs">
+                        <Text
+                          fw={600}
+                          size="sm"
+                          style={{ fontFamily: "monospace" }}
+                        >
+                          {transferContent}
+                        </Text>
+                        <CopyButton value={transferContent}>
+                          {({ copied, copy }) => (
+                            <Tooltip
+                              label={copied ? "Đã copy" : "Copy"}
+                              withArrow
+                            >
+                              <ActionIcon
+                                color={copied ? "teal" : "gray"}
+                                variant="subtle"
+                                onClick={copy}
+                                size="sm"
+                              >
+                                {copied ? (
+                                  <IconCheck size={16} />
+                                ) : (
+                                  <IconCopy size={16} />
+                                )}
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
+                        </CopyButton>
+                      </Group>
+                    </Group>
+                  </Stack>
+
+                  <Alert
+                    color="orange"
+                    variant="light"
+                    icon={<IconAlertCircle size={16} />}
+                  >
+                    <Text size="xs">
+                      ⚠️ Vui lòng nhập{" "}
+                      <Text span fw={700}>
+                        chính xác nội dung
+                      </Text>{" "}
+                      để hệ thống tự động đối soát
+                    </Text>
+                  </Alert>
+                </Stack>
+              </Paper>
+            </Stack>
+          </Tabs.Panel>
+        </Tabs>
 
         {/* Ghi chú thanh toán */}
         <Textarea
