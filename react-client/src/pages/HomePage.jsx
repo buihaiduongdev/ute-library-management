@@ -178,7 +178,7 @@ const HomePage = () => {
   return (
     <Box className="homepage-container">
     <HeroSection onExplore={() => console.log('Đi tới phần khám phá')} />
-    {recommendedBooks.length > 0 && (
+    {(
       <Paper py="xl" px='5rem' withBorder={false}>
         <Title order={2} c="#34699A" mb="lg">
           SÁCH GỢI Ý CHO BẠN

@@ -591,7 +591,7 @@ const BooksController = {
   },
   async getRecommendedBooks(req, res) {
     try {
-      const userId = req.user.id; // hoặc req.user.userId tùy JWT bạn set
+      const userId = req.user.idDG || req.user.id;
   
       // 1. Lấy các thể loại user hay mượn nhất
       const favoriteGenres = await prisma.sach_TheLoai.groupBy({
@@ -614,12 +614,16 @@ const BooksController = {
         take: 3,
       });
   
+      // if (favoriteGenres.length === 0) {
+      //   return res.json({ message: "Chưa có dữ liệu để gợi ý.", data: [] });
+      // }
+  
+      let genreIds;
       if (favoriteGenres.length === 0) {
-        return res.json({ message: "Chưa có dữ liệu để gợi ý.", data: [] });
-      }
-  
-      const genreIds = favoriteGenres.map(g => g.MaTL);
-  
+        genreIds = [1, 2, 3]; //backup
+      } else {
+        genreIds = favoriteGenres.map(g => g.MaTL);
+      }  
       const recommendedBooks = await prisma.sach.findMany({
         where: {
           Sach_TheLoai: { some: { MaTL: { in: genreIds } } },
