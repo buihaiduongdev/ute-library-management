@@ -201,3 +201,17 @@ Invalid value for argument `NgaySinh`: Provided Date object is invalid. Expected
     at Object.runInChildSpan (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:1549)
 =======
 >>>>>>> main
+2025-10-08T06:16:33.758Z - CREATE READER ERROR: PrismaClientKnownRequestError: 
+Invalid `db.taiKhoan.create()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:66:54
+
+  63 const username = Email ? Email.split('@')[0] : `reader_${Date.now()}`;
+  64 const hashedPassword = await bcrypt.hash('123456', 10); // Default password
+  65 
+→ 66 const newAccount = await db.taiKhoan.create(
+Unique constraint failed on the constraint: `dbo.TaiKhoan`
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async createReader (/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:66:36)
