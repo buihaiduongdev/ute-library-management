@@ -16,7 +16,8 @@ import {
   ManagePublishersPage,
   BookDetailPage,
   CardManagement,
-  SystemCofigPage
+  SystemCofigPage,
+  SystemAccountPage
 } from './pages';
 import ReaderForm from './components/ReaderForm';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -41,6 +42,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['0']}>
                 <SystemCofigPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/system-accounts" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <SystemAccountPage />
               </ProtectedRoute>
             }
           />
