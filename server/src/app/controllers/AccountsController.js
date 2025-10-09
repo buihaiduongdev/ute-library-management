@@ -62,6 +62,7 @@ const AccountsController = {
         delete data.MaTK;
         data.VaiTro = parseInt(req.body.VaiTro);
         data.TrangThai = parseInt(req.body.TrangThai);
+        data.MatKhauMaHoa = await bcrypt.hash(data.MatKhauMaHoa, 10);
 
         if (!req.body.MatKhauMaHoa) delete data.MatKhauMaHoa;
 
