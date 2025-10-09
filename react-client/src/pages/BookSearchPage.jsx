@@ -5,8 +5,6 @@ import { get } from '../utils/api';
 import { IconBook, IconSearch, IconEye, IconX, IconUser, IconCategory, IconBuilding, IconCalendar, IconPackage, IconCash, IconMapPin, IconFlag, IconInfoCircle, IconPhone, IconMail } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 
-const usn = localStorage.getItem('username');
-
 function BookSearchPage() {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState('');
@@ -16,6 +14,7 @@ function BookSearchPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalBooks, setTotalBooks] = useState(0);
   const booksPerPage = 9;
+  const usn = localStorage.getItem('username');
 
   useEffect(() => {
     fetchBooks();

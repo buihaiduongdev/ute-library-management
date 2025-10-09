@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Title, Group, Modal, TextInput, Stack, Text } from '@mantine/core';
+import { Table, Button, Title, Group, Modal, TextInput, Stack, Text, Container } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
@@ -182,7 +182,7 @@ function ReaderPage() {
     ));
 
     return (
-        <>
+        <Container p='lg'>
             {/* Modal create/edit */}
             <Modal 
                 opened={opened} 
@@ -275,7 +275,7 @@ function ReaderPage() {
                     }
                 </Table.Tbody>
             </Table>
-        </>
+        </Container>
     );
 }
 
