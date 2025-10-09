@@ -43,26 +43,28 @@ function Navbar() {
                     Hồ sơ của tôi
                 </Menu.Item>
                 <Menu.Divider />
-                { role === '0' &&
-                      <Menu.Item
-                      leftSection={<IconPasswordUser />}
-                      component={Link}
-                      to='/system-accounts'
-                  >
-                      Tài khoản hệ thống
-                  </Menu.Item>
+                { role === '0' && 
+                    <>
+                        <Menu.Item
+                        leftSection={<IconPasswordUser />}
+                        component={Link}
+                        to='/system-accounts'
+                        >
+                            Tài khoản hệ thống
+                        </Menu.Item>
+                        <Menu.Divider />
+                
+                        <Menu.Item
+                            leftSection={<IconSettings />}
+                            component={Link}
+                            to='/system-configs'
+                        >
+                            Cấu hình hệ thống
+                        </Menu.Item>
+                        <Menu.Divider />
+                    </>
                 }
-                <Menu.Divider />
-                { role === '0' &&
-                      <Menu.Item
-                      leftSection={<IconSettings />}
-                      component={Link}
-                      to='/system-configs'
-                  >
-                      Cấu hình hệ thống
-                  </Menu.Item>
-                }
-                <Menu.Divider />
+
                 <Menu.Item
                     color="red"
                     leftSection={<IconLogout />}
