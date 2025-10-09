@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button, Input, Tabs, Divider, Badge } from '@mantine/core';
+import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button, Input, Tabs, Divider, Badge, Select } from '@mantine/core';
 import { get } from '../utils/api';
 import { IconBook, IconSearch, IconEye, IconX, IconUser, IconCategory, IconBuilding, IconCalendar, IconPackage, IconCash, IconMapPin, IconFlag, IconInfoCircle, IconPhone, IconMail } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
+
 const usn = localStorage.getItem('username');
 
 function BookSearchPage() {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all');
   const [selectedBook, setSelectedBook] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,12 +19,21 @@ function BookSearchPage() {
 
   useEffect(() => {
     fetchBooks();
-  }, [search, currentPage]);
+  }, [search, filter, currentPage]);
 
   const fetchBooks = async () => {
     try {
       const offset = (currentPage - 1) * booksPerPage;
-      const response = await get(`/booksearch?search=${encodeURIComponent(search)}&limit=${booksPerPage}&offset=${offset}`);
+      let response;
+      if (filter === 'new') {
+        response = await get(`/booksearch/new-arrivals?limit=${booksPerPage}&offset=${offset}`);
+      } else if (filter === 'trending') {
+        response = await get(`/booksearch/trending?limit=${booksPerPage}&offset=${offset}`);
+      } else {
+        response = await get(`/booksearch?search=${encodeURIComponent(search)}&limit=${booksPerPage}&offset=${offset}`);
+      }
+      console.log(`get: Requesting URL: /booksearch${filter === 'new' ? '/new-arrivals' : filter === 'trending' ? '/trending' : ''}?limit=${booksPerPage}&offset=${offset}`);
+      console.log(`get: Response status: ${response.status}`);
       console.log('Fetched books:', response.data, 'Total:', response.total);
       setBooks(response.data || []);
       setTotalBooks(response.total || 0);
@@ -35,8 +46,8 @@ function BookSearchPage() {
   const handleView = (book) => {
     setSelectedBook({
       TieuDe: book.TieuDe || '',
-      TenTacGia: book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || 'N/A',
-      TheLoai: book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || 'N/A',
+      TenTacGia: book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || book.TacGia || 'N/A',
+      TheLoai: book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || book.TheLoai || 'N/A',
       TenNXB: book.NhaXuatBan?.TenNXB || 'N/A',
       NamXuatBan: book.NamXuatBan?.toString() || 'N/A',
       SoLuong: book.SoLuong?.toString() || '0',
@@ -58,17 +69,36 @@ function BookSearchPage() {
         <IconBook size={32} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
         Tra Cứu Sách
       </Title>
-      <Group mb="lg" grow>
+      <Group mb="lg" justify="space-between">
+        <Select
+          value={filter}
+          onChange={(value) => {
+            setFilter(value);
+            setCurrentPage(1);
+            setSearch('');
+          }}
+          data={[
+            { value: 'all', label: 'Tất cả' },
+            { value: 'new', label: 'Sách mới' },
+            { value: 'trending', label: 'Sách phổ biến' },
+          ]}
+          placeholder="Chọn bộ lọc"
+          radius="md"
+          size="md"
+          styles={{ input: { width: '200px' } }}
+        />
         <TextInput
           placeholder="Tìm kiếm sách"
           value={search}
           onChange={(e) => {
             setSearch(e.currentTarget.value);
             setCurrentPage(1);
+            if (filter !== 'all') setFilter('all');
           }}
           radius="md"
           size="md"
           leftSection={<IconSearch size={20} />}
+          style={{ flex: 1 }}
         />
       </Group>
 
@@ -77,13 +107,12 @@ function BookSearchPage() {
           <Card key={book.MaSach} shadow="sm" padding="md" radius="md" withBorder style={{ height: '270px', maxWidth: '400px', marginBottom: '16px' }}>
             <Grid align="stretch" gutter="sm">
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                
                 <Text style={{ fontSize: '20px' }} ta="left" truncate="end">{book.TieuDe}</Text>
                 <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">
-                  Tác giả: {book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || 'N/A'}
+                  Tác giả: {book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || book.TacGia || 'N/A'}
                 </Text>
                 <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">
-                  Thể loại: {book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || 'N/A'}
+                  Thể loại: {book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || book.TheLoai || 'N/A'}
                 </Text>
                 <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">NXB: {book.NhaXuatBan?.TenNXB || 'N/A'}</Text>
                 <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">Năm XB: {book.NamXuatBan || 'N/A'}</Text>

@@ -25,7 +25,7 @@ const sanitizeBase64 = (str) => {
 
 const BookSearchController = {
   async getBooks(req, res) {
-    const { search, limit = 12, offset = 0 } = req.query;
+    const { search, limit = 9, offset = 0 } = req.query;
     try {
       const where = {};
       if (search && search.trim()) {
@@ -124,6 +124,107 @@ const BookSearchController = {
     } catch (err) {
       console.error('getBookById: Error:', err);
       res.status(500).json({ message: 'Lỗi máy chủ: ' + err.message });
+    }
+  },
+
+  async getNewArrivals(req, res) {
+    try {
+      const { limit = 9, offset = 0 } = req.query;
+      const total = await prisma.sach.count();
+      const newBooks = await prisma.sach.findMany({
+        orderBy: { MaSach: 'desc' },
+        take: parseInt(limit),
+        skip: parseInt(offset),
+        include: {
+          Sach_TacGia: { include: { TacGia: true } },
+          Sach_TheLoai: { include: { TheLoai: true } },
+          NhaXuatBan: true,
+        },
+      });
+
+      const booksWithBase64 = newBooks.map((book) => ({
+        ...book,
+        AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
+        TacGia: book.Sach_TacGia.map(st => st.TacGia.TenTacGia).join(', '),
+        TrangThai: book.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
+      }));
+
+      res.json({ message: 'Lấy sách mới về thành công.', data: booksWithBase64, total });
+    } catch (err) {
+      console.error('Lỗi trong getNewArrivals:', err);
+      res.status(500).json({ message: err.message });
+    }
+  },
+
+  async getTrendingBooks(req, res) {
+    try {
+      const { limit = 9, offset = 0 } = req.query;
+      const trendingDetails = await prisma.chiTietMuon.groupBy({
+        by: ['MaCuonSach'],
+        _count: { MaCuonSach: true },
+        orderBy: { _count: { MaCuonSach: 'desc' } },
+        take: parseInt(limit) + parseInt(offset),
+        skip: parseInt(offset),
+      });
+
+      let booksWithBase64 = [];
+      let total = 0;
+
+      if (trendingDetails.length === 0) {
+        const fallbackBooks = await prisma.sach.findMany({
+          orderBy: { MaSach: 'desc' },
+          take: parseInt(limit),
+          skip: parseInt(offset),
+          include: {
+            Sach_TacGia: { include: { TacGia: true } },
+            Sach_TheLoai: { include: { TheLoai: true } },
+            NhaXuatBan: true,
+          },
+        });
+        total = await prisma.sach.count();
+        booksWithBase64 = fallbackBooks.map((book) => ({
+          ...book,
+          AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
+          TacGia: book.Sach_TacGia.map(st => st.TacGia.TenTacGia).join(', '),
+          TrangThai: book.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
+        }));
+        return res.json({ message: 'Không có dữ liệu xu hướng, trả về sách mới nhất.', data: booksWithBase64, total });
+      }
+
+      const cuonSachIds = trendingDetails.map(detail => detail.MaCuonSach);
+      const sachRecords = await prisma.cuonSach.findMany({
+        where: { MaCuonSach: { in: cuonSachIds } },
+        select: { MaSach: true },
+        distinct: ['MaSach'],
+      });
+      const uniqueSachIds = sachRecords.map(s => s.MaSach);
+
+      total = uniqueSachIds.length;
+      const books = await prisma.sach.findMany({
+        where: { MaSach: { in: uniqueSachIds.slice(parseInt(offset), parseInt(offset) + parseInt(limit)) } },
+        include: {
+          Sach_TacGia: { include: { TacGia: true } },
+          Sach_TheLoai: { include: { TheLoai: true } },
+          NhaXuatBan: true,
+        },
+      });
+
+      const sortedBooks = uniqueSachIds
+        .slice(parseInt(offset), parseInt(offset) + parseInt(limit))
+        .map(id => books.find(b => b.MaSach === id))
+        .filter(Boolean);
+
+      booksWithBase64 = sortedBooks.map((book) => ({
+        ...book,
+        AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
+        TacGia: book.Sach_TacGia.map(st => st.TacGia.TenTacGia).join(', '),
+        TrangThai: book.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
+      }));
+
+      res.json({ message: 'Lấy sách xu hướng thành công.', data: booksWithBase64, total });
+    } catch (err) {
+      console.error('Lỗi trong getTrendingBooks:', err);
+      res.status(500).json({ message: err.message });
     }
   },
 };
