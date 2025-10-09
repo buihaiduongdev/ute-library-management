@@ -215,3 +215,115 @@ Invalid value for argument `NgaySinh`: Provided Date object is invalid. Expected
     at Object.runInChildSpan (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:1549)
 =======
 >>>>>>> main
+2025-10-09T10:02:02.836Z - CREATE READER ERROR: PrismaClientKnownRequestError: 
+Invalid `db.docGia.create()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:47
+
+  124     NgayHetHanOriginal: NgayHetHan
+  125 });
+  126 
+→ 127 const newReader = await db.docGia.create(
+Unique constraint failed on the constraint: `dbo.DocGia`
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async createReader (/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:31)
+2025-10-09T10:04:06.415Z - CREATE READER ERROR: PrismaClientKnownRequestError: 
+Invalid `db.docGia.create()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:47
+
+  124     NgayHetHanOriginal: NgayHetHan
+  125 });
+  126 
+→ 127 const newReader = await db.docGia.create(
+Unique constraint failed on the constraint: `dbo.DocGia`
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async createReader (/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:31)
+2025-10-09T10:04:12.713Z - CREATE READER ERROR: PrismaClientKnownRequestError: 
+Invalid `db.docGia.create()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:47
+
+  124     NgayHetHanOriginal: NgayHetHan
+  125 });
+  126 
+→ 127 const newReader = await db.docGia.create(
+Unique constraint failed on the constraint: `dbo.DocGia`
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async createReader (/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:31)
+2025-10-09T10:04:18.310Z - CREATE READER ERROR: PrismaClientKnownRequestError: 
+Invalid `db.docGia.create()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:47
+
+  124     NgayHetHanOriginal: NgayHetHan
+  125 });
+  126 
+→ 127 const newReader = await db.docGia.create(
+Unique constraint failed on the constraint: `dbo.DocGia`
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async createReader (/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:31)
+2025-10-09T10:04:22.780Z - CREATE READER ERROR: PrismaClientKnownRequestError: 
+Invalid `db.docGia.create()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:47
+
+  124     NgayHetHanOriginal: NgayHetHan
+  125 });
+  126 
+→ 127 const newReader = await db.docGia.create(
+Unique constraint failed on the constraint: `dbo.DocGia`
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async createReader (/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:31)
+2025-10-09T10:04:25.440Z - CREATE READER ERROR: PrismaClientKnownRequestError: 
+Invalid `db.docGia.create()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:47
+
+  124     NgayHetHanOriginal: NgayHetHan
+  125 });
+  126 
+→ 127 const newReader = await db.docGia.create(
+Unique constraint failed on the constraint: `dbo.DocGia`
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async createReader (/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:31)
+2025-10-09T10:04:29.198Z - CREATE READER ERROR: PrismaClientKnownRequestError: 
+Invalid `db.docGia.create()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:47
+
+  124     NgayHetHanOriginal: NgayHetHan
+  125 });
+  126 
+→ 127 const newReader = await db.docGia.create(
+Unique constraint failed on the constraint: `dbo.DocGia`
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async createReader (/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:31)
+2025-10-09T10:04:35.487Z - CREATE READER ERROR: PrismaClientKnownRequestError: 
+Invalid `db.docGia.create()` invocation in
+/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:47
+
+  124     NgayHetHanOriginal: NgayHetHan
+  125 });
+  126 
+→ 127 const newReader = await db.docGia.create(
+Unique constraint failed on the constraint: `dbo.DocGia`
+    at ei.handleRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6593)
+    at ei.request (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:124:6300)
+    at async a (/home/user/ute-library-management/server/src/generated/prisma/runtime/library.js:133:9551)
+    at async createReader (/home/user/ute-library-management/server/src/app/controllers/ReaderController.js:127:31)
