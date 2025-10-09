@@ -9,7 +9,7 @@ import {
     Avatar,
     rem
 } from '@mantine/core';
-import { IconLogout, IconUserCircle, IconSettings } from '@tabler/icons-react';
+import { IconLogout, IconUserCircle, IconSettings, IconPasswordUser  } from '@tabler/icons-react';
 import NotificationBell from './NotificationBell';
 
 function Navbar() {
@@ -40,9 +40,31 @@ function Navbar() {
             <Menu.Dropdown>
                 <Menu.Label>Tài khoản</Menu.Label>
                 <Menu.Item leftSection={<IconUserCircle />}>
-                    Hồ sơ của tôi (sắp có)
+                    Hồ sơ của tôi
                 </Menu.Item>
                 <Menu.Divider />
+                { role === '0' && 
+                    <>
+                        <Menu.Item
+                        leftSection={<IconPasswordUser />}
+                        component={Link}
+                        to='/system-accounts'
+                        >
+                            Tài khoản hệ thống
+                        </Menu.Item>
+                        <Menu.Divider />
+                
+                        <Menu.Item
+                            leftSection={<IconSettings />}
+                            component={Link}
+                            to='/system-configs'
+                        >
+                            Cấu hình hệ thống
+                        </Menu.Item>
+                        <Menu.Divider />
+                    </>
+                }
+
                 <Menu.Item
                     color="red"
                     leftSection={<IconLogout />}

@@ -1,28 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import {Link} from 'react-router-dom';
-import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button, Input, Tabs, Divider } from '@mantine/core';
+import { Link } from 'react-router-dom';
+import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button, Input, Tabs, Divider, Badge, Select } from '@mantine/core';
 import { get } from '../utils/api';
 import { IconBook, IconSearch, IconEye, IconX, IconUser, IconCategory, IconBuilding, IconCalendar, IconPackage, IconCash, IconMapPin, IconFlag, IconInfoCircle, IconPhone, IconMail } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
-const usn = localStorage.getItem('username');
 
 function BookSearchPage() {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all');
   const [selectedBook, setSelectedBook] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalBooks, setTotalBooks] = useState(0);
-  const booksPerPage = 12;
+  const booksPerPage = 9;
+  const usn = localStorage.getItem('username');
 
   useEffect(() => {
     fetchBooks();
-  }, [search, currentPage]);
+  }, [search, filter, currentPage]);
 
   const fetchBooks = async () => {
     try {
       const offset = (currentPage - 1) * booksPerPage;
-      const response = await get(`/booksearch?search=${encodeURIComponent(search)}&limit=${booksPerPage}&offset=${offset}`);
+      let response;
+      if (filter === 'new') {
+        response = await get(`/booksearch/new-arrivals?limit=${booksPerPage}&offset=${offset}`);
+      } else if (filter === 'trending') {
+        response = await get(`/booksearch/trending?limit=${booksPerPage}&offset=${offset}`);
+      } else {
+        response = await get(`/booksearch?search=${encodeURIComponent(search)}&limit=${booksPerPage}&offset=${offset}`);
+      }
+      console.log(`get: Requesting URL: /booksearch${filter === 'new' ? '/new-arrivals' : filter === 'trending' ? '/trending' : ''}?limit=${booksPerPage}&offset=${offset}`);
+      console.log(`get: Response status: ${response.status}`);
       console.log('Fetched books:', response.data, 'Total:', response.total);
       setBooks(response.data || []);
       setTotalBooks(response.total || 0);
@@ -35,8 +45,8 @@ function BookSearchPage() {
   const handleView = (book) => {
     setSelectedBook({
       TieuDe: book.TieuDe || '',
-      TenTacGia: book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || 'N/A',
-      TheLoai: book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || 'N/A',
+      TenTacGia: book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || book.TacGia || 'N/A',
+      TheLoai: book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || book.TheLoai || 'N/A',
       TenNXB: book.NhaXuatBan?.TenNXB || 'N/A',
       NamXuatBan: book.NamXuatBan?.toString() || 'N/A',
       SoLuong: book.SoLuong?.toString() || '0',
@@ -45,9 +55,9 @@ function BookSearchPage() {
       AnhBia: book.AnhBia || null,
       MaSach: book.MaSach,
       TrangThai: book.TrangThai,
-      Sach_TacGia: book.Sach_TacGia || [], // Danh sách tác giả
-      Sach_TheLoai: book.Sach_TheLoai || [], // Danh sách thể loại
-      NhaXuatBan: book.NhaXuatBan || {}, // Thông tin NXB
+      Sach_TacGia: book.Sach_TacGia || [],
+      Sach_TheLoai: book.Sach_TheLoai || [],
+      NhaXuatBan: book.NhaXuatBan || {},
     });
     setModalOpen(true);
   };
@@ -58,46 +68,64 @@ function BookSearchPage() {
         <IconBook size={32} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
         Tra Cứu Sách
       </Title>
-      <Group mb="lg" grow>
+      <Group mb="lg" justify="space-between">
+        <Select
+          value={filter}
+          onChange={(value) => {
+            setFilter(value);
+            setCurrentPage(1);
+            setSearch('');
+          }}
+          data={[
+            { value: 'all', label: 'Tất cả' },
+            { value: 'new', label: 'Sách mới' },
+            { value: 'trending', label: 'Sách phổ biến' },
+          ]}
+          placeholder="Chọn bộ lọc"
+          radius="md"
+          size="md"
+          styles={{ input: { width: '200px' } }}
+        />
         <TextInput
           placeholder="Tìm kiếm sách"
           value={search}
           onChange={(e) => {
             setSearch(e.currentTarget.value);
             setCurrentPage(1);
+            if (filter !== 'all') setFilter('all');
           }}
           radius="md"
           size="md"
           leftSection={<IconSearch size={20} />}
+          style={{ flex: 1 }}
         />
       </Group>
 
-      <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
         {books.map((book) => (
-          <Card key={book.MaSach} shadow="sm" padding="md" radius="md" withBorder style={{ height: '270px', maxWidth: '300px', marginBottom: '16px' }}>
+          <Card key={book.MaSach} shadow="sm" padding="md" radius="md" withBorder style={{ height: '270px', maxWidth: '400px', marginBottom: '16px' }}>
             <Grid align="stretch" gutter="sm">
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                <Text style={{ fontSize: '13px' }} ta="left" fw={500} truncate="end">Mã sách: {book.MaSach}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Tiêu đề: {book.TieuDe}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">
-                  Tác giả: {book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || 'N/A'}
+                <Text style={{ fontSize: '20px' }} ta="left" truncate="end">{book.TieuDe}</Text>
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">
+                  Tác giả: {book.Sach_TacGia?.map((t) => t.TacGia?.TenTacGia).join(', ') || book.TacGia || 'N/A'}
                 </Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">
-                  Thể loại: {book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || 'N/A'}
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">
+                  Thể loại: {book.Sach_TheLoai?.map((t) => t.TheLoai?.TenTheLoai).join(', ') || book.TheLoai || 'N/A'}
                 </Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">NXB: {book.NhaXuatBan?.TenNXB || 'N/A'}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Năm XB: {book.NamXuatBan || 'N/A'}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Số lượng: {book.SoLuong ? `${book.SoLuong} cuốn` : '0 cuốn'}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Giá sách: {book.GiaSach ? `${book.GiaSach} VNĐ` : 'N/A'}</Text>
-                <Text style={{ fontSize: '13px' }} ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
-                <Text
-                  style={{ fontSize: '16px' }}
-                  ta="left"
-                  truncate="end"
-                  c={book.TrangThai === 'Còn sách' ? '#28a745' : book.TrangThai === 'Hết sách' ? '#dc3545' : 'dimmed'}
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">NXB: {book.NhaXuatBan?.TenNXB || 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">Năm XB: {book.NamXuatBan || 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">Số lượng: {book.SoLuong ? `${book.SoLuong} cuốn` : '0 cuốn'}</Text>
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">Giá sách: {book.GiaSach ? `${book.GiaSach} VNĐ` : 'N/A'}</Text>
+                <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">Vị trí kệ: {book.ViTriKe || 'N/A'}</Text>
+                <Badge
+                  color={book.TrangThai === 'Còn sách' ? '#28a745' : book.TrangThai === 'Hết sách' ? '#dc3545' : 'gray'}
+                  size="md"
+                  radius="sm"
+                  style={{ fontSize: '14px', fontWeight: 500, marginTop: '8px' }}
                 >
                   {book.TrangThai || 'N/A'}
-                </Text>
+                </Badge>
                 <Button
                   variant="light"
                   color="cyan"
@@ -111,11 +139,12 @@ function BookSearchPage() {
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }} style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Image
-src={book.AnhBia || 'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}                  height="100%"
+                  src={book.AnhBia || 'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
+                  height="100%"
                   fit="contain"
                   radius="md"
                   fallbackSrc="https://via.placeholder.com/150?text=No+Image"
-                  style={{ width: '100%', maxWidth: '150px', objectFit: 'fill' }}
+                  style={{ width: '100%', objectFit: 'contain' }}
                 />
               </Grid.Col>
             </Grid>
@@ -150,9 +179,7 @@ src={book.AnhBia || 'https://images.unsplash.com/photo-1632986248848-dc72b1ff462
           <Group>
             <IconBook size={24} />
             <Text size="lg">Xem Chi Tiết</Text>
-
           </Group>
-
         }
         size="lg"
         radius="md"
@@ -224,7 +251,14 @@ src={book.AnhBia || 'https://images.unsplash.com/photo-1632986248848-dc72b1ff462
               <Input.Wrapper label="Trạng thái" mt="sm">
                 <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                   <IconPackage size={20} />
-                  <Text size="md">{selectedBook.TrangThai}</Text>
+                  <Badge
+                    color={selectedBook.TrangThai === 'Còn sách' ? '#28a745' : selectedBook.TrangThai === 'Hết sách' ? '#dc3545' : 'gray'}
+                    size="md"
+                    radius="sm"
+                    style={{ fontSize: '14px', fontWeight: 500 }}
+                  >
+                    {selectedBook.TrangThai || 'N/A'}
+                  </Badge>
                 </Group>
               </Input.Wrapper>
               {selectedBook.AnhBia && (
@@ -345,16 +379,15 @@ src={book.AnhBia || 'https://images.unsplash.com/photo-1632986248848-dc72b1ff462
             </Tabs.Panel>
 
             <Group justify="flex-end" mt="lg">
-
-              {/* Duong them link toi yeu cau muon */}
-              <Button  
+              <Button
                 component={Link}
                 to={usn ? `/book-detail/${selectedBook.MaSach}` : '/'}
-                // disabled={selectedBook.TrangThai !== 'Con'}
+                disabled={selectedBook.TrangThai !== 'Còn sách'}
+                color="cyan"
+                radius="md"
               >
-                Yêu cầu mượn
+                Yêu cầu mượn
               </Button>
-
               <Button
                 variant="outline"
                 onClick={() => {

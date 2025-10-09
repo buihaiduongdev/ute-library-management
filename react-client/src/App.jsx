@@ -15,7 +15,9 @@ import {
   ManageGenresPage,
   ManagePublishersPage,
   BookDetailPage,
-  CardManagement
+  CardManagement,
+  SystemCofigPage,
+  SystemAccountPage
 } from './pages';
 import ReaderForm from './components/ReaderForm';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -35,7 +37,22 @@ function App() {
           <Route path="/search-books" element={<BookSearchPage />} />
 
           {/* Các Route được bảo vệ */}
-
+          <Route 
+            path="/system-configs" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <SystemCofigPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/system-accounts" 
+            element={
+              <ProtectedRoute allowedRoles={['0']}>
+                <SystemAccountPage />
+              </ProtectedRoute>
+            }
+          />
           <Route 
             path="/admin/readers" 
             element={

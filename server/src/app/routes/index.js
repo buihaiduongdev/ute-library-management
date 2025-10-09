@@ -10,6 +10,9 @@ const requestsRouter = require('./requests');
 const readerRouter = require('./readers');
 const statsRouter = require('./stats');
 const readerStatsRouter = require('./reader-stats');
+const configRouter = require('./config');
+const acountsRouter = require('./accounts');
+
 
 function route(app) {
   app.use('/api/auth', authRouter);
@@ -24,6 +27,8 @@ function route(app) {
   app.use('/api/readers', readerRouter);
   app.use('/api/stats', statsRouter);
   app.use('/api/reader-stats', readerStatsRouter);
+  app.use('/api/configs', configRouter);
+  app.use('/api/accounts', acountsRouter);
 }
 
 module.exports = route;

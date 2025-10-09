@@ -41,14 +41,14 @@ const BookCard = ({ book }) => {
         cursor: 'pointer',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between', // đẩy button xuống dưới
-        height: 420, // cố định chiều cao card
+        justifyContent: 'space-between',
+        height: 420,
       }}
 
     >
       <Card.Section>
         <Image
-          src={'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
+          src={book.AnhBia || 'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
           height={260}
           fit="cover"
           alt={book.TieuDe}
@@ -96,7 +96,7 @@ const BookCardFirst = ({ book }) => {
     >
       <Card.Section>
         <Image
-          src={'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
+          src={book.AnhBia || 'https://images.unsplash.com/photo-1632986248848-dc72b1ff4621?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
           height={300}
           fit="cover"
           alt={book.TieuDe}
