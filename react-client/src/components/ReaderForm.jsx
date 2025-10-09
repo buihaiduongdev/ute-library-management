@@ -29,10 +29,17 @@ const ReaderForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const dataToSend = {
+                HoTen: reader.HoTen,
+                NgaySinh: reader.NgaySinh,
+                DiaChi: reader.DiaChi,
+                Email: reader.Email,
+                SoDienThoai: reader.SoDienThoai,
+            };
             if (id) {
-                await updateReader(id, reader);
+                await updateReader(id, dataToSend);
             } else {
-                await createReader(reader);
+                await createReader(dataToSend);
             }
             navigate('/admin/readers');
         } catch (err) {

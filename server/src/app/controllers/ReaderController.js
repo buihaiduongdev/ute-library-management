@@ -25,7 +25,7 @@ class ReaderController {
             res.status(200).json(readers);
         } catch (error) {
             console.error('❌ Error in getAllReaders:', error);
-            fs.appendFileSync('error.log', `${new Date().toISOString()} - GET ALL READERS ERROR: ${error.stack}\n`);
+            fs.appendFileSync('error.log', `${new Date().toISOString()} - GET ALL READERS ERROR: ${error.stack}\\n`);
             res.status(500).json({ message: 'Lỗi hệ thống.', error: error.message });
         }
     }
@@ -43,7 +43,7 @@ class ReaderController {
             res.status(200).json(reader);
         } catch (error) {
             console.error(error);
-            fs.appendFileSync('error.log', `${new Date().toISOString()} - GET READER BY ID ERROR: ${error.stack}\n`);
+            fs.appendFileSync('error.log', `${new Date().toISOString()} - GET READER BY ID ERROR: ${error.stack}\\n`);
             res.status(500).json({ message: 'Lỗi hệ thống.', error: error.message });
         }
     }
@@ -76,16 +76,13 @@ class ReaderController {
                 console.log('✅ Created new account with MaTK:', finalMaTK);
             }
 
-            // Generate MaDG tự động nếu không có
-            let MaDG = req.body.MaDG;
-            if (!MaDG) {
-                const year = new Date().getFullYear();
-                const readerCount = await db.docGia.count({
-                    where: { MaDG: { contains: `DG-${year}-` } }
-                });
-                const readerNumber = String(readerCount + 1).padStart(4, '0');
-                MaDG = `DG-${year}-${readerNumber}`;
-            }
+            // Generate MaDG tự động
+            const year = new Date().getFullYear();
+            const readerCount = await db.docGia.count({
+                where: { MaDG: { startsWith: `DG-${year}-` } }
+            });
+            const readerNumber = String(readerCount + 1).padStart(4, '0');
+            const MaDG = `DG-${year}-${readerNumber}`;
 
             // Xử lý ngày sinh
             let processedNgaySinh = null;
@@ -150,7 +147,7 @@ class ReaderController {
             res.status(201).json({ message: 'Tạo độc giả thành công.', reader: newReader });
         } catch (error) {
             console.error('❌ Error in createReader:', error);
-            fs.appendFileSync('error.log', `${new Date().toISOString()} - CREATE READER ERROR: ${error.stack}\n`);
+            fs.appendFileSync('error.log', `${new Date().toISOString()} - CREATE READER ERROR: ${error.stack}\\n`);
             res.status(500).json({ 
                 message: 'Lỗi hệ thống khi tạo độc giả.', 
                 error: error.message 
@@ -161,27 +158,17 @@ class ReaderController {
     // [PUT] /api/readers/:id
     async updateReader(req, res) {
         const { id } = req.params;
-        const { MaTK, MaDG, HoTen, NgaySinh, DiaChi, Email, SoDienThoai, NgayHetHan } = req.body;
+        const { HoTen, DiaChi, Email, SoDienThoai } = req.body;
         try {
             console.log('📝 PUT /api/readers/' + id + ' - Request received');
-            console.log('🔍 Update data:', { MaTK, MaDG, HoTen, NgaySinh, DiaChi, Email, SoDienThoai, NgayHetHan });
+            console.log('🔍 Update data:', { HoTen, DiaChi, Email, SoDienThoai });
             
-            // Chỉ update các field không phải foreign key
             const updateData = {
-                MaDG,
-                    HoTen,
-                    Email,
+                HoTen,
+                Email,
                 SoDienThoai,
                 DiaChi
             };
-
-            // Chỉ thêm NgaySinh và NgayHetHan nếu có và hợp lệ
-            if (NgaySinh && NgaySinh !== '') {
-                updateData.NgaySinh = new Date(NgaySinh);
-            }
-            if (NgayHetHan && NgayHetHan !== '') {
-                updateData.NgayHetHan = new Date(NgayHetHan);
-            }
 
             console.log('🔧 Update data after processing:', updateData);
 
@@ -203,7 +190,7 @@ class ReaderController {
         } catch (error) {
             console.error('❌ Error in updateReader:', error);
             console.error('❌ Full error object:', error);
-            fs.appendFileSync('error.log', `${new Date().toISOString()} - UPDATE READER ERROR: ${error.stack}\n`);
+            fs.appendFileSync('error.log', `${new Date().toISOString()} - UPDATE READER ERROR: ${error.stack}\\n`);
             res.status(500).json({ 
                 message: 'Lỗi hệ thống khi cập nhật độc giả.', 
                 error: error.message,
