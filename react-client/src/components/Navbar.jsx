@@ -43,6 +43,16 @@ function Navbar() {
                     Hồ sơ của tôi (sắp có)
                 </Menu.Item>
                 <Menu.Divider />
+                { role === '0' &&
+                      <Menu.Item
+                      leftSection={<IconSettings />}
+                      component={Link}
+                      to='/system-configs'
+                  >
+                      Cấu hình hệ thống
+                  </Menu.Item>
+                }
+                <Menu.Divider />
                 <Menu.Item
                     color="red"
                     leftSection={<IconLogout />}

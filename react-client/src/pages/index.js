@@ -13,3 +13,4 @@ export { default as ManageAuthorsPage } from './ManageAuthorsPage';
 export { default as ManageGenresPage } from './ManageGenresPage';
 export { default as ManagePublishersPage } from './ManagePublishersPage';
 export { default as BookDetailPage} from './BookDetailPage'
+export {default as SystemCofigPage} from './admin/SystemConfigPage'
