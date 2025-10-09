@@ -55,19 +55,21 @@ class BorrowController {
       // Validate ngày hẹn trả không vượt quá giới hạn
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       for (const sach of sachMuon) {
         const ngayHenTra = new Date(sach.ngayHenTra);
         ngayHenTra.setHours(0, 0, 0, 0);
-        
-        const diffDays = Math.ceil((ngayHenTra - today) / (1000 * 60 * 60 * 24));
-        
+
+        const diffDays = Math.ceil(
+          (ngayHenTra - today) / (1000 * 60 * 60 * 24)
+        );
+
         if (diffDays > maxBorrowDays) {
           return res.status(400).json({
             message: `Ngày hẹn trả không được vượt quá ${maxBorrowDays} ngày kể từ hôm nay`,
           });
         }
-        
+
         if (diffDays < 1) {
           return res.status(400).json({
             message: "Ngày hẹn trả phải là ngày trong tương lai",
@@ -105,12 +107,12 @@ class BorrowController {
         (total, pm) => total + pm.ChiTietMuon.length,
         0
       );
-      
+
       // Lấy giới hạn sách từ cấu hình hệ thống
       const maxSachConfig = await prisma.cauHinhHeThong.findFirst({
-        where: { Nhom: 'MuonSach', TenThamSo: 'MaxSachMuon' }
+        where: { Nhom: "MuonSach", TenThamSo: "MaxSachMuon" },
       });
-      const MAX_SACH = parseInt(maxSachConfig?.GiaTri || '5');
+      const MAX_SACH = parseInt(maxSachConfig?.GiaTri || "5");
 
       if (soSachDangMuon + sachMuon.length > MAX_SACH) {
         return res.status(403).json({
@@ -603,10 +605,20 @@ class BorrowController {
         },
         orderBy: { MaCuonSach: "desc" },
       });
-
+      const cuonSachsWithBase64 = cuonSachs.map((cuon) => ({
+        ...cuon,
+        Sach: cuon.Sach
+          ? {
+              ...cuon.Sach,
+              AnhBia: cuon.Sach.AnhBia
+                ? `data:image/jpeg;base64,${cuon.Sach.AnhBia}`
+                : null,
+            }
+          : null,
+      }));
       res.status(200).json({
         message: "Lấy danh sách cuốn sách thành công.",
-        data: cuonSachs,
+        data: cuonSachsWithBase64,
       });
     } catch (error) {
       console.error("Error getting available copies:", error);
@@ -630,16 +642,16 @@ class BorrowController {
       const take = parseInt(limit);
 
       const whereConditions = {};
-      
+
       // Filter theo độc giả
       if (idDG) {
         whereConditions.TraSach = {
           PhieuMuon: {
-            IdDG: parseInt(idDG)
-          }
+            IdDG: parseInt(idDG),
+          },
         };
       }
-      
+
       // Filter theo trạng thái thanh toán
       if (trangThai) {
         whereConditions.TrangThaiThanhToan = trangThai;
@@ -656,26 +668,31 @@ class BorrowController {
                 PhieuMuon: {
                   include: {
                     DocGia: {
-                      select: { HoTen: true, MaDG: true, Email: true, SoDienThoai: true }
-                    }
-                  }
+                      select: {
+                        HoTen: true,
+                        MaDG: true,
+                        Email: true,
+                        SoDienThoai: true,
+                      },
+                    },
+                  },
                 },
                 NhanVien: {
-                  select: { HoTen: true, MaNV: true }
-                }
-              }
+                  select: { HoTen: true, MaNV: true },
+                },
+              },
             },
             CuonSach: {
               include: {
                 Sach: {
-                  select: { TieuDe: true, MaSach: true }
-                }
-              }
-            }
+                  select: { TieuDe: true, MaSach: true },
+                },
+              },
+            },
           },
-          orderBy: { MaPhat: 'desc' }
+          orderBy: { MaPhat: "desc" },
         }),
-        prisma.thePhat.count({ where: whereConditions })
+        prisma.thePhat.count({ where: whereConditions }),
       ]);
 
       // Tính tổng tiền phạt
@@ -685,25 +702,24 @@ class BorrowController {
       );
 
       res.status(200).json({
-        message: 'Lấy danh sách phạt thành công',
+        message: "Lấy danh sách phạt thành công",
         data: fines,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
           total,
-          totalPages: Math.ceil(total / take)
+          totalPages: Math.ceil(total / take),
         },
         summary: {
           tongTienPhat,
-          soLuongPhat: total
-        }
+          soLuongPhat: total,
+        },
       });
-
     } catch (error) {
-      console.error('Error getting unpaid fines:', error);
+      console.error("Error getting unpaid fines:", error);
       res.status(500).json({
-        message: 'Lỗi khi lấy danh sách phạt',
-        error: error.message
+        message: "Lỗi khi lấy danh sách phạt",
+        error: error.message,
       });
     }
   }
@@ -715,7 +731,7 @@ class BorrowController {
 
     if (!maPhat) {
       return res.status(400).json({
-        message: 'Vui lòng cung cấp mã phạt'
+        message: "Vui lòng cung cấp mã phạt",
       });
     }
 
@@ -729,33 +745,33 @@ class BorrowController {
               PhieuMuon: {
                 include: {
                   DocGia: {
-                    select: { HoTen: true, MaDG: true }
-                  }
-                }
-              }
-            }
+                    select: { HoTen: true, MaDG: true },
+                  },
+                },
+              },
+            },
           },
           CuonSach: {
             include: {
               Sach: {
-                select: { TieuDe: true }
-              }
-            }
-          }
-        }
+                select: { TieuDe: true },
+              },
+            },
+          },
+        },
       });
 
       if (!thePhat) {
         return res.status(404).json({
-          message: 'Không tìm thấy thông tin phạt'
+          message: "Không tìm thấy thông tin phạt",
         });
       }
 
       // 2. Kiểm tra đã thanh toán chưa
-      if (thePhat.TrangThaiThanhToan === 'DaThanhToan') {
+      if (thePhat.TrangThaiThanhToan === "DaThanhToan") {
         return res.status(400).json({
-          message: 'Phạt này đã được thanh toán trước đó',
-          ngayThanhToan: thePhat.NgayThanhToan
+          message: "Phạt này đã được thanh toán trước đó",
+          ngayThanhToan: thePhat.NgayThanhToan,
         });
       }
 
@@ -763,9 +779,9 @@ class BorrowController {
       const updatedFine = await prisma.thePhat.update({
         where: { MaPhat: parseInt(maPhat) },
         data: {
-          TrangThaiThanhToan: 'DaThanhToan',
+          TrangThaiThanhToan: "DaThanhToan",
           NgayThanhToan: new Date(),
-          GhiChu: ghiChu ? ghiChu.trim() : thePhat.GhiChu
+          GhiChu: ghiChu ? ghiChu.trim() : thePhat.GhiChu,
         },
         include: {
           TraSach: {
@@ -773,32 +789,31 @@ class BorrowController {
               PhieuMuon: {
                 include: {
                   DocGia: {
-                    select: { HoTen: true, MaDG: true }
-                  }
-                }
-              }
-            }
+                    select: { HoTen: true, MaDG: true },
+                  },
+                },
+              },
+            },
           },
           CuonSach: {
             include: {
               Sach: {
-                select: { TieuDe: true }
-              }
-            }
-          }
-        }
+                select: { TieuDe: true },
+              },
+            },
+          },
+        },
       });
 
       res.status(200).json({
-        message: 'Thanh toán phạt thành công',
-        data: updatedFine
+        message: "Thanh toán phạt thành công",
+        data: updatedFine,
       });
-
     } catch (error) {
-      console.error('Error paying fine:', error);
+      console.error("Error paying fine:", error);
       res.status(500).json({
-        message: 'Lỗi khi thanh toán phạt',
-        error: error.message
+        message: "Lỗi khi thanh toán phạt",
+        error: error.message,
       });
     }
   }
@@ -811,24 +826,25 @@ class BorrowController {
 
     if (!maPM || !maCuonSach) {
       return res.status(400).json({
-        message: 'Vui lòng cung cấp mã phiếu mượn và mã cuốn sách'
+        message: "Vui lòng cung cấp mã phiếu mượn và mã cuốn sách",
       });
     }
 
     try {
       // 1. Lấy cấu hình gia hạn
       const cauHinhGiaHan = await prisma.cauHinhHeThong.findMany({
-        where: { Nhom: 'GiaHan' }
+        where: { Nhom: "GiaHan" },
       });
 
       const maxLanGiaHan = parseInt(
-        cauHinhGiaHan.find(c => c.TenThamSo === 'MaxLanGiaHan')?.GiaTri || '2'
+        cauHinhGiaHan.find((c) => c.TenThamSo === "MaxLanGiaHan")?.GiaTri || "2"
       );
       const soNgayGiaHanMoiLan = parseInt(
-        cauHinhGiaHan.find(c => c.TenThamSo === 'SoNgayGiaHanMoiLan')?.GiaTri || '7'
+        cauHinhGiaHan.find((c) => c.TenThamSo === "SoNgayGiaHanMoiLan")
+          ?.GiaTri || "7"
       );
       const phiGiaHan = parseFloat(
-        cauHinhGiaHan.find(c => c.TenThamSo === 'PhiGiaHan')?.GiaTri || '0'
+        cauHinhGiaHan.find((c) => c.TenThamSo === "PhiGiaHan")?.GiaTri || "0"
       );
 
       // 2. Kiểm tra chi tiết mượn
@@ -836,51 +852,53 @@ class BorrowController {
         where: {
           MaPM_MaCuonSach: {
             MaPM: parseInt(maPM),
-            MaCuonSach: parseInt(maCuonSach)
-          }
+            MaCuonSach: parseInt(maCuonSach),
+          },
         },
         include: {
           PhieuMuon: {
             include: {
               DocGia: {
-                include: { TaiKhoan: true }
-              }
-            }
+                include: { TaiKhoan: true },
+              },
+            },
           },
           CuonSach: {
-            include: { Sach: true }
-          }
-        }
+            include: { Sach: true },
+          },
+        },
       });
 
       if (!chiTietMuon) {
-        return res.status(404).json({ message: 'Không tìm thấy thông tin mượn sách' });
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy thông tin mượn sách" });
       }
 
-      if (chiTietMuon.TrangThai !== 'DangMuon') {
+      if (chiTietMuon.TrangThai !== "DangMuon") {
         return res.status(400).json({
-          message: `Không thể gia hạn. Trạng thái hiện tại: ${chiTietMuon.TrangThai}`
+          message: `Không thể gia hạn. Trạng thái hiện tại: ${chiTietMuon.TrangThai}`,
         });
       }
 
       // 3. Nếu là độc giả, kiểm tra quyền sở hữu
       if (isReader && chiTietMuon.PhieuMuon.DocGia.MaTK !== userTKId) {
         return res.status(403).json({
-          message: 'Bạn không có quyền gia hạn sách này'
+          message: "Bạn không có quyền gia hạn sách này",
         });
       }
 
       // 4. Kiểm tra số lần gia hạn
       if (chiTietMuon.SoLanGiaHan >= maxLanGiaHan) {
         return res.status(400).json({
-          message: `Đã đạt giới hạn gia hạn tối đa (${maxLanGiaHan} lần)`
+          message: `Đã đạt giới hạn gia hạn tối đa (${maxLanGiaHan} lần)`,
         });
       }
 
       // 5. Kiểm tra trạng thái độc giả
-      if (chiTietMuon.PhieuMuon.DocGia.TrangThai !== 'ConHan') {
+      if (chiTietMuon.PhieuMuon.DocGia.TrangThai !== "ConHan") {
         return res.status(403).json({
-          message: `Không thể gia hạn. Trạng thái tài khoản: ${chiTietMuon.PhieuMuon.DocGia.TrangThai}`
+          message: `Không thể gia hạn. Trạng thái tài khoản: ${chiTietMuon.PhieuMuon.DocGia.TrangThai}`,
         });
       }
 
@@ -888,15 +906,15 @@ class BorrowController {
       const unpaidFines = await prisma.thePhat.findMany({
         where: {
           TraSach: {
-            MaPM: chiTietMuon.MaPM
+            MaPM: chiTietMuon.MaPM,
           },
-          TrangThaiThanhToan: 'ChuaThanhToan'
-        }
+          TrangThaiThanhToan: "ChuaThanhToan",
+        },
       });
 
       if (unpaidFines.length > 0) {
         return res.status(400).json({
-          message: 'Không thể gia hạn khi còn phí phạt chưa thanh toán'
+          message: "Không thể gia hạn khi còn phí phạt chưa thanh toán",
         });
       }
 
@@ -912,25 +930,25 @@ class BorrowController {
           where: {
             MaPM_MaCuonSach: {
               MaPM: parseInt(maPM),
-              MaCuonSach: parseInt(maCuonSach)
-            }
+              MaCuonSach: parseInt(maCuonSach),
+            },
           },
           data: {
             NgayHenTra: ngayHenTraMoi,
-            SoLanGiaHan: chiTietMuon.SoLanGiaHan + 1
-          }
+            SoLanGiaHan: chiTietMuon.SoLanGiaHan + 1,
+          },
         });
 
         return {
           ...updatedChiTiet,
           NgayHenTraCu: ngayHenTraCu,
           NgayHenTraMoi: ngayHenTraMoi,
-          PhiGiaHan: phiGiaHan
+          PhiGiaHan: phiGiaHan,
         };
       });
 
       res.status(200).json({
-        message: 'Gia hạn sách thành công',
+        message: "Gia hạn sách thành công",
         data: {
           MaPM: parseInt(maPM),
           MaCuonSach: parseInt(maCuonSach),
@@ -939,15 +957,14 @@ class BorrowController {
           NgayHenTraMoi: result.NgayHenTraMoi,
           SoLanGiaHan: result.SoLanGiaHan,
           PhiGiaHan: result.PhiGiaHan,
-          SoNgayGiaHan: soNgayGiaHanMoiLan
-        }
+          SoNgayGiaHan: soNgayGiaHanMoiLan,
+        },
       });
-
     } catch (error) {
-      console.error('Error extending book:', error);
+      console.error("Error extending book:", error);
       res.status(500).json({
-        message: 'Lỗi khi gia hạn sách',
-        error: error.message
+        message: "Lỗi khi gia hạn sách",
+        error: error.message,
       });
     }
   }
@@ -959,38 +976,42 @@ class BorrowController {
       const isReader = req.user.role === 2;
 
       if (!isReader) {
-        return res.status(403).json({ message: 'Chỉ độc giả mới có thể xem danh sách gia hạn' });
+        return res
+          .status(403)
+          .json({ message: "Chỉ độc giả mới có thể xem danh sách gia hạn" });
       }
 
       // Tìm độc giả theo MaTK
       const docGia = await prisma.docGia.findUnique({
-        where: { MaTK: parseInt(userTKId) }
+        where: { MaTK: parseInt(userTKId) },
       });
 
       if (!docGia) {
-        return res.status(404).json({ message: 'Không tìm thấy thông tin độc giả' });
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy thông tin độc giả" });
       }
 
       // Lấy cấu hình
       const maxLanGiaHanConfig = await prisma.cauHinhHeThong.findFirst({
-        where: { Nhom: 'GiaHan', TenThamSo: 'MaxLanGiaHan' }
+        where: { Nhom: "GiaHan", TenThamSo: "MaxLanGiaHan" },
       });
-      const maxLanGiaHan = parseInt(maxLanGiaHanConfig?.GiaTri || '2');
+      const maxLanGiaHan = parseInt(maxLanGiaHanConfig?.GiaTri || "2");
 
       // Lấy danh sách sách đang mượn và có thể gia hạn
       const extendableBooks = await prisma.chiTietMuon.findMany({
         where: {
           PhieuMuon: {
-            IdDG: docGia.IdDG
+            IdDG: docGia.IdDG,
           },
-          TrangThai: 'DangMuon',
+          TrangThai: "DangMuon",
           SoLanGiaHan: {
-            lt: maxLanGiaHan
-          }
+            lt: maxLanGiaHan,
+          },
         },
         include: {
           PhieuMuon: {
-            select: { MaPM: true }
+            select: { MaPM: true },
           },
           CuonSach: {
             include: {
@@ -1000,48 +1021,47 @@ class BorrowController {
                   MaSach: true,
                   AnhBia: true,
                   Sach_TacGia: {
-                    include: { TacGia: true }
-                  }
-                }
-              }
-            }
-          }
+                    include: { TacGia: true },
+                  },
+                },
+              },
+            },
+          },
         },
-        orderBy: { NgayHenTra: 'asc' }
+        orderBy: { NgayHenTra: "asc" },
       });
 
       // Tính ngày còn lại cho mỗi cuốn
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const booksWithDaysLeft = extendableBooks.map(book => {
+      const booksWithDaysLeft = extendableBooks.map((book) => {
         const dueDate = new Date(book.NgayHenTra);
         dueDate.setHours(0, 0, 0, 0);
         const daysLeft = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-        
+
         return {
           ...book,
           DaysLeft: daysLeft,
           IsOverdue: daysLeft < 0,
-          CanExtend: book.SoLanGiaHan < maxLanGiaHan
+          CanExtend: book.SoLanGiaHan < maxLanGiaHan,
         };
       });
 
       res.status(200).json({
-        message: 'Lấy danh sách sách có thể gia hạn thành công',
+        message: "Lấy danh sách sách có thể gia hạn thành công",
         data: booksWithDaysLeft,
         summary: {
           total: booksWithDaysLeft.length,
-          overdue: booksWithDaysLeft.filter(b => b.IsOverdue).length,
-          maxExtensions: maxLanGiaHan
-        }
+          overdue: booksWithDaysLeft.filter((b) => b.IsOverdue).length,
+          maxExtensions: maxLanGiaHan,
+        },
       });
-
     } catch (error) {
-      console.error('Error getting extendable books:', error);
+      console.error("Error getting extendable books:", error);
       res.status(500).json({
-        message: 'Lỗi khi lấy danh sách sách gia hạn',
-        error: error.message
+        message: "Lỗi khi lấy danh sách sách gia hạn",
+        error: error.message,
       });
     }
   }
