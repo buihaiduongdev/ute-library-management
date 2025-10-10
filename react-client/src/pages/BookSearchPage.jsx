@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Title, TextInput, SimpleGrid, Image, Modal, Group, Text, Card, Grid, Pagination, Button, Input, Tabs, Divider, Badge, Select } from '@mantine/core';
 import { get } from '../utils/api';
-import { IconBook, IconSearch, IconEye, IconX, IconUser, IconCategory, IconBuilding, IconCalendar, IconPackage, IconCash, IconMapPin, IconFlag, IconInfoCircle, IconPhone, IconMail } from '@tabler/icons-react';
+import { IconBook, IconSearch, IconEye, IconX, IconUser, IconCategory, IconBuilding, IconCalendar, IconPackage, IconCash, IconMapPin, IconFlag, IconInfoCircle, IconPhone, IconMail, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 
 function BookSearchPage() {
@@ -15,6 +15,8 @@ function BookSearchPage() {
   const [totalBooks, setTotalBooks] = useState(0);
   const booksPerPage = 9;
   const usn = localStorage.getItem('username');
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentMoTa, setCurrentMoTa] = useState('');
 
   useEffect(() => {
     fetchBooks();
@@ -58,8 +60,73 @@ function BookSearchPage() {
       Sach_TacGia: book.Sach_TacGia || [],
       Sach_TheLoai: book.Sach_TheLoai || [],
       NhaXuatBan: book.NhaXuatBan || {},
+      MoTa: book.MoTa || 'N/A',
     });
     setModalOpen(true);
+  };
+
+  const handlePlay = (moTa) => {
+    if (!moTa || moTa === 'N/A') {
+      Notifications.show({ title: 'Lỗi', message: 'Không có mô tả để phát', color: 'red' });
+      return;
+    }
+  
+    const speech = window.speechSynthesis;
+    const playSpeech = (voices) => {
+      // Hủy phát âm hiện tại nếu có
+      if (moTa !== currentMoTa) {
+        speech.cancel();
+        const utter = new SpeechSynthesisUtterance(moTa);
+        utter.lang = 'vi-VN';
+        // Tùy chỉnh giọng nói
+        utter.rate = 1.0; // Tốc độ nói (0.5 đến 2.0)
+        utter.pitch = 1.0; // Cao độ (0.1 đến 2.0)
+        utter.volume = 1.0; // Âm lượng (0.0 đến 1.0)
+  
+        // Tìm giọng tiếng Việt
+        const vietVoice = voices.find((v) => v.lang.startsWith('vi'));
+        if (!vietVoice) {
+          Notifications.show({
+            title: 'Cảnh báo',
+            message: 'Trình duyệt không hỗ trợ giọng tiếng Việt. Sử dụng giọng mặc định.',
+            color: 'yellow',
+          });
+        } else {
+          utter.voice = vietVoice;
+        }
+  
+        // Xử lý khi phát xong
+        utter.onend = () => {
+          setIsPlaying(false);
+          setCurrentMoTa('');
+        };
+  
+        speech.speak(utter);
+        setCurrentMoTa(moTa);
+        setIsPlaying(true);
+      } else {
+        // Tạm dừng hoặc tiếp tục
+        if (isPlaying) {
+          speech.pause();
+          setIsPlaying(false);
+        } else {
+          speech.resume();
+          setIsPlaying(true);
+        }
+      }
+    };
+  
+    // Kiểm tra danh sách giọng nói
+    let voices = speech.getVoices();
+    if (voices.length === 0) {
+      // Chờ sự kiện onvoiceschanged nếu danh sách giọng rỗng
+      speech.onvoiceschanged = () => {
+        voices = speech.getVoices();
+        playSpeech(voices);
+      };
+    } else {
+      playSpeech(voices);
+    }
   };
 
   return (
@@ -126,16 +193,26 @@ function BookSearchPage() {
                 >
                   {book.TrangThai || 'N/A'}
                 </Badge>
-                <Button
-                  variant="light"
-                  color="cyan"
-                  size="xs"
-                  mt="xs"
-                  leftSection={<IconEye size={16} />}
-                  onClick={() => handleView(book)}
-                >
-                  Xem chi tiết
-                </Button>
+                <Group mt="xs">
+                  <Button
+                    variant="light"
+                    color="cyan"
+                    size="xs"
+                    leftSection={<IconEye size={16} />}
+                    onClick={() => handleView(book)}
+                  >
+                    Xem
+                  </Button>
+                  <Button
+                    variant="light"
+                    color="cyan"
+                    size="xs"
+                    leftSection={isPlaying && book.MoTa === currentMoTa ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
+                    onClick={() => handlePlay(book.MoTa)}
+                  >
+                    {isPlaying && book.MoTa === currentMoTa ? 'Dừng' : 'Phát'}
+                  </Button>
+                </Group>
               </Grid.Col>
               <Grid.Col span={{ base: 12, sm: 6 }} style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Image
@@ -247,7 +324,14 @@ function BookSearchPage() {
                   <IconMapPin size={20} />
                   <Text size="md">{selectedBook.ViTriKe}</Text>
                 </Group>
+              
               </Input.Wrapper>
+              <Input.Wrapper label="Mô tả" mt="sm">
+                <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
+                  <IconInfoCircle size={20} />
+                  <Text size="md">{selectedBook.MoTa}</Text>
+                </Group>
+                </Input.Wrapper>
               <Input.Wrapper label="Trạng thái" mt="sm">
                 <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                   <IconPackage size={20} />
@@ -261,6 +345,7 @@ function BookSearchPage() {
                   </Badge>
                 </Group>
               </Input.Wrapper>
+              <Input.Wrapper label="Ảnh bìa sách" mt="sm"></Input.Wrapper>
               {selectedBook.AnhBia && (
                 <Image
                   src={selectedBook.AnhBia}
@@ -271,8 +356,9 @@ function BookSearchPage() {
                   fallbackSrc="https://via.placeholder.com/100?text=Preview"
                 />
               )}
+              
             </Tabs.Panel>
-
+      
             <Tabs.Panel value="author" pt="xs">
               {selectedBook.Sach_TacGia.length > 0 ? (
                 selectedBook.Sach_TacGia.map((author, index) => (

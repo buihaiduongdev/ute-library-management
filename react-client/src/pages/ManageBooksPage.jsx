@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Title, TextInput, Button, SimpleGrid, Image, Modal, FileInput, Autocomplete, Group, Card, Text, Grid, Pagination, Badge } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
-import { IconPencil, IconTrash, IconDownload, IconBook, IconSearch, IconPlus, IconUser, IconCategory, IconBuilding, IconCalendar, IconNumber, IconCurrencyDollar, IconPhoto, IconCheck, IconX } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconDownload, IconBook, IconSearch, IconPlus, IconUser, IconCategory, IconBuilding, IconCalendar, IconNumber, IconCurrencyDollar, IconPhoto, IconCheck, IconX, IconInfoCircle } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 import imageCompression from 'browser-image-compression';
 
@@ -30,6 +30,7 @@ function ManageBooksPage() {
       GiaSach: '',
       ViTriKe: '',
       AnhBia: null,
+      MoTa: '',
     },
     validate: {
       TieuDe: (value) => (value?.trim() ? null : 'Tiêu đề là bắt buộc'),
@@ -45,6 +46,7 @@ function ManageBooksPage() {
         value && typeof value === 'string' && !value.match(/^data:image\/[^;]+;base64,/)
           ? 'Ảnh bìa phải là base64 hợp lệ của một file ảnh'
           : null,
+      MoTa: (value) => null, // Tùy chọn, không validate bắt buộc
     },
   });
 
@@ -179,6 +181,7 @@ function ManageBooksPage() {
         GiaSach: values.GiaSach.trim(),
         ViTriKe: values.ViTriKe?.trim() || '',
         AnhBia: values.AnhBia || null,
+        MoTa: values.MoTa?.trim() || '',
       };
       console.log('Sending book data:', {
         ...bookData,
@@ -231,6 +234,7 @@ function ManageBooksPage() {
       GiaSach: book.GiaSach?.toString() || '0',
       ViTriKe: book.ViTriKe || '',
       AnhBia: book.AnhBia || null,
+      MoTa: book.MoTa || '',
     });
     setModalOpen(true);
   };
@@ -346,7 +350,6 @@ function ManageBooksPage() {
           <Card key={book.MaSach} shadow="sm" padding="md" radius="md" withBorder style={{ height: '270px', maxWidth: '400px', marginBottom: '16px' }}>
             <Grid align="stretch" gutter="sm">
               <Grid.Col span={{ base: 12, sm: 6 }}>
-                
                 <Text style={{ fontSize: '20px' }} ta="left" truncate="end">{book.TieuDe}</Text>
                 <Text style={{ fontSize: '13px' }} c="dimmed" ta="left" truncate="end">
                   Tác giả: {book.Sach_TacGia.map((t) => t.TacGia.TenTacGia).join(', ') || 'N/A'}
@@ -511,6 +514,14 @@ function ManageBooksPage() {
             radius="md"
             mt="sm"
             leftSection={<IconBook size={20} />}
+          />
+          <TextInput
+            label="Mô tả"
+            placeholder="Nhập mô tả sách (tùy chọn)"
+            {...form.getInputProps('MoTa')}
+            radius="md"
+            mt="sm"
+            leftSection={<IconInfoCircle size={20} />}
           />
           <FileInput
             label="Ảnh bìa"
