@@ -35,6 +35,7 @@ const BookSearchController = {
         where.OR = [
           { TieuDe: { contains: searchTrimmed } },
           { ViTriKe: { contains: searchTrimmed } },
+          { MoTa: { contains: searchTrimmed } }, // Thêm MoTa vào điều kiện tìm kiếm
           { NhaXuatBan: { TenNXB: { contains: searchTrimmed } } },
           { Sach_TacGia: { some: { TacGia: { TenTacGia: { contains: searchTrimmed } } } } },
           { Sach_TheLoai: { some: { TheLoai: { TenTheLoai: { contains: searchTrimmed } } } } },
@@ -68,6 +69,7 @@ const BookSearchController = {
 
       console.log(`getBooks: Fetched ${books.length} books`);
       if (books.length > 0) {
+        console.log('getBooks: Sample book MoTa:', books[0].MoTa); // Log để kiểm tra MoTa
         console.log('getBooks: Sample book AnhBia:', books[0].AnhBia ? `Length: ${books[0].AnhBia.length}` : 'null');
       }
 
@@ -75,6 +77,7 @@ const BookSearchController = {
         ...book,
         AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
         TrangThai: book.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
+        MoTa: book.MoTa, // Giữ nguyên giá trị MoTa từ Prisma
       }));
 
       res.json({ message: 'Success', data: booksWithBase64, total });
@@ -113,12 +116,14 @@ const BookSearchController = {
         return res.status(404).json({ message: 'Không tìm thấy sách' });
       }
 
-      console.log(`getBookById: Fetched book ${bookId} with AnhBia:`, book.AnhBia ? `Length: ${book.AnhBia.length}` : 'null');
+      console.log('getBookById: Fetched book MoTa:', book.MoTa); // Log để kiểm tra MoTa
+      console.log('getBookById: Fetched book AnhBia:', book.AnhBia ? `Length: ${book.AnhBia.length}` : 'null');
 
       const bookWithBase64 = {
         ...book,
         AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
         TrangThai: book.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
+        MoTa: book.MoTa, // Giữ nguyên giá trị MoTa từ Prisma
       };
       res.json({ message: 'Thành công', data: bookWithBase64 });
     } catch (err) {
@@ -142,11 +147,14 @@ const BookSearchController = {
         },
       });
 
+      console.log('getNewArrivals: Fetched books MoTa:', newBooks[0]?.MoTa); // Log để kiểm tra MoTa
+
       const booksWithBase64 = newBooks.map((book) => ({
         ...book,
         AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
         TacGia: book.Sach_TacGia.map(st => st.TacGia.TenTacGia).join(', '),
         TrangThai: book.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
+        MoTa: book.MoTa, // Giữ nguyên giá trị MoTa từ Prisma
       }));
 
       res.json({ message: 'Lấy sách mới về thành công.', data: booksWithBase64, total });
@@ -182,11 +190,13 @@ const BookSearchController = {
           },
         });
         total = await prisma.sach.count();
+        console.log('getTrendingBooks: Fallback books MoTa:', fallbackBooks[0]?.MoTa); // Log để kiểm tra MoTa
         booksWithBase64 = fallbackBooks.map((book) => ({
           ...book,
           AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
           TacGia: book.Sach_TacGia.map(st => st.TacGia.TenTacGia).join(', '),
           TrangThai: book.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
+          MoTa: book.MoTa, // Giữ nguyên giá trị MoTa từ Prisma
         }));
         return res.json({ message: 'Không có dữ liệu xu hướng, trả về sách mới nhất.', data: booksWithBase64, total });
       }
@@ -209,6 +219,8 @@ const BookSearchController = {
         },
       });
 
+      console.log('getTrendingBooks: Fetched books MoTa:', books[0]?.MoTa); // Log để kiểm tra MoTa
+
       const sortedBooks = uniqueSachIds
         .slice(parseInt(offset), parseInt(offset) + parseInt(limit))
         .map(id => books.find(b => b.MaSach === id))
@@ -219,6 +231,7 @@ const BookSearchController = {
         AnhBia: book.AnhBia ? `data:image/jpeg;base64,${book.AnhBia}` : null,
         TacGia: book.Sach_TacGia.map(st => st.TacGia.TenTacGia).join(', '),
         TrangThai: book.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
+        MoTa: book.MoTa, // Giữ nguyên giá trị MoTa từ Prisma
       }));
 
       res.json({ message: 'Lấy sách xu hướng thành công.', data: booksWithBase64, total });

@@ -129,7 +129,7 @@ const BooksController = {
   },
 
   async createBook(req, res) {
-    const { TieuDe, TenTacGia, TheLoai, TenNXB, NamXuatBan, SoLuong, GiaSach, ViTriKe, AnhBia } = req.body;
+    const { TieuDe, TenTacGia, TheLoai, TenNXB, NamXuatBan, SoLuong, GiaSach, ViTriKe, AnhBia, MoTa } = req.body;
     try {
       const currentYear = 2025;
       if (!TieuDe?.trim()) throw new Error('Tiêu đề sách là bắt buộc');
@@ -183,6 +183,7 @@ const BooksController = {
         const newBook = await tx.sach.create({
           data: {
             TieuDe: TieuDe.trim(),
+            MoTa: MoTa?.trim() || null, // Thêm trường MoTa
             NamXuatBan: NamXuatBan ? parseInt(NamXuatBan) : null,
             GiaSach: parseFloat(GiaSach) || 0,
             SoLuong: parseInt(SoLuong) || 0,
@@ -229,7 +230,7 @@ const BooksController = {
       console.log(`createBook: Lấy sách ${book.MaSach} ảnh bìa:`, createdBook.AnhBia ? `Độ dài: ${createdBook.AnhBia.length}` : 'null');
 
       const bookWithBase64 = {
-        ...book,
+        ...createdBook,
         AnhBia: createdBook.AnhBia ? `data:image/jpeg;base64,${createdBook.AnhBia}` : null,
         TrangThai: createdBook.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
       };
@@ -243,7 +244,7 @@ const BooksController = {
 
   async updateBook(req, res) {
     const { id } = req.params;
-    const { TieuDe, TenTacGia, TheLoai, TenNXB, NamXuatBan, SoLuong, GiaSach, ViTriKe, AnhBia } = req.body;
+    const { TieuDe, TenTacGia, TheLoai, TenNXB, NamXuatBan, SoLuong, GiaSach, ViTriKe, AnhBia, MoTa } = req.body;
     try {
       const currentYear = 2025;
       if (!TieuDe?.trim()) throw new Error('Tiêu đề sách là bắt buộc');
@@ -298,6 +299,7 @@ const BooksController = {
           where: { MaSach: parseInt(id) },
           data: {
             TieuDe: TieuDe.trim(),
+            MoTa: MoTa?.trim() || null, // Thêm trường MoTa
             NamXuatBan: NamXuatBan ? parseInt(NamXuatBan) : null,
             GiaSach: parseFloat(GiaSach) || 0,
             SoLuong: parseInt(SoLuong) || 0,
@@ -484,6 +486,7 @@ const BooksController = {
         { header: 'Giá Sách', key: 'GiaSach', width: 10 },
         { header: 'Vị Trí Kệ', key: 'ViTriKe', width: 15 },
         { header: 'Trạng Thái', key: 'TrangThai', width: 15 },
+        { header: 'Mô Tả', key: 'MoTa', width: 40 }, // Thêm cột Mô tả
       ];
 
       books.forEach((book) => {
@@ -498,6 +501,7 @@ const BooksController = {
           GiaSach: book.GiaSach || 0,
           ViTriKe: book.ViTriKe || 'N/A',
           TrangThai: book.TrangThai === 'Con' ? 'Còn sách' : 'Hết sách',
+          MoTa: book.MoTa || 'N/A', // Thêm dữ liệu Mô tả
         });
       });
 
