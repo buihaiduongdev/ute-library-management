@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import * as api from '../utils/api'; // Import a-pi của bạn
-import { Table, Tag, Typography, Spin, Alert, Row, Col, Card } from 'antd';
-
+import {Table, Tag, Typography, Spin, Alert, Row, Col, Card } from 'antd';
+import {Container} from '@mantine/core';
 const { Title } = Typography;
 
 const ReaderStatsPage = () => {
-    const [data, setData] = useState({ borrowingReaders: [], nonBorrowingReaders: [] });
+    const [data, setData] = useState({ borrowingReaders: [], readersWithFines: [] });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -66,10 +66,10 @@ const ReaderStatsPage = () => {
 
     // Đảm bảo data không phải là null hoặc undefined trước khi render
     const borrowingReaders = data?.borrowingReaders || [];
-    const nonBorrowingReaders = data?.nonBorrowingReaders || [];
+    const readersWithFines = data?.readersWithFines || [];
 
     return (
-        <div>
+        <div style={{padding: "36px 72px"}} >
             <Title level={2}>Thống Kê Tình Trạng Mượn Sách Của Độc Giả</Title>
             <Row gutter={[16, 16]}>
                 <Col xs={24} lg={12}>
@@ -85,9 +85,9 @@ const ReaderStatsPage = () => {
                     </Card>
                 </Col>
                 <Col xs={24} lg={12}>
-                    <Card title={`Độc Giả Không Mượn Sách (${nonBorrowingReaders.length})`}>
+                    <Card title={`Độc Giả Đang Bị Phạt (${readersWithFines.length})`}>
                         <Table 
-                            dataSource={nonBorrowingReaders}
+                            dataSource={readersWithFines}
                             columns={columns} 
                             rowKey="IdDG" 
                             bordered

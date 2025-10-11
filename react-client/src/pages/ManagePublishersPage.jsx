@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Title, TextInput, Button, Table, Modal, Group, Paper, Divider, Text, Pagination, Box } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
-import { IconPencil, IconTrash, IconDownload, IconBuilding, IconSearch, IconPlus, IconPhone, IconMapPin, IconMail, IconCheck, IconX } from '@tabler/icons-react';
+import { IconPencil, IconTrash, IconDownload, IconBuilding, IconSearch, IconPlus, IconPhone, IconMapPin, IconMail, IconCheck, IconX, IconInfoCircle } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 
 function ManagePublishersPage() {
@@ -11,6 +11,7 @@ function ManagePublishersPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
   const [page, setPage] = useState(1);
@@ -193,6 +194,15 @@ function ManagePublishersPage() {
               leftSection={<IconDownload size={20} />}
             >
               Xuất file
+            </Button>
+            <Button
+              variant="outline"
+              color="cyan"
+              radius="md"
+              leftSection={<IconInfoCircle size={20} />}
+              onClick={() => setGuideModalOpen(true)}
+            >
+              Hướng dẫn
             </Button>
           </Group>
         </Group>
@@ -386,6 +396,73 @@ function ManagePublishersPage() {
             </Button>
             <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md" leftSection={<IconX size={20} />}>
               Hủy
+            </Button>
+          </Group>
+        </Modal>
+        <Modal
+          opened={guideModalOpen}
+          onClose={() => setGuideModalOpen(false)}
+          title={
+            <Group>
+              <IconInfoCircle size={24} />
+              <Text size="lg">Hướng dẫn sử dụng trang Quản Lý Nhà Xuất Bản</Text>
+            </Group>
+          }
+          size="lg"
+          radius="md"
+        >
+          <Text mt="md">Chào mừng bạn đến với trang Quản Lý Nhà Xuất Bản! Dưới đây là hướng dẫn chi tiết để sử dụng các chức năng trên trang:</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>1. Tìm kiếm nhà xuất bản</Title>
+          <Text>- Nhập từ khóa vào ô tìm kiếm (có biểu tượng kính lúp) để tìm nhà xuất bản theo tên, số điện thoại, địa chỉ hoặc email.</Text>
+          <Text>- Kết quả sẽ hiển thị trong bảng, bao gồm mã nhà xuất bản, tên, số điện thoại, địa chỉ, và email.</Text>
+          <Text>- Nếu không tìm thấy nhà xuất bản, sẽ hiển thị thông báo "Không tìm thấy nhà xuất bản nào."</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>2. Phân trang</Title>
+          <Text>- Sử dụng thanh phân trang ở dưới bảng để chuyển giữa các trang (mỗi trang hiển thị tối đa 8 nhà xuất bản).</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>3. Thêm nhà xuất bản mới</Title>
+          <Text>- Nhấn nút "Thêm NXB" (biểu tượng dấu cộng) để mở form thêm nhà xuất bản.</Text>
+          <Text>- Điền tên nhà xuất bản (bắt buộc) và các thông tin tùy chọn: số điện thoại (10-11 chữ số), địa chỉ, email (định dạng hợp lệ).</Text>
+          <Text>- Nhấn "Thêm NXB" để lưu hoặc "Hủy" để thoát.</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>4. Sửa nhà xuất bản</Title>
+          <Text>- Trong bảng, nhấn nút "Sửa" (biểu tượng bút chì) trên dòng nhà xuất bản để chỉnh sửa.</Text>
+          <Text>- Form sẽ hiển thị thông tin hiện tại của nhà xuất bản. Chỉnh sửa và nhấn "Cập nhật" để lưu hoặc "Hủy" để thoát.</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>5. Xóa nhà xuất bản</Title>
+          <Text>- Nhấn nút "Xóa" (biểu tượng thùng rác) trên dòng nhà xuất bản để xác nhận.</Text>
+          <Text>- Lưu ý: Chỉ nhà xuất bản không liên kết với sách (nền vàng nhạt) mới có thể xóa. Nhà xuất bản đang liên kết với sách (nền trắng) không thể xóa.</Text>
+          <Text>- Nhấn "Xóa NXB" để xóa vĩnh viễn hoặc "Hủy" để thoát.</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>6. Xuất file danh sách nhà xuất bản</Title>
+          <Text>- Nhấn nút "Xuất file" (biểu tượng tải xuống) để xác nhận xuất file Excel.</Text>
+          <Text>- Nhấn "Xuất file" để tải file DanhSachNhaXuatBan.xlsx hoặc "Hủy" để thoát.</Text>
+          
+          <Divider my="md" />
+          
+          <Text>Lưu ý: Tất cả thao tác yêu cầu đăng nhập. Nếu gặp lỗi xác thực, bạn sẽ được chuyển hướng đến trang đăng nhập. Đảm bảo kết nối mạng ổn định khi thực hiện các thao tác.</Text>
+          
+          <Group justify="flex-end" mt="lg">
+            <Button
+              variant="outline"
+              onClick={() => setGuideModalOpen(false)}
+              radius="md"
+              leftSection={<IconX size={20} />}
+            >
+              Đóng
             </Button>
           </Group>
         </Modal>
