@@ -56,31 +56,7 @@ function CardManagement() {
   const [selectedReader, setSelectedReader] = useState(null);
   const [cardInfo, setCardInfo] = useState(null);
   const [renewData, setRenewData] = useState({ months: '', years: '' });
-
-  // Form for renewal
-  const renewForm = (function() {
-    const formFields = {
-      years: '',
-      months: '',
-      validate: {
-        years: (value) => (value && parseInt(value) < 0 ? 'Số năm phải >= 0' : null),
-        months: (value) => (value && parseInt(value) < 0 ? 'Số tháng phải >= 0' : null),
-      },
-    };
-    
-    return {
-      ...formFields,
-      reset: () => {
-        renewData.years = '';
-        renewData.months = '';
-      },
-      onSubmit: (callback) => {
-        const data = { years: renewData.years ? parseInt(renewData.years) : undefined };
-        if (renewData.months) data.months = parseInt(renewData.months);
-        callback(data);
-      }
-    };
-  })();
+  const [renewErrors, setRenewErrors] = useState({});
 
   // Fetch readers data
   const fetchData = async () => {
@@ -105,16 +81,12 @@ function CardManagement() {
 
   // Show card info modal
   const handleViewCard = async (reader) => {
-    console.log('🎴 handleViewCard called with reader:', reader);
-    console.log('🔍 reader.IdDG:', reader.IdDG, 'type:', typeof reader.IdDG);
-    
     setSelectedReader(reader);
     try {
       const cardData = await getReaderCardInfo(reader.IdDG);
       setCardInfo(cardData);
       setCardInfoModalOpened(true);
     } catch (error) {
-      console.error('❌ Error in handleViewCard:', error);
       notifications.show({
         title: 'Lỗi',
         message: 'Không thể tải thông tin thẻ!',
@@ -123,9 +95,36 @@ function CardManagement() {
     }
   };
 
+  const handleRenewDataChange = (e) => {
+    const { name, value } = e.target;
+    if (/^\d*$/.test(value)) { // Chỉ cho phép nhập số
+        setRenewData({ ...renewData, [name]: value });
+    }
+  };
+
+  const validateRenewData = () => {
+    const errors = {};
+    const { years, months } = renewData;
+
+    if (years && (!/^[1-9]\d*$/.test(years) || parseInt(years, 10) <= 0)) {
+        errors.years = 'Số năm phải là một số nguyên dương.';
+    }
+
+    if (months && (!/^[1-9]\d*$/.test(months) || parseInt(months, 10) <= 0)) {
+        errors.months = 'Số tháng phải là một số nguyên dương.';
+    }
+
+    if (!years && !months) {
+        errors.form = 'Bạn phải nhập số năm hoặc số tháng để gia hạn.';
+    }
+
+    setRenewErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   // Renew card
   const handleRenew = async () => {
-    if (!selectedReader) return;
+    if (!selectedReader || !validateRenewData()) return;
     
     try {
       await renewReaderCard(selectedReader.IdDG, renewData);
@@ -135,7 +134,8 @@ function CardManagement() {
         color: 'green',
       });
       setRenewModalOpened(false);
-      renewForm.reset();
+      setRenewData({ months: '', years: '' });
+      setRenewErrors({});
       fetchData(); // Refresh data
     } catch (error) {
       notifications.show({
@@ -166,13 +166,6 @@ function CardManagement() {
         color: 'red',
       });
     }
-  };
-
-  // Helper function to check if reader has active borrows
-  const hasActiveBorrows = (reader) => {
-    // This would need to be fetched from the API or stored in state
-    // For now, we'll assume we don't have this info and let the backend handle it
-    return false; // Placeholder - backend will validate
   };
 
   // Get card status badge
@@ -229,6 +222,7 @@ function CardManagement() {
                   onClick={() => {
                     setSelectedReader(reader);
                     setRenewModalOpened(true);
+                    setRenewErrors({}); // Clear previous errors
                   }}
                 >
                   <IconRefresh size={16} />
@@ -406,18 +400,22 @@ function CardManagement() {
             <TextInput
               label="Gia hạn theo năm"
               placeholder="Nhập số năm muốn gia hạn"
-              type="number"
+              name="years"
               value={renewData.years}
-              onChange={(e) => setRenewData({ ...renewData, years: e.target.value })}
+              onChange={handleRenewDataChange}
+              error={renewErrors.years}
             />
 
             <TextInput
               label="Gia hạn theo tháng"
               placeholder="Nhập số tháng muốn gia hạn"
-              type="number"
+              name="months"
               value={renewData.months}
-              onChange={(e) => setRenewData({ ...renewData, months: e.target.value })}
+              onChange={handleRenewDataChange}
+              error={renewErrors.months}
             />
+
+            {renewErrors.form && <Text size="sm" color="red">{renewErrors.form}</Text>}
 
             <Text size="xs" color="dimmed">
               Để trống cả hai để gia hạn mặc định 1 năm

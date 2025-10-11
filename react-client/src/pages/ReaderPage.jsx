@@ -8,14 +8,12 @@ import { notifications } from '@mantine/notifications';
 
 function ReaderPage() {
     const [readers, setReaders] = useState([]);
-    const [opened, { open, close }] = useDisclosure(false); // Hook để quản lý Modal
+    const [opened, { open, close }] = useDisclosure(false);
     const [deleteConfirmed, { open: openDelete, close: closeDelete }] = useDisclosure(false);
-    const [error, setError] = useState(null);
-    const [editingReader, setEditingReader] = useState(null); // null = create, object = edit
+    const [editingReader, setEditingReader] = useState(null);
     const [readerToDelete, setReaderToDelete] = useState(null);
-    const [searchTerm, setSearchTerm] = useState(''); // State cho từ khóa tìm kiếm
+    const [searchTerm, setSearchTerm] = useState('');
 
-    // Form quản lý dữ liệu độc giả
     const form = useForm({
         initialValues: {
             HoTen: '',
@@ -23,17 +21,24 @@ function ReaderPage() {
             DiaChi: '',
             SoDienThoai: '',
             NgaySinh: '',
-            NgayDangKy: new Date().toISOString().split('T')[0], // Mặc định ngày hôm nay
-            NgayHetHan: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0], // Mặc định 1 năm sau
-            TrangThai: true,
         },
         validate: {
-            HoTen: (value) => (value ? null : 'Họ tên không được để trống'),
+            HoTen: (value) => {
+                if (!value) return 'Họ tên không được để trống';
+                if (!/^[a-zA-Z\u00C0-\u017F\s]+$/.test(value)) return 'Họ tên chỉ được chứa chữ cái';
+                return null;
+            },
             Email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Email không hợp lệ'),
+            SoDienThoai: (value) => {
+                if (!value) return 'Số điện thoại không được để trống';
+                if (!/^0\d{9}$/.test(value)) return 'Số điện thoại phải có 10 chữ số và bắt đầu bằng 0';
+                return null;
+            },
+            NgaySinh: (value) => (value ? null : 'Ngày sinh không được để trống'),
+            DiaChi: (value) => (value ? null : 'Địa chỉ không được để trống'),
         },
     });
 
-    // Hàm để lấy danh sách độc giả
     const fetchReaders = async () => {
         try {
             const data = await getAllReaders();
@@ -47,12 +52,10 @@ function ReaderPage() {
         }
     };
 
-    // Gọi API khi component mount
     useEffect(() => {
         fetchReaders();
     }, []);
 
-    // Hàm filter độc giả dựa trên từ khóa tìm kiếm
     const filteredReaders = readers.filter(reader => {
         const searchLower = searchTerm.toLowerCase();
         return (
@@ -63,20 +66,17 @@ function ReaderPage() {
         );
     });
 
-    // Hàm để reset modal về trạng thái tạo mới
     const resetToCreateMode = () => {
         setEditingReader(null);
         form.reset();
-        setError(null);
+        form.clearErrors();
     };
 
-    // Hàm mở modal để tạo mới
     const handleCreateNew = () => {
         resetToCreateMode();
         open();
     };
 
-    // Hàm mở modal để edit
     const handleEdit = (reader) => {
         setEditingReader(reader);
         form.setValues({
@@ -85,14 +85,10 @@ function ReaderPage() {
             DiaChi: reader.DiaChi || '',
             SoDienThoai: reader.SoDienThoai || '',
             NgaySinh: reader.NgaySinh ? new Date(reader.NgaySinh).toISOString().split('T')[0] : '',
-            NgayDangKy: reader.NgayDangKy ? new Date(reader.NgayDangKy).toISOString().split('T')[0] : '',
-            NgayHetHan: reader.NgayHetHan ? new Date(reader.NgayHetHan).toISOString().split('T')[0] : '',
-            TrangThai: reader.TrangThai === 'ConHan',
         });
         open();
     };
 
-    // Hàm xử lý khi submit form (tạo mới hoặc cập nhật)
     const handleSubmit = async (values) => {
         try {
             if (editingReader) {
@@ -112,19 +108,25 @@ function ReaderPage() {
             }
             close();
             resetToCreateMode();
-            fetchReaders(); // Tải lại danh sách
+            fetchReaders();
         } catch (error) {
-            setError(error.message || 'Xử lý độc giả thất bại. Vui lòng thử lại.');
+            if (error.response && error.response.data && error.response.data.errors) {
+                form.setErrors(error.response.data.errors);
+            } else {
+                 notifications.show({
+                    title: 'Lỗi',
+                    message: error.response.data.message || 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.',
+                    color: 'red',
+                });
+            }
         }
     };
 
-    // Hàm xác nhận xóa
     const handleDelete = (reader) => {
         setReaderToDelete(reader);
         openDelete();
     };
 
-    // Hàm thực hiện xóa
     const confirmDelete = async () => {
         try {
             await deleteReader(readerToDelete.IdDG);
@@ -135,7 +137,7 @@ function ReaderPage() {
             });
             closeDelete();
             setReaderToDelete(null);
-            fetchReaders(); // Tải lại danh sách
+            fetchReaders();
         } catch (error) {
             notifications.show({
                 title: 'Lỗi',
@@ -145,22 +147,17 @@ function ReaderPage() {
         }
     };
 
-    // Hiển thị các hàng của bảng
     const rows = filteredReaders.map((reader) => (
         <Table.Tr key={reader.IdDG}>
             <Table.Td>{reader.MaDG}</Table.Td>
             <Table.Td>{reader.HoTen}</Table.Td>
             <Table.Td>{reader.Email}</Table.Td>
             <Table.Td>{new Date(reader.NgayDangKy).toLocaleDateString()}</Table.Td>
-            <Table.Td>{reader.TrangThai === 'ConHan' ? 'Hoạt động' : 'Bị khóa'}</Table.Td>
+            <Table.Td>{reader.TrangThaiThe}</Table.Td>
             <Table.Td>
                 <Group gap="xs">
-                    <Button size="xs" variant="outline" onClick={() => handleEdit(reader)}>
-                        Sửa
-                    </Button>
-                    <Button size="xs" color="red" variant="outline" onClick={() => handleDelete(reader)}>
-                        Xóa
-                    </Button>
+                    <Button size="xs" variant="outline" onClick={() => handleEdit(reader)}>Sửa</Button>
+                    <Button size="xs" color="red" variant="outline" onClick={() => handleDelete(reader)}>Xóa</Button>
                 </Group>
             </Table.Td>
         </Table.Tr>
@@ -168,45 +165,32 @@ function ReaderPage() {
 
     return (
         <Container p='lg'>
-            {/* Modal create/edit */}
             <Modal 
                 opened={opened} 
-                onClose={() => {
-                    close();
-                    resetToCreateMode();
-                }} 
+                onClose={() => { close(); resetToCreateMode(); }} 
                 title={editingReader ? "Cập nhật Độc Giả" : "Tạo Độc Giả Mới"} 
                 centered
                 size="md"
             >
                 <form onSubmit={form.onSubmit(handleSubmit)}>
                     <Stack>
-                        {error && <Text c="red" size="sm">{error}</Text>}
                         <TextInput label="Họ Tên" placeholder="Nguyễn Văn A" {...form.getInputProps('HoTen')} required />
                         <TextInput label="Email" placeholder="example@mail.com" {...form.getInputProps('Email')} required />
-                        <TextInput label="Ngày Sinh" type="date" {...form.getInputProps('NgaySinh')} />
-                        <TextInput label="Địa chỉ" placeholder="123 Đường ABC" {...form.getInputProps('DiaChi')} />
-                        <TextInput label="Số Điện Thoại" placeholder="09xxxxxxx" {...form.getInputProps('SoDienThoai')} />
+                        <TextInput label="Ngày Sinh" type="date" {...form.getInputProps('NgaySinh')} required/>
+                        <TextInput label="Địa chỉ" placeholder="123 Đường ABC" {...form.getInputProps('DiaChi')} required/>
+                        <TextInput label="Số Điện Thoại" placeholder="09xxxxxxx" {...form.getInputProps('SoDienThoai')} required/>
                         <Group justify="flex-end" mt="md">
-                            <Button variant="default" onClick={() => {
-                                close();
-                                resetToCreateMode();
-                            }}>Hủy</Button>
+                            <Button variant="default" onClick={() => { close(); resetToCreateMode(); }}>Hủy</Button>
                             <Button type="submit">{editingReader ? 'Cập nhật' : 'Tạo mới'}</Button>
                         </Group>
                     </Stack>
                 </form>
             </Modal>
 
-            {/* Modal xác nhận xóa */}
             <Modal opened={deleteConfirmed} onClose={closeDelete} title="Xác nhận xóa độc giả" centered>
                 <Stack>
                     <Text>Bạn có chắc chắn muốn xóa độc giả này không?</Text>
-                    {readerToDelete && (
-                        <Text size="sm" c="dimmed">
-                            <strong>{readerToDelete.HoTen}</strong> ({readerToDelete.MaDG})
-                        </Text>
-                    )}
+                    {readerToDelete && <Text size="sm" c="dimmed"><strong>{readerToDelete.HoTen}</strong> ({readerToDelete.MaDG})</Text>}
                     <Text size="sm" c="red">⚠️ Hành động này không thể hoàn tác.</Text>
                     <Group justify="flex-end" mt="md">
                         <Button variant="default" onClick={closeDelete}>Hủy</Button>
@@ -220,7 +204,6 @@ function ReaderPage() {
                 <Button onClick={handleCreateNew}>Thêm Độc giả</Button>
             </Group>
 
-            {/* Thanh tìm kiếm */}
             <TextInput
                 placeholder="Tìm kiếm theo mã độc giả, họ tên, email hoặc số điện thoại..."
                 leftSection={<IconSearch size={16} />}
@@ -230,12 +213,7 @@ function ReaderPage() {
                 size="md"
             />
 
-            {/* Hiển thị số lượng kết quả */}
-            {searchTerm && (
-                <Text size="sm" c="dimmed" mb="sm">
-                    Tìm thấy {filteredReaders.length} độc giả phù hợp với "{searchTerm}"
-                </Text>
-            )}
+            {searchTerm && <Text size="sm" c="dimmed" mb="sm">Tìm thấy {filteredReaders.length} độc giả phù hợp với "{searchTerm}"</Text>}
             
             <Table striped highlightOnHover withTableBorder withColumnBorders>
                 <Table.Thead>
@@ -249,13 +227,7 @@ function ReaderPage() {
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                    {rows.length > 0 ? rows : 
-                        <Table.Tr>
-                            <Table.Td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>
-                                Không có dữ liệu
-                            </Table.Td>
-                        </Table.Tr>
-                    }
+                    {rows.length > 0 ? rows : <Table.Tr><Table.Td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Không có dữ liệu</Table.Td></Table.Tr>}
                 </Table.Tbody>
             </Table>
         </Container>
