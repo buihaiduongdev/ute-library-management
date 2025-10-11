@@ -7,7 +7,7 @@ const emailService = require("../services/EmailService.js");
  * Chạy mỗi ngày lúc 8:00 AM
  */
 const sendDueSoonReminders = cron.schedule(
-  "51 20 * * *",
+  "49 00 * * *",
   async () => {
     console.log("📧 [CRON] Bắt đầu gửi email nhắc trả sách sắp đến hạn...");
 
@@ -142,7 +142,7 @@ const sendDueSoonReminders = cron.schedule(
  * Chạy mỗi ngày lúc 9:00 AM
  */
 const sendOverdueAlerts = cron.schedule(
-  "0 9 * * *",
+  "49 00 * * *",
   async () => {
     console.log("⚠️  [CRON] Bắt đầu gửi email cảnh báo sách quá hạn...");
 
@@ -284,7 +284,7 @@ const sendOverdueAlerts = cron.schedule(
  * Chạy mỗi ngày lúc 10:00 AM
  */
 const sendUnpaidFineReminders = cron.schedule(
-  "0 10 * * *",
+  "49 00 * * *",
   async () => {
     console.log("💰 [CRON] Bắt đầu gửi email nhắc thanh toán phạt...");
 
@@ -422,7 +422,7 @@ const sendUnpaidFineReminders = cron.schedule(
  * Chạy mỗi ngày lúc 00:00
  */
 const updateOverdueStatus = cron.schedule(
-  "0 0 * * *",
+  "49 00 * * *",
   async () => {
     console.log("🔄 [CRON] Bắt đầu cập nhật trạng thái sách quá hạn...");
 

@@ -449,7 +449,7 @@ class EmailService {
               </div>
               
               <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 20px 0;">
-                Vui lòng thanh toán phạt tại thư viện hoặc chuyển khoản qua VietQR.
+                Vui lòng thanh toán phạt tại thư viện hoặc quét mã QR để thanh toán online.
               </p>
               
               <!-- Call to Action -->

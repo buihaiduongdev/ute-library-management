@@ -139,21 +139,28 @@ function NotificationBell() {
         });
       }
 
-      // 3. Phạt chưa thanh toán
+      // 3. Phạt chưa thanh toán - Hiển thị từng phạt
       if (finesData.data && finesData.data.length > 0) {
-        const totalFines = finesData.summary?.tongTienPhat || 0;
-        allNotifications.push({
-          id: 'fines',
-          type: 'error',
-          icon: IconCash,
-          title: 'Bạn có khoản phạt chưa thanh toán',
-          message: `${finesData.data.length} khoản phạt - ${new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-          }).format(totalFines)}`,
-          time: new Date(),
-          action: () => navigate('/reader/dashboard?tab=fines'),
-          color: 'red',
+        finesData.data.forEach((fine) => {
+          const lyDoPhatMap = {
+            TreHan: 'Trễ hạn trả sách',
+            HuHong: 'Hư hỏng sách',
+            Mat: 'Mất sách',
+          };
+          
+          allNotifications.push({
+            id: `fine-${fine.MaPhat}`,
+            type: 'error',
+            icon: IconCash,
+            title: `Phạt ${lyDoPhatMap[fine.LyDoPhat] || fine.LyDoPhat}`,
+            message: `${fine.CuonSach?.Sach?.TieuDe || 'Sách'} - ${new Intl.NumberFormat('vi-VN', {
+              style: 'currency',
+              currency: 'VND',
+            }).format(fine.SoTienPhat)}`,
+            time: fine.NgayPhat || new Date(),
+            action: () => navigate('/reader/dashboard?tab=fines'),
+            color: 'red',
+          });
         });
       }
 

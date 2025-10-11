@@ -697,10 +697,8 @@ class BorrowController {
         };
       }
 
-      // Filter theo trạng thái thanh toán
-      if (trangThai) {
-        whereConditions.TrangThaiThanhToan = trangThai;
-      }
+      // Filter theo trạng thái thanh toán (mặc định là chưa thanh toán)
+      whereConditions.TrangThaiThanhToan = trangThai || 'ChuaThanhToan';
 
       const [fines, total] = await Promise.all([
         prisma.thePhat.findMany({
