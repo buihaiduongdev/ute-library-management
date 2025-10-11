@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as api from '../utils/api'; // Import a-pi của bạn
-import { Table, Tag, Typography, Spin, Alert, Row, Col, Card } from 'antd';
-
+import {Table, Tag, Typography, Spin, Alert, Row, Col, Card } from 'antd';
+import {Container} from '@mantine/core';
 const { Title } = Typography;
 
 const ReaderStatsPage = () => {
@@ -69,7 +69,7 @@ const ReaderStatsPage = () => {
     const readersWithFines = data?.readersWithFines || [];
 
     return (
-        <div>
+        <div style={{padding: "36px 72px"}} >
             <Title level={2}>Thống Kê Tình Trạng Mượn Sách Của Độc Giả</Title>
             <Row gutter={[16, 16]}>
                 <Col xs={24} lg={12}>
