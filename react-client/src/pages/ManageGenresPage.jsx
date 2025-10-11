@@ -11,6 +11,7 @@ function ManageGenresPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
   const [page, setPage] = useState(1);
@@ -186,6 +187,15 @@ function ManageGenresPage() {
             >
               Xuất file
             </Button>
+            <Button
+              variant="outline"
+              color="cyan"
+              radius="md"
+              leftSection={<IconInfoCircle size={20} />}
+              onClick={() => setGuideModalOpen(true)}
+            >
+              Hướng dẫn
+            </Button>
           </Group>
         </Group>
         <Paper p="sm" radius="md" withBorder mb="md">
@@ -354,6 +364,73 @@ function ManageGenresPage() {
             </Button>
             <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md" leftSection={<IconX size={20} />}>
               Hủy
+            </Button>
+          </Group>
+        </Modal>
+        <Modal
+          opened={guideModalOpen}
+          onClose={() => setGuideModalOpen(false)}
+          title={
+            <Group>
+              <IconInfoCircle size={24} />
+              <Text size="lg">Hướng dẫn sử dụng trang Quản Lý Thể Loại</Text>
+            </Group>
+          }
+          size="lg"
+          radius="md"
+        >
+          <Text mt="md">Chào mừng bạn đến với trang Quản Lý Thể Loại! Dưới đây là hướng dẫn chi tiết để sử dụng các chức năng trên trang:</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>1. Tìm kiếm thể loại</Title>
+          <Text>- Nhập từ khóa vào ô tìm kiếm (có biểu tượng kính lúp) để tìm thể loại theo tên hoặc mô tả.</Text>
+          <Text>- Kết quả sẽ hiển thị trong bảng, bao gồm mã thể loại, tên thể loại, và mô tả.</Text>
+          <Text>- Nếu không tìm thấy thể loại, sẽ hiển thị thông báo "Không tìm thấy thể loại nào."</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>2. Phân trang</Title>
+          <Text>- Sử dụng thanh phân trang ở dưới bảng để chuyển giữa các trang (mỗi trang hiển thị tối đa 8 thể loại).</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>3. Thêm thể loại mới</Title>
+          <Text>- Nhấn nút "Thêm thể loại" (biểu tượng dấu cộng) để mở form thêm thể loại.</Text>
+          <Text>- Điền tên thể loại (bắt buộc) và mô tả (tùy chọn).</Text>
+          <Text>- Nhấn "Thêm thể loại" để lưu hoặc "Hủy" để thoát.</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>4. Sửa thể loại</Title>
+          <Text>- Trong bảng, nhấn nút "Sửa" (biểu tượng bút chì) trên dòng thể loại để chỉnh sửa.</Text>
+          <Text>- Form sẽ hiển thị thông tin hiện tại của thể loại. Chỉnh sửa và nhấn "Cập nhật" để lưu hoặc "Hủy" để thoát.</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>5. Xóa thể loại</Title>
+          <Text>- Nhấn nút "Xóa" (biểu tượng thùng rác) trên dòng thể loại để xác nhận.</Text>
+          <Text>- Lưu ý: Chỉ thể loại không liên kết với sách (nền vàng nhạt) mới có thể xóa. Thể loại đang liên kết với sách (nền trắng) không thể xóa.</Text>
+          <Text>- Nhấn "Xóa thể loại" để xóa vĩnh viễn hoặc "Hủy" để thoát.</Text>
+          
+          <Divider my="md" />
+          
+          <Title order={4}>6. Xuất file danh sách thể loại</Title>
+          <Text>- Nhấn nút "Xuất file" (biểu tượng tải xuống) để xác nhận xuất file Excel.</Text>
+          <Text>- Nhấn "Xuất file" để tải file DanhSachTheLoai.xlsx hoặc "Hủy" để thoát.</Text>
+          
+          <Divider my="md" />
+          
+          <Text>Lưu ý: Tất cả thao tác yêu cầu đăng nhập. Nếu gặp lỗi xác thực, bạn sẽ được chuyển hướng đến trang đăng nhập. Đảm bảo kết nối mạng ổn định khi thực hiện các thao tác.</Text>
+          
+          <Group justify="flex-end" mt="lg">
+            <Button
+              variant="outline"
+              onClick={() => setGuideModalOpen(false)}
+              radius="md"
+              leftSection={<IconX size={20} />}
+            >
+              Đóng
             </Button>
           </Group>
         </Modal>

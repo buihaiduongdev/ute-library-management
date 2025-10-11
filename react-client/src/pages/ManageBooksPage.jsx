@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Title, TextInput, Button, SimpleGrid, Image, Modal, FileInput, Autocomplete, Group, Card, Text, Grid, Pagination, Badge } from '@mantine/core';
+import { Container, Title, TextInput, Button, SimpleGrid, Image, Modal, FileInput, Autocomplete, Group, Card, Text, Grid, Pagination, Badge, Divider } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { authGet, authPost, put, del } from '../utils/api';
 import { IconPencil, IconTrash, IconDownload, IconBook, IconSearch, IconPlus, IconUser, IconCategory, IconBuilding, IconCalendar, IconNumber, IconCurrencyDollar, IconPhoto, IconCheck, IconX, IconInfoCircle } from '@tabler/icons-react';
@@ -12,6 +12,7 @@ function ManageBooksPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
   const [genres, setGenres] = useState([]);
@@ -342,6 +343,16 @@ function ManageBooksPage() {
           >
             Xuất file
           </Button>
+          <Button
+            variant="outline"
+            color="cyan"
+            radius="md"
+            size="md"
+            leftSection={<IconInfoCircle size={20} />}
+            onClick={() => setGuideModalOpen(true)}
+          >
+            Hướng dẫn
+          </Button>
         </Group>
       </Group>
 
@@ -605,6 +616,73 @@ function ManageBooksPage() {
           </Button>
           <Button variant="outline" onClick={() => setExportModalOpen(false)} radius="md" leftSection={<IconX size={20} />}>
             Hủy
+          </Button>
+        </Group>
+      </Modal>
+
+      <Modal
+        opened={guideModalOpen}
+        onClose={() => setGuideModalOpen(false)}
+        title={
+          <Group>
+            <IconInfoCircle size={24} />
+            <Text size="lg">Hướng dẫn sử dụng trang Quản Lý Sách</Text>
+          </Group>
+        }
+        size="lg"
+        radius="md"
+      >
+        <Text mt="md">Chào mừng bạn đến với trang Quản Lý Sách! Dưới đây là hướng dẫn chi tiết để sử dụng các chức năng trên trang:</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>1. Tìm kiếm sách</Title>
+        <Text>- Nhập từ khóa vào ô tìm kiếm (có biểu tượng kính lúp) để tìm sách theo tiêu đề, tác giả, hoặc các thông tin liên quan.</Text>
+        <Text>- Kết quả sẽ hiển thị dưới dạng lưới thẻ, mỗi thẻ chứa thông tin: tiêu đề, tác giả, thể loại, nhà xuất bản, năm xuất bản, số lượng, giá sách, vị trí kệ, trạng thái (Còn sách/Hết sách), và ảnh bìa.</Text>
+        <Text>- Nếu không tìm thấy sách, sẽ hiển thị thông báo "Không tìm thấy sách nào."</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>2. Phân trang</Title>
+        <Text>- Sử dụng thanh phân trang ở dưới danh sách để chuyển giữa các trang (mỗi trang hiển thị tối đa 9 sách).</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>3. Thêm sách mới</Title>
+        <Text>- Nhấn nút "Thêm Sách" (biểu tượng dấu cộng) để mở form thêm sách.</Text>
+        <Text>- Điền các thông tin bắt buộc: tiêu đề, tác giả, nhà xuất bản, số lượng, giá sách. Các trường khác như thể loại, năm xuất bản, vị trí kệ, mô tả, và ảnh bìa (tối đa 5MB) là tùy chọn.</Text>
+        <Text>- Nhấn "Thêm sách" để lưu hoặc "Hủy" để thoát.</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>4. Cập nhật thông tin sách</Title>
+        <Text>- Trên mỗi thẻ sách, nhấn nút "Cập nhật" (biểu tượng bút chì) để chỉnh sửa thông tin sách.</Text>
+        <Text>- Form sẽ hiển thị thông tin hiện tại của sách. Chỉnh sửa các trường cần thiết và nhấn "Cập nhật" để lưu hoặc "Hủy" để thoát.</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>5. Xóa sách</Title>
+        <Text>- Nhấn nút "Xóa" (biểu tượng thùng rác) trên thẻ sách để xác nhận.</Text>
+        <Text>- Nhấn "Xóa sách" để xóa vĩnh viễn hoặc "Hủy" để thoát.</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>6. Xuất file danh sách sách</Title>
+        <Text>- Nhấn nút "Xuất file" (biểu tượng tải xuống) để xác nhận xuất file Excel.</Text>
+        <Text>- Nhấn "Xuất file" để tải file DanhSachSach.xlsx hoặc "Hủy" để thoát.</Text>
+        
+        <Divider my="md" />
+        
+        <Text>Lưu ý: Tất cả thao tác yêu cầu đăng nhập. Nếu gặp lỗi xác thực, bạn sẽ được chuyển hướng đến trang đăng nhập. Đảm bảo kết nối mạng ổn định khi thực hiện các thao tác.</Text>
+        
+        <Group justify="flex-end" mt="lg">
+          <Button
+            variant="outline"
+            onClick={() => setGuideModalOpen(false)}
+            radius="md"
+            leftSection={<IconX size={20} />}
+          >
+            Đóng
           </Button>
         </Group>
       </Modal>

@@ -17,6 +17,7 @@ function BookSearchPage() {
   const usn = localStorage.getItem('username');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentMoTa, setCurrentMoTa] = useState('');
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
 
   useEffect(() => {
     fetchBooks();
@@ -166,6 +167,15 @@ function BookSearchPage() {
           leftSection={<IconSearch size={20} />}
           style={{ flex: 1 }}
         />
+        <Button
+          variant="outline"
+          color="cyan"
+          radius="md"
+          leftSection={<IconInfoCircle size={20} />}
+          onClick={() => setGuideModalOpen(true)}
+        >
+          Hướng dẫn
+        </Button>
       </Group>
 
       <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
@@ -488,6 +498,73 @@ function BookSearchPage() {
             </Group>
           </Tabs>
         )}
+      </Modal>
+
+      <Modal
+        opened={guideModalOpen}
+        onClose={() => setGuideModalOpen(false)}
+        title={
+          <Group>
+            <IconInfoCircle size={24} />
+            <Text size="lg">Hướng dẫn sử dụng trang Tra Cứu Sách</Text>
+          </Group>
+        }
+        size="lg"
+        radius="md"
+      >
+        <Text mt="md">Chào mừng bạn đến với trang Tra Cứu Sách! Dưới đây là hướng dẫn chi tiết về cách sử dụng các chức năng trên trang này:</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>1. Lọc và Tìm kiếm sách</Title>
+        <Text>- Sử dụng menu thả xuống ở bên trái để chọn bộ lọc: "Tất cả" (hiển thị tất cả sách), "Sách mới" (sách mới nhập kho), hoặc "Sách phổ biến" (sách được mượn nhiều nhất).</Text>
+        <Text>- Nhập từ khóa vào ô tìm kiếm (có biểu tượng kính lúp) để tìm sách theo tiêu đề, tác giả, hoặc các thông tin liên quan. Khi tìm kiếm, bộ lọc sẽ tự động chuyển về "Tất cả".</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>2. Xem danh sách sách</Title>
+        <Text>- Danh sách sách sẽ hiển thị dưới dạng lưới thẻ, mỗi thẻ chứa thông tin cơ bản: tiêu đề, tác giả, thể loại, nhà xuất bản, năm xuất bản, số lượng, giá sách, vị trí kệ, trạng thái (Còn sách/Hết sách), và ảnh bìa.</Text>
+        <Text>- Nếu không tìm thấy sách, sẽ hiển thị thông báo "Không tìm thấy sách nào."</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>3. Phân trang</Title>
+        <Text>- Sử dụng thanh phân trang ở dưới danh sách để chuyển trang (mỗi trang hiển thị tối đa 9 sách).</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>4. Xem chi tiết sách</Title>
+        <Text>- Trên mỗi thẻ sách, nhấn nút "Xem" (biểu tượng mắt) để xem chi tiết.</Text>
+        <Text>- Xem chi tiết có các tab:</Text>
+        <Text>  - "Xem Sách": Hiển thị thông tin sách như mã sách, tiêu đề, tác giả, thể loại, nhà xuất bản, năm xuất bản, số lượng, giá sách, vị trí kệ, mô tả, trạng thái, và ảnh bìa.</Text>
+        <Text>  - "Xem Tác Giả": Hiển thị thông tin tác giả (nếu có nhiều tác giả, sẽ liệt kê từng người): mã, tên, quốc tịch, tiểu sử.</Text>
+        <Text>  - "Xem Thể Loại": Hiển thị thông tin thể loại (nếu có nhiều thể loại): mã, tên, mô tả.</Text>
+        <Text>  - "Xem NXB": Hiển thị thông tin nhà xuất bản: mã, tên, số điện thoại, địa chỉ, email.</Text>
+        <Text>- Nếu sách "Còn sách", bạn có thể nhấn "Yêu cầu mượn" để chuyển đến trang chi tiết mượn sách (yêu cầu đăng nhập).</Text>
+        <Text>- Nhấn "Đóng" để tắt.</Text>
+        
+        <Divider my="md" />
+        
+        <Title order={4}>5. Phát mô tả sách bằng giọng nói</Title>
+        <Text>- Trên mỗi thẻ sách, nhấn nút "Phát" (biểu tượng play) để nghe mô tả sách bằng giọng nói tiếng Việt.</Text>
+        <Text>- Nếu đang phát, nút sẽ chuyển thành "Dừng" (biểu tượng pause). Nhấn để tạm dừng hoặc tiếp tục.</Text>
+        <Text>- Nếu trình duyệt không hỗ trợ giọng tiếng Việt, sẽ sử dụng giọng mặc định và hiển thị cảnh báo.</Text>
+        <Text>- Nếu không có mô tả, sẽ hiển thị lỗi.</Text>
+        
+        <Divider my="md" />
+        
+        <Text>Lưu ý: Trang sẽ tự động tải dữ liệu sách khi thay đổi tìm kiếm, bộ lọc, hoặc trang. Nếu gặp lỗi, kiểm tra kết nối mạng hoặc liên hệ hỗ trợ.</Text>
+        
+        <Group justify="flex-end" mt="lg">
+          <Button
+            variant="outline"
+            onClick={() => setGuideModalOpen(false)}
+            radius="md"
+            leftSection={<IconX size={20} />}
+          >
+            Đóng
+          </Button>
+        </Group>
       </Modal>
     </Container>
   );
