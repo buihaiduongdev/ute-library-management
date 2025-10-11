@@ -7,7 +7,7 @@ const emailService = require("../services/EmailService.js");
  * Chạy mỗi ngày lúc 8:00 AM
  */
 const sendDueSoonReminders = cron.schedule(
-  "0 8 * * *",
+  "51 20 * * *",
   async () => {
     console.log("📧 [CRON] Bắt đầu gửi email nhắc trả sách sắp đến hạn...");
 

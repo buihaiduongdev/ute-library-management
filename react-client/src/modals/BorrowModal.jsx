@@ -442,7 +442,7 @@ function BorrowModal({ opened, onClose, selectedBooks, refresh }) {
             color="blue"
             leftSection={<IconCalendar size={18} />}
             loading={loading}
-            disabled={loading || !readerInfo || loadingReader}
+            disabled={loading || !readerInfo || loadingReader || readerInfo?.coNoPhat}
           >
             Tạo Phiếu Mượn
           </Button>

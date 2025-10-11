@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Title,
@@ -20,7 +20,7 @@ import {
   Avatar,
   ActionIcon,
   Tooltip,
-} from '@mantine/core';
+} from "@mantine/core";
 import {
   IconBook,
   IconFileText,
@@ -33,11 +33,11 @@ import {
   IconRefresh,
   IconHourglass,
   IconUser,
-} from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+} from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
 
 function ReaderDashboard() {
-  const [activeTab, setActiveTab] = useState('borrowed');
+  const [activeTab, setActiveTab] = useState("borrowed");
   const [loading, setLoading] = useState(false);
 
   // Sách đang mượn
@@ -63,23 +63,25 @@ function ReaderDashboard() {
   const fetchBorrowedBooks = async () => {
     setLoadingBorrowed(true);
     try {
-      const token = localStorage.getItem('token');
-      const userRole = localStorage.getItem('role');
-      
-      if (userRole !== '2') {
+      const token = localStorage.getItem("token");
+      const userRole = localStorage.getItem("role");
+
+      if (userRole !== "2") {
         notifications.show({
-          title: 'Lỗi',
-          message: 'Trang này chỉ dành cho độc giả',
-          color: 'red',
+          title: "Lỗi",
+          message: "Trang này chỉ dành cho độc giả",
+          color: "red",
         });
         return;
       }
 
       // Lấy IdDG từ localStorage
-      const idDG = localStorage.getItem('idDG');
-      
+      const idDG = localStorage.getItem("idDG");
+
       if (!idDG) {
-        throw new Error('Không tìm thấy thông tin độc giả. Vui lòng đăng nhập lại.');
+        throw new Error(
+          "Không tìm thấy thông tin độc giả. Vui lòng đăng nhập lại."
+        );
       }
 
       // Lấy lịch sử mượn
@@ -94,7 +96,7 @@ function ReaderDashboard() {
         const borrowed = [];
         data.data.forEach((phieu) => {
           phieu.ChiTietMuon.forEach((ct) => {
-            if (ct.TrangThai === 'DangMuon') {
+            if (ct.TrangThai === "DangMuon") {
               borrowed.push({
                 ...ct,
                 MaPM: phieu.MaPM,
@@ -108,9 +110,9 @@ function ReaderDashboard() {
       }
     } catch (error) {
       notifications.show({
-        title: 'Lỗi',
-        message: error.message || 'Không thể tải danh sách sách đang mượn',
-        color: 'red',
+        title: "Lỗi",
+        message: error.message || "Không thể tải danh sách sách đang mượn",
+        color: "red",
       });
     } finally {
       setLoadingBorrowed(false);
@@ -121,8 +123,8 @@ function ReaderDashboard() {
   const fetchRequests = async () => {
     setLoadingRequests(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/requests/my', {
+      const token = localStorage.getItem("token");
+      const response = await fetch("/api/requests/my", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -135,9 +137,9 @@ function ReaderDashboard() {
       }
     } catch (error) {
       notifications.show({
-        title: 'Lỗi',
-        message: error.message || 'Không thể tải danh sách yêu cầu',
-        color: 'red',
+        title: "Lỗi",
+        message: error.message || "Không thể tải danh sách yêu cầu",
+        color: "red",
       });
     } finally {
       setLoadingRequests(false);
@@ -148,13 +150,15 @@ function ReaderDashboard() {
   const fetchFines = async () => {
     setLoadingFines(true);
     try {
-      const token = localStorage.getItem('token');
-      
+      const token = localStorage.getItem("token");
+
       // Lấy IdDG từ localStorage
-      const idDG = localStorage.getItem('idDG');
+      const idDG = localStorage.getItem("idDG");
 
       if (!idDG) {
-        throw new Error('Không tìm thấy thông tin độc giả. Vui lòng đăng nhập lại.');
+        throw new Error(
+          "Không tìm thấy thông tin độc giả. Vui lòng đăng nhập lại."
+        );
       }
 
       const response = await fetch(`/api/borrow/fines?idDG=${idDG}`, {
@@ -171,9 +175,9 @@ function ReaderDashboard() {
       }
     } catch (error) {
       notifications.show({
-        title: 'Lỗi',
-        message: error.message || 'Không thể tải danh sách phạt',
-        color: 'red',
+        title: "Lỗi",
+        message: error.message || "Không thể tải danh sách phạt",
+        color: "red",
       });
     } finally {
       setLoadingFines(false);
@@ -193,11 +197,19 @@ function ReaderDashboard() {
   // Get status badge
   const getStatusBadge = (status) => {
     const statusMap = {
-      ChoXuLy: { color: 'yellow', label: 'Chờ xử lý', icon: <IconClock size={14} /> },
-      DaDuyet: { color: 'green', label: 'Đã duyệt', icon: <IconCircleCheck size={14} /> },
-      TuChoi: { color: 'red', label: 'Từ chối', icon: <IconX size={14} /> },
+      ChoXuLy: {
+        color: "yellow",
+        label: "Chờ xử lý",
+        icon: <IconClock size={14} />,
+      },
+      DaDuyet: {
+        color: "green",
+        label: "Đã duyệt",
+        icon: <IconCircleCheck size={14} />,
+      },
+      TuChoi: { color: "red", label: "Từ chối", icon: <IconX size={14} /> },
     };
-    const s = statusMap[status] || { color: 'gray', label: status };
+    const s = statusMap[status] || { color: "gray", label: status };
     return (
       <Badge color={s.color} size="md" leftSection={s.icon}>
         {s.label}
@@ -207,17 +219,17 @@ function ReaderDashboard() {
 
   const getLyDoPhatLabel = (lyDo) => {
     const map = {
-      TreHan: 'Trễ hạn',
-      HuHong: 'Hư hỏng',
-      Mat: 'Mất sách',
+      TreHan: "Trễ hạn",
+      HuHong: "Hư hỏng",
+      Mat: "Mất sách",
     };
     return map[lyDo] || lyDo;
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
     }).format(amount);
   };
 
@@ -231,15 +243,15 @@ function ReaderDashboard() {
         mb="xl"
         withBorder
         style={{
-          backgroundColor: '#ffffff',
-          borderTop: '4px solid #667eea',
+          backgroundColor: "#ffffff",
+          borderTop: "4px solid #667eea",
         }}
       >
         <Group justify="space-between" align="center">
           <Box>
             <Group gap="sm" mb="xs">
               <IconBook size={36} color="#667eea" stroke={1.5} />
-              <Title order={1} style={{ color: '#667eea', marginBottom: 0 }}>
+              <Title order={1} style={{ color: "#667eea", marginBottom: 0 }}>
                 Thư Viện Của Tôi
               </Title>
             </Group>
@@ -252,7 +264,8 @@ function ReaderDashboard() {
               {borrowedBooks.length} đang mượn
             </Badge>
             <Badge size="xl" variant="light" color="orange">
-              {requests.filter((r) => r.TrangThai === 'ChoXuLy').length} chờ duyệt
+              {requests.filter((r) => r.TrangThai === "ChoXuLy").length} chờ
+              duyệt
             </Badge>
             {totalFines > 0 && (
               <Badge size="xl" variant="light" color="red">
@@ -300,37 +313,54 @@ function ReaderDashboard() {
                 const isOverdue = daysLeft < 0;
 
                 return (
-                  <Grid.Col key={`${book.MaPM}-${book.MaCuonSach}`} span={{ base: 12, sm: 6, md: 4 }}>
+                  <Grid.Col
+                    key={`${book.MaPM}-${book.MaCuonSach}`}
+                    span={{ base: 12, sm: 6, md: 4 }}
+                  >
                     <Card
                       shadow="md"
                       padding="lg"
                       radius="md"
                       withBorder
                       style={{
-                        height: '100%',
-                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                        cursor: 'pointer',
+                        height: "100%",
+                        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                        cursor: "pointer",
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)';
+                        e.currentTarget.style.transform = "translateY(-4px)";
+                        e.currentTarget.style.boxShadow =
+                          "0 8px 24px rgba(0,0,0,0.12)";
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '';
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "";
                       }}
                     >
                       <Card.Section>
                         <Image
-                          src={book.CuonSach?.Sach?.AnhBia || 'https://via.placeholder.com/200x300?text=No+Cover'}
+                          src={
+                            book.CuonSach?.Sach?.AnhBia ||
+                            "https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9781974728985/jujutsu-kaisen-vol-16-9781974728985_hr.jpg"
+                          }
                           height={250}
-                          alt={book.CuonSach?.Sach?.TieuDe}
+                          alt={book.CuonSach?.Sach?.TieuDe || "Ảnh bìa sách"}
                           fit="cover"
+                          fallbackSrc="https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9781974728985/jujutsu-kaisen-vol-16-9781974728985_hr.jpg"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "https://d28hgpri8am2if.cloudfront.net/book_images/onix/cvr9781974728985/jujutsu-kaisen-vol-16-9781974728985_hr.jpg";
+                          }}
                         />
                       </Card.Section>
 
                       <Stack gap="xs" mt="md">
-                        <Text fw={700} size="lg" lineClamp={2} style={{ minHeight: '3rem' }}>
+                        <Text
+                          fw={700}
+                          size="lg"
+                          lineClamp={2}
+                          style={{ minHeight: "3rem" }}
+                        >
                           {book.CuonSach?.Sach?.TieuDe}
                         </Text>
 
@@ -341,7 +371,9 @@ function ReaderDashboard() {
                             Ngày mượn
                           </Text>
                           <Text size="sm" fw={500}>
-                            {new Date(book.NgayMuon).toLocaleDateString('vi-VN')}
+                            {new Date(book.NgayMuon).toLocaleDateString(
+                              "vi-VN"
+                            )}
                           </Text>
                         </Group>
 
@@ -349,8 +381,19 @@ function ReaderDashboard() {
                           <Text size="xs" c="dimmed">
                             Hẹn trả
                           </Text>
-                          <Badge color={isOverdue ? 'red' : daysLeft <= 3 ? 'orange' : 'blue'} variant="light">
-                            {new Date(book.NgayHenTra).toLocaleDateString('vi-VN')}
+                          <Badge
+                            color={
+                              isOverdue
+                                ? "red"
+                                : daysLeft <= 3
+                                ? "orange"
+                                : "blue"
+                            }
+                            variant="light"
+                          >
+                            {new Date(book.NgayHenTra).toLocaleDateString(
+                              "vi-VN"
+                            )}
                           </Badge>
                         </Group>
 
@@ -359,11 +402,17 @@ function ReaderDashboard() {
                             Trạng thái
                           </Text>
                           {isOverdue ? (
-                            <Badge color="red" leftSection={<IconAlertCircle size={14} />}>
+                            <Badge
+                              color="red"
+                              leftSection={<IconAlertCircle size={14} />}
+                            >
                               Quá hạn {Math.abs(daysLeft)} ngày
                             </Badge>
                           ) : (
-                            <Badge color={daysLeft <= 3 ? 'orange' : 'green'} leftSection={<IconHourglass size={14} />}>
+                            <Badge
+                              color={daysLeft <= 3 ? "orange" : "green"}
+                              leftSection={<IconHourglass size={14} />}
+                            >
                               Còn {daysLeft} ngày
                             </Badge>
                           )}
@@ -408,7 +457,13 @@ function ReaderDashboard() {
           ) : (
             <Stack gap="md">
               {requests.map((request) => (
-                <Paper key={request.MaYeuCau} p="lg" withBorder radius="md" shadow="sm">
+                <Paper
+                  key={request.MaYeuCau}
+                  p="lg"
+                  withBorder
+                  radius="md"
+                  shadow="sm"
+                >
                   <Group justify="space-between" align="flex-start">
                     <Group align="flex-start" style={{ flex: 1 }}>
                       <Avatar color="blue" radius="xl" size="lg">
@@ -427,14 +482,20 @@ function ReaderDashboard() {
                           <Group gap="xs">
                             <IconCalendar size={16} color="#6b7280" />
                             <Text size="sm" c="dimmed">
-                              Yêu cầu: {new Date(request.NgayYeuCau).toLocaleDateString('vi-VN')}
+                              Yêu cầu:{" "}
+                              {new Date(request.NgayYeuCau).toLocaleDateString(
+                                "vi-VN"
+                              )}
                             </Text>
                           </Group>
 
                           <Group gap="xs">
                             <IconCalendar size={16} color="#6b7280" />
                             <Text size="sm" c="dimmed">
-                              Hẹn trả: {new Date(request.NgayHenTra).toLocaleDateString('vi-VN')}
+                              Hẹn trả:{" "}
+                              {new Date(request.NgayHenTra).toLocaleDateString(
+                                "vi-VN"
+                              )}
                             </Text>
                           </Group>
 
@@ -445,27 +506,30 @@ function ReaderDashboard() {
                           )}
 
                           {/* HIỂN THỊ LÝ DO TỪ CHỐI */}
-                          {request.TrangThai === 'TuChoi' && request.LyDoTuChoi && (
-                            <Alert
-                              icon={<IconX size={18} />}
-                              title="Lý do từ chối"
-                              color="red"
-                              variant="light"
-                              mt="xs"
-                            >
-                              <Text size="sm" fw={500}>
-                                {request.LyDoTuChoi}
-                              </Text>
-                              {request.NgayXuLy && (
-                                <Text size="xs" c="dimmed" mt="xs">
-                                  Xử lý bởi: {request.NhanVien?.HoTen} -{' '}
-                                  {new Date(request.NgayXuLy).toLocaleString('vi-VN')}
+                          {request.TrangThai === "TuChoi" &&
+                            request.LyDoTuChoi && (
+                              <Alert
+                                icon={<IconX size={18} />}
+                                title="Lý do từ chối"
+                                color="red"
+                                variant="light"
+                                mt="xs"
+                              >
+                                <Text size="sm" fw={500}>
+                                  {request.LyDoTuChoi}
                                 </Text>
-                              )}
-                            </Alert>
-                          )}
+                                {request.NgayXuLy && (
+                                  <Text size="xs" c="dimmed" mt="xs">
+                                    Xử lý bởi: {request.NhanVien?.HoTen} -{" "}
+                                    {new Date(request.NgayXuLy).toLocaleString(
+                                      "vi-VN"
+                                    )}
+                                  </Text>
+                                )}
+                              </Alert>
+                            )}
 
-                          {request.TrangThai === 'DaDuyet' && (
+                          {request.TrangThai === "DaDuyet" && (
                             <Alert
                               icon={<IconCircleCheck size={18} />}
                               title="Đã duyệt"
@@ -474,12 +538,15 @@ function ReaderDashboard() {
                               mt="xs"
                             >
                               <Text size="sm">
-                                Yêu cầu đã được duyệt. Vui lòng đến thư viện để nhận sách.
+                                Yêu cầu đã được duyệt. Vui lòng đến thư viện để
+                                nhận sách.
                               </Text>
                               {request.NgayXuLy && (
                                 <Text size="xs" c="dimmed" mt="xs">
-                                  Xử lý bởi: {request.NhanVien?.HoTen} -{' '}
-                                  {new Date(request.NgayXuLy).toLocaleString('vi-VN')}
+                                  Xử lý bởi: {request.NhanVien?.HoTen} -{" "}
+                                  {new Date(request.NgayXuLy).toLocaleString(
+                                    "vi-VN"
+                                  )}
                                 </Text>
                               )}
                             </Alert>
@@ -508,7 +575,13 @@ function ReaderDashboard() {
             <>
               {/* Tổng tiền phạt */}
               {totalFines > 0 && (
-                <Paper p="lg" withBorder radius="md" mb="lg" style={{ backgroundColor: '#fef2f2' }}>
+                <Paper
+                  p="lg"
+                  withBorder
+                  radius="md"
+                  mb="lg"
+                  style={{ backgroundColor: "#fef2f2" }}
+                >
                   <Group justify="space-between" align="center">
                     <div>
                       <Text size="sm" c="dimmed" tt="uppercase" fw={600}>
@@ -537,11 +610,21 @@ function ReaderDashboard() {
               ) : (
                 <Stack gap="md">
                   {fines.map((fine) => (
-                    <Paper key={fine.MaPhat} p="lg" withBorder radius="md" shadow="sm">
+                    <Paper
+                      key={fine.MaPhat}
+                      p="lg"
+                      withBorder
+                      radius="md"
+                      shadow="sm"
+                    >
                       <Group justify="space-between" align="flex-start">
                         <Group align="flex-start" style={{ flex: 1 }}>
                           <Avatar
-                            color={fine.TrangThaiThanhToan === 'ChuaThanhToan' ? 'red' : 'green'}
+                            color={
+                              fine.TrangThaiThanhToan === "ChuaThanhToan"
+                                ? "red"
+                                : "green"
+                            }
                             radius="xl"
                             size="lg"
                           >
@@ -554,16 +637,23 @@ function ReaderDashboard() {
                                 {fine.CuonSach?.Sach?.TieuDe}
                               </Text>
                               <Badge
-                                color={fine.TrangThaiThanhToan === 'ChuaThanhToan' ? 'red' : 'green'}
+                                color={
+                                  fine.TrangThaiThanhToan === "ChuaThanhToan"
+                                    ? "red"
+                                    : "green"
+                                }
                                 leftSection={
-                                  fine.TrangThaiThanhToan === 'ChuaThanhToan' ? (
+                                  fine.TrangThaiThanhToan ===
+                                  "ChuaThanhToan" ? (
                                     <IconAlertCircle size={14} />
                                   ) : (
                                     <IconCircleCheck size={14} />
                                   )
                                 }
                               >
-                                {fine.TrangThaiThanhToan === 'ChuaThanhToan' ? 'Chưa thanh toán' : 'Đã thanh toán'}
+                                {fine.TrangThaiThanhToan === "ChuaThanhToan"
+                                  ? "Chưa thanh toán"
+                                  : "Đã thanh toán"}
                               </Badge>
                             </Group>
 
@@ -573,7 +663,12 @@ function ReaderDashboard() {
                                   <Text size="xs" c="dimmed">
                                     Lý do phạt
                                   </Text>
-                                  <Badge color="orange" variant="light" size="md" mt={4}>
+                                  <Badge
+                                    color="orange"
+                                    variant="light"
+                                    size="md"
+                                    mt={4}
+                                  >
                                     {getLyDoPhatLabel(fine.LyDoPhat)}
                                   </Badge>
                                 </div>
@@ -590,7 +685,10 @@ function ReaderDashboard() {
 
                               {fine.NgayThanhToan && (
                                 <Text size="sm" c="dimmed">
-                                  Đã thanh toán: {new Date(fine.NgayThanhToan).toLocaleDateString('vi-VN')}
+                                  Đã thanh toán:{" "}
+                                  {new Date(
+                                    fine.NgayThanhToan
+                                  ).toLocaleDateString("vi-VN")}
                                 </Text>
                               )}
 

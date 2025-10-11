@@ -266,7 +266,59 @@ class RequestController {
         });
       }
 
-      // 3. Tạo phiếu mượn trong transaction
+      // 3. Kiểm tra độc giả còn phạt chưa thanh toán không
+      const unpaidFines = await prisma.thePhat.findMany({
+        where: {
+          TraSach: {
+            PhieuMuon: {
+              IdDG: yeuCau.IdDG,
+            },
+          },
+          TrangThaiThanhToan: "ChuaThanhToan",
+        },
+      });
+
+      if (unpaidFines.length > 0) {
+        const totalUnpaidAmount = unpaidFines.reduce(
+          (sum, fine) => sum + parseFloat(fine.SoTienPhat),
+          0
+        );
+        return res.status(403).json({
+          message: `Độc giả ${yeuCau.DocGia.HoTen} còn ${unpaidFines.length} khoản phạt chưa thanh toán (tổng: ${totalUnpaidAmount.toLocaleString()} VNĐ). Không thể duyệt yêu cầu. Vui lòng yêu cầu độc giả thanh toán hết phạt trước.`,
+          unpaidFinesCount: unpaidFines.length,
+          totalUnpaidAmount: totalUnpaidAmount,
+        });
+      }
+
+      // 4. Kiểm tra độc giả có đủ điều kiện mượn không
+      if (yeuCau.DocGia.TrangThai !== 'ConHan') {
+        return res.status(403).json({
+          message: `Độc giả không đủ điều kiện mượn sách. Trạng thái: ${yeuCau.DocGia.TrangThai}`
+        });
+      }
+
+      // 5. Kiểm tra giới hạn sách đang mượn
+      const currentBorrows = await prisma.chiTietMuon.count({
+        where: {
+          PhieuMuon: {
+            IdDG: yeuCau.IdDG,
+          },
+          TrangThai: 'DangMuon',
+        },
+      });
+
+      const maxSachConfig = await prisma.cauHinhHeThong.findFirst({
+        where: { Nhom: 'MuonSach', TenThamSo: 'MaxSachMuon' },
+      });
+      const maxSach = parseInt(maxSachConfig?.GiaTri || '5');
+
+      if (currentBorrows >= maxSach) {
+        return res.status(403).json({
+          message: `Độc giả đã mượn ${currentBorrows}/${maxSach} sách. Không thể mượn thêm.`
+        });
+      }
+
+      // 6. Tạo phiếu mượn trong transaction
       const result = await prisma.$transaction(async (tx) => {
         // Cập nhật yêu cầu
         await tx.yeuCauMuon.update({

@@ -102,6 +102,30 @@ class BorrowController {
         });
       }
 
+      // Kiểm tra phạt chưa thanh toán
+      const unpaidFines = await prisma.thePhat.findMany({
+        where: {
+          TraSach: {
+            PhieuMuon: {
+              IdDG: parseInt(idDG),
+            },
+          },
+          TrangThaiThanhToan: "ChuaThanhToan",
+        },
+      });
+
+      if (unpaidFines.length > 0) {
+        const totalUnpaidAmount = unpaidFines.reduce(
+          (sum, fine) => sum + parseFloat(fine.SoTienPhat),
+          0
+        );
+        return res.status(403).json({
+          message: `Độc giả còn ${unpaidFines.length} khoản phạt chưa thanh toán (tổng: ${totalUnpaidAmount.toLocaleString()} VNĐ). Vui lòng thanh toán hết phạt trước khi mượn sách.`,
+          unpaidFinesCount: unpaidFines.length,
+          totalUnpaidAmount: totalUnpaidAmount,
+        });
+      }
+
       // Đếm số sách đang mượn
       const soSachDangMuon = docGia.PhieuMuon.reduce(
         (total, pm) => total + pm.ChiTietMuon.length,
@@ -558,7 +582,7 @@ class BorrowController {
                 CuonSach: {
                   include: {
                     Sach: {
-                      select: { TieuDe: true, MaSach: true },
+                      select: { TieuDe: true, MaSach: true, AnhBia: true },
                     },
                   },
                 },
@@ -570,9 +594,30 @@ class BorrowController {
         prisma.phieuMuon.count({ where: { IdDG: parseInt(idDG) } }),
       ]);
 
+      // Convert AnhBia sang base64
+      const historyWithBase64 = history.map((phieu) => ({
+        ...phieu,
+        ChiTietMuon: phieu.ChiTietMuon.map((ct) => ({
+          ...ct,
+          CuonSach: ct.CuonSach
+            ? {
+                ...ct.CuonSach,
+                Sach: ct.CuonSach.Sach
+                  ? {
+                      ...ct.CuonSach.Sach,
+                      AnhBia: ct.CuonSach.Sach.AnhBia
+                        ? `data:image/jpeg;base64,${ct.CuonSach.Sach.AnhBia}`
+                        : null,
+                    }
+                  : null,
+              }
+            : null,
+        })),
+      }));
+
       res.status(200).json({
         message: "Lấy lịch sử mượn sách thành công.",
-        data: history,
+        data: historyWithBase64,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
