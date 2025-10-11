@@ -30,20 +30,14 @@ import {
   IconCheck,
 } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
-import { generateFinePaymentQR } from "../utils/vietqr";
 
 function PayFineModal({ opened, onClose, fine, onSuccess }) {
   const [ghiChu, setGhiChu] = useState("");
   const [processing, setProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState("manual");
-
-  // Cấu hình ngân hàng thư viện (có thể lưu vào CauHinhHeThong)
-  const bankInfo = {
-    bankBin: "970436", // Vietcombank
-    accountNumber: "1040490270", // Số TK thư viện
-    accountName: "Thư Viện Trường Đại Học Sư Phạm Kỹ Thuật TP.HCM",
-    bankName: "Vietcombank",
-  };
+  const [qrData, setQrData] = useState(null);
+  const [loadingQR, setLoadingQR] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -61,6 +55,103 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
     return lyDoMap[lyDo] || lyDo;
   };
 
+  // Tạo QR code với SePay API
+  const handleGenerateQR = async () => {
+    if (!fine) return;
+
+    setLoadingQR(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/payments/create-qr`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          maPhat: fine.MaPhat,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setQrData(data.data);
+        notifications.show({
+          title: "Thành công",
+          message: "Tạo mã QR thanh toán thành công",
+          color: "green",
+          icon: <IconQrcode />,
+        });
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      notifications.show({
+        title: "Lỗi",
+        message: error.message || "Không thể tạo mã QR",
+        color: "red",
+        icon: <IconAlertCircle />,
+      });
+    } finally {
+      setLoadingQR(false);
+    }
+  };
+
+  // Kiểm tra trạng thái thanh toán
+  const handleCheckPayment = async () => {
+    if (!qrData) return;
+
+    setCheckingPayment(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/payments/check-transaction`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          maPhat: fine.MaPhat,
+          transactionCode: qrData.transactionCode,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.paid) {
+        notifications.show({
+          title: "Thành công",
+          message: "Thanh toán thành công!",
+          color: "green",
+          icon: <IconCheck />,
+        });
+        onClose();
+        setQrData(null);
+        if (onSuccess) onSuccess();
+      } else if (res.ok && !data.paid) {
+        notifications.show({
+          title: "Chưa thanh toán",
+          message: data.message || "Chưa nhận được thanh toán. Vui lòng thử lại sau ít phút.",
+          color: "yellow",
+          icon: <IconInfoCircle />,
+        });
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      notifications.show({
+        title: "Lỗi",
+        message: error.message || "Không thể kiểm tra trạng thái thanh toán",
+        color: "red",
+        icon: <IconAlertCircle />,
+      });
+    } finally {
+      setCheckingPayment(false);
+    }
+  };
+
+  // Thanh toán thủ công (tiền mặt)
   const handlePayFine = async () => {
     if (!fine) return;
 
@@ -105,20 +196,14 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
     }
   };
 
+  // Tự động tạo QR khi chuyển sang tab QR
+  React.useEffect(() => {
+    if (activeTab === "qr" && !qrData && !loadingQR && fine) {
+      handleGenerateQR();
+    }
+  }, [activeTab, qrData, loadingQR, fine]);
+
   if (!fine) return null;
-
-  // Generate QR code URL
-  let qrCodeUrl = "";
-  try {
-    qrCodeUrl = generateFinePaymentQR(fine, bankInfo);
-  } catch (error) {
-    console.error("Error generating QR:", error);
-  }
-
-  // Nội dung chuyển khoản
-  const transferContent = `TT ${fine.MaPhat} DG ${
-    fine.TraSach?.PhieuMuon?.DocGia?.MaDG || ""
-  }`;
 
   return (
     <Modal
@@ -261,12 +346,11 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
             <Stack gap="md">
               <Alert
                 icon={<IconQrcode size={20} />}
-                title="Thanh toán bằng QR Code"
+                title="Thanh toán bằng QR Code (SePay)"
                 color="teal"
                 variant="light"
               >
-                Độc giả quét mã QR bằng ứng dụng ngân hàng để thanh toán tự
-                động.
+                Độc giả quét mã QR bằng ứng dụng ngân hàng để thanh toán. Hệ thống sẽ tự động kiểm tra và cập nhật trạng thái.
               </Alert>
 
               {/* QR Code */}
@@ -281,7 +365,11 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
                     Quét mã để thanh toán
                   </Text>
 
-                  {qrCodeUrl ? (
+                  {loadingQR ? (
+                    <Center h={280}>
+                      <Text c="dimmed">Đang tạo mã QR...</Text>
+                    </Center>
+                  ) : qrData?.qrCodeUrl ? (
                     <Box
                       style={{
                         padding: "1rem",
@@ -291,8 +379,8 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
                       }}
                     >
                       <Image
-                        src={qrCodeUrl}
-                        alt="VietQR Payment"
+                        src={qrData.qrCodeUrl}
+                        alt="SePay QR Code"
                         width={280}
                         height={280}
                         fit="contain"
@@ -304,109 +392,127 @@ function PayFineModal({ opened, onClose, fine, onSuccess }) {
                     </Center>
                   )}
 
-                  <Divider w="100%" />
+                  {qrData && (
+                    <>
+                      <Divider w="100%" />
 
-                  {/* Thông tin chuyển khoản */}
-                  <Stack gap="xs" w="100%">
-                    <Group justify="space-between">
-                      <Text size="sm" c="dimmed">
-                        Ngân hàng:
-                      </Text>
-                      <Text fw={600}>{bankInfo.bankName}</Text>
-                    </Group>
-                    <Group justify="space-between">
-                      <Text size="sm" c="dimmed">
-                        Số tài khoản:
-                      </Text>
-                      <Group gap="xs">
-                        <Text fw={600}>{bankInfo.accountNumber}</Text>
-                        <CopyButton value={bankInfo.accountNumber}>
-                          {({ copied, copy }) => (
-                            <Tooltip
-                              label={copied ? "Đã copy" : "Copy"}
-                              withArrow
+                      {/* Thông tin chuyển khoản */}
+                      <Stack gap="xs" w="100%">
+                        <Group justify="space-between">
+                          <Text size="sm" c="dimmed">
+                            Ngân hàng:
+                          </Text>
+                          <Text fw={600}>{qrData.bankCode}</Text>
+                        </Group>
+                        <Group justify="space-between">
+                          <Text size="sm" c="dimmed">
+                            Số tài khoản:
+                          </Text>
+                          <Group gap="xs">
+                            <Text fw={600}>{qrData.accountNumber}</Text>
+                            <CopyButton value={qrData.accountNumber}>
+                              {({ copied, copy }) => (
+                                <Tooltip
+                                  label={copied ? "Đã copy" : "Copy"}
+                                  withArrow
+                                >
+                                  <ActionIcon
+                                    color={copied ? "teal" : "gray"}
+                                    variant="subtle"
+                                    onClick={copy}
+                                    size="sm"
+                                  >
+                                    {copied ? (
+                                      <IconCheck size={16} />
+                                    ) : (
+                                      <IconCopy size={16} />
+                                    )}
+                                  </ActionIcon>
+                                </Tooltip>
+                              )}
+                            </CopyButton>
+                          </Group>
+                        </Group>
+                        <Group justify="space-between">
+                          <Text size="sm" c="dimmed">
+                            Tên tài khoản:
+                          </Text>
+                          <Text fw={600}>{qrData.accountName}</Text>
+                        </Group>
+                        <Group justify="space-between">
+                          <Text size="sm" c="dimmed">
+                            Số tiền:
+                          </Text>
+                          <Text fw={700} size="lg" c="red">
+                            {formatCurrency(qrData.amount)}
+                          </Text>
+                        </Group>
+                        <Group justify="space-between">
+                          <Text size="sm" c="dimmed">
+                            Nội dung:
+                          </Text>
+                          <Group gap="xs">
+                            <Text
+                              fw={600}
+                              size="sm"
+                              style={{ fontFamily: "monospace" }}
                             >
-                              <ActionIcon
-                                color={copied ? "teal" : "gray"}
-                                variant="subtle"
-                                onClick={copy}
-                                size="sm"
-                              >
-                                {copied ? (
-                                  <IconCheck size={16} />
-                                ) : (
-                                  <IconCopy size={16} />
-                                )}
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                        </CopyButton>
-                      </Group>
-                    </Group>
-                    <Group justify="space-between">
-                      <Text size="sm" c="dimmed">
-                        Tên tài khoản:
-                      </Text>
-                      <Text fw={600}>{bankInfo.accountName}</Text>
-                    </Group>
-                    <Group justify="space-between">
-                      <Text size="sm" c="dimmed">
-                        Số tiền:
-                      </Text>
-                      <Text fw={700} size="lg" c="red">
-                        {formatCurrency(fine.SoTienPhat)}
-                      </Text>
-                    </Group>
-                    <Group justify="space-between">
-                      <Text size="sm" c="dimmed">
-                        Nội dung:
-                      </Text>
-                      <Group gap="xs">
-                        <Text
-                          fw={600}
-                          size="sm"
-                          style={{ fontFamily: "monospace" }}
-                        >
-                          {transferContent}
+                              {qrData.content}
+                            </Text>
+                            <CopyButton value={qrData.content}>
+                              {({ copied, copy }) => (
+                                <Tooltip
+                                  label={copied ? "Đã copy" : "Copy"}
+                                  withArrow
+                                >
+                                  <ActionIcon
+                                    color={copied ? "teal" : "gray"}
+                                    variant="subtle"
+                                    onClick={copy}
+                                    size="sm"
+                                  >
+                                    {copied ? (
+                                      <IconCheck size={16} />
+                                    ) : (
+                                      <IconCopy size={16} />
+                                    )}
+                                  </ActionIcon>
+                                </Tooltip>
+                              )}
+                            </CopyButton>
+                          </Group>
+                        </Group>
+                      </Stack>
+
+                      <Divider w="100%" />
+
+                      {/* Nút kiểm tra thanh toán */}
+                      <Button
+                        fullWidth
+                        color="blue"
+                        leftSection={<IconQrcode size={18} />}
+                        onClick={handleCheckPayment}
+                        loading={checkingPayment}
+                        disabled={checkingPayment}
+                      >
+                        Kiểm tra trạng thái thanh toán
+                      </Button>
+
+                      <Alert
+                        color="orange"
+                        variant="light"
+                        icon={<IconAlertCircle size={16} />}
+                      >
+                        <Text size="xs">
+                          ⚠️ Sau khi chuyển khoản, đợi 1-2 phút rồi bấm{" "}
+                          <Text span fw={700}>
+                            "Kiểm tra trạng thái"
+                          </Text>{" "}
+                          để hệ thống tự động xác nhận.
                         </Text>
-                        <CopyButton value={transferContent}>
-                          {({ copied, copy }) => (
-                            <Tooltip
-                              label={copied ? "Đã copy" : "Copy"}
-                              withArrow
-                            >
-                              <ActionIcon
-                                color={copied ? "teal" : "gray"}
-                                variant="subtle"
-                                onClick={copy}
-                                size="sm"
-                              >
-                                {copied ? (
-                                  <IconCheck size={16} />
-                                ) : (
-                                  <IconCopy size={16} />
-                                )}
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                        </CopyButton>
-                      </Group>
-                    </Group>
-                  </Stack>
-
-                  <Alert
-                    color="orange"
-                    variant="light"
-                    icon={<IconAlertCircle size={16} />}
-                  >
-                    <Text size="xs">
-                      ⚠️ Vui lòng nhập{" "}
-                      <Text span fw={700}>
-                        chính xác nội dung
-                      </Text>{" "}
-                      để hệ thống tự động đối soát
-                    </Text>
-                  </Alert>
+                      </Alert>
+                    </>
+                  )}
                 </Stack>
               </Paper>
             </Stack>

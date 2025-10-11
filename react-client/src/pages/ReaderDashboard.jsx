@@ -33,8 +33,10 @@ import {
   IconRefresh,
   IconHourglass,
   IconUser,
+  IconQrcode,
 } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
+import SePayModal from "../modals/SePayModal";
 
 function ReaderDashboard() {
   const [activeTab, setActiveTab] = useState("borrowed");
@@ -52,6 +54,10 @@ function ReaderDashboard() {
   const [fines, setFines] = useState([]);
   const [loadingFines, setLoadingFines] = useState(false);
   const [totalFines, setTotalFines] = useState(0);
+
+  // Payment modal
+  const [paymentModalOpened, setPaymentModalOpened] = useState(false);
+  const [selectedFine, setSelectedFine] = useState(null);
 
   useEffect(() => {
     fetchBorrowedBooks();
@@ -161,9 +167,12 @@ function ReaderDashboard() {
         );
       }
 
-      const response = await fetch(`/api/borrow/fines?idDG=${idDG}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `/api/borrow/fines?idDG=${idDG}&trangThai=ChuaThanhToan`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const data = await response.json();
 
@@ -231,6 +240,20 @@ function ReaderDashboard() {
       style: "currency",
       currency: "VND",
     }).format(amount);
+  };
+
+  // Xử lý thanh toán phạt
+  const handlePayFine = (fine) => {
+    setSelectedFine(fine);
+    setPaymentModalOpened(true);
+  };
+
+  // Callback khi thanh toán thành công
+  const handlePaymentSuccess = (maPhat) => {
+    // Refresh lại danh sách phạt
+    fetchFines();
+    setPaymentModalOpened(false);
+    setSelectedFine(null);
   };
 
   return (
@@ -698,22 +721,46 @@ function ReaderDashboard() {
                                 </Text>
                               )}
                             </Stack>
-                          </div>
-                        </Group>
+                    </div>
+                  </Group>
 
-                        <Badge size="lg" variant="light" color="violet">
-                          #{fine.MaPhat}
-                        </Badge>
-                      </Group>
-                    </Paper>
-                  ))}
-                </Stack>
-              )}
-            </>
-          )}
-        </Tabs.Panel>
-      </Tabs>
-    </Container>
+                  <Stack gap="xs" align="flex-end">
+                    <Badge size="lg" variant="light" color="violet">
+                      #{fine.MaPhat}
+                    </Badge>
+                    {fine.TrangThaiThanhToan === 'ChuaThanhToan' && (
+                      <Button
+                        variant="filled"
+                        color="green"
+                        size="sm"
+                        leftSection={<IconQrcode size={16} />}
+                        onClick={() => handlePayFine(fine)}
+                      >
+                        Thanh toán QR
+                      </Button>
+                    )}
+                  </Stack>
+                </Group>
+              </Paper>
+            ))}
+          </Stack>
+        )}
+      </>
+    )}
+  </Tabs.Panel>
+</Tabs>
+
+{/* Payment Modal */}
+<SePayModal
+  opened={paymentModalOpened}
+  onClose={() => {
+    setPaymentModalOpened(false);
+    setSelectedFine(null);
+  }}
+  fine={selectedFine}
+  onPaymentSuccess={handlePaymentSuccess}
+/>
+</Container>
   );
 }
 
