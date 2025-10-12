@@ -31,4 +31,10 @@ router.put('/:id', verifyToken([0]), readerController.updateReader);
 // Route for deleting a reader by ID
 router.delete('/:id', verifyToken([0]), readerController.deleteReader);
 
+// Route for locking reader card
+router.post('/:id/lock-card', verifyToken([0]), readerController.lockCard);
+
+// Route for unlocking reader card
+router.post('/:id/unlock-card', verifyToken([0]), readerController.unlockCard);
+
 module.exports = router;

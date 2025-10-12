@@ -31,14 +31,18 @@ import {
   IconMapPin,
   IconAlertCircle,
   IconCheck,
-  IconX
+  IconX,
+  IconLock,
+  IconLockOpen
 } from '@tabler/icons-react';
 import { 
   getAllReaders, 
   getReaderCardInfo, 
   renewReaderCard, 
   deactivateReaderCard,
-  createReader 
+  createReader,
+  lockReaderCard,
+  unlockReaderCard
 } from '../utils/api';
 
 function CardManagement() {
@@ -51,6 +55,8 @@ function CardManagement() {
   const [cardInfoModalOpened, setCardInfoModalOpened] = useState(false);
   const [renewModalOpened, setRenewModalOpened] = useState(false); 
   const [deactivateModalOpened, setDeactivateModalOpened] = useState(false);
+  const [lockModalOpened, setLockModalOpened] = useState(false);
+  const [unlockModalOpened, setUnlockModalOpened] = useState(false);
   
   // State for selected reader
   const [selectedReader, setSelectedReader] = useState(null);
@@ -168,6 +174,47 @@ function CardManagement() {
     }
   };
 
+  const handleLockCard = async () => {
+    if (!selectedReader) return;
+    try {
+      await lockReaderCard(selectedReader.IdDG);
+      notifications.show({
+        title: 'Thành công',
+        message: 'Khóa thẻ thành công!',
+        color: 'green',
+      });
+      setLockModalOpened(false);
+      fetchData(); // Refresh data
+    } catch (error) {
+      notifications.show({
+        title: 'Lỗi',
+        message: error.message || 'Không thể khóa thẻ!',
+        color: 'red',
+      });
+    }
+  };
+
+  const handleUnlockCard = async () => {
+    if (!selectedReader) return;
+    try {
+      await unlockReaderCard(selectedReader.IdDG);
+      notifications.show({
+        title: 'Thành công',
+        message: 'Mở khóa thẻ thành công!',
+        color: 'green',
+      });
+      setUnlockModalOpened(false);
+      fetchData(); // Refresh data
+    } catch (error) {
+      notifications.show({
+        title: 'Lỗi',
+        message: error.message || 'Không thể mở khóa thẻ!',
+        color: 'red',
+      });
+    }
+  }
+
+
   // Get card status badge
   const getCardStatusBadge = (reader) => {
     const today = new Date();
@@ -229,19 +276,33 @@ function CardManagement() {
                 </ActionIcon>
               </Tooltip>
               
-              <Tooltip label="Vô hiệu hóa thẻ">
+              <Tooltip label="Khóa thẻ">
                 <ActionIcon 
                   variant="outline" 
                   color="red"
                   onClick={() => {
                     setSelectedReader(reader);
-                    setDeactivateModalOpened(true);
+                    setLockModalOpened(true);
                   }}
                 >
-                  <IconBan size={16} />
+                  <IconLock size={16} />
                 </ActionIcon>
               </Tooltip>
             </>
+          )}
+          {reader.TrangThai === 'TamKhoa' && (
+             <Tooltip label="Mở khóa thẻ">
+             <ActionIcon 
+               variant="outline" 
+               color="green"
+               onClick={() => {
+                 setSelectedReader(reader);
+                 setUnlockModalOpened(true);
+               }}
+             >
+               <IconLockOpen size={16} />
+             </ActionIcon>
+           </Tooltip>
           )}
         </Group>
       </Table.Td>
@@ -455,6 +516,62 @@ function CardManagement() {
               </Button>
               <Button color="red" onClick={handleDeactivate}>
                 Vô Hiệu Hóa
+              </Button>
+            </Group>
+          </Stack>
+        )}
+      </Modal>
+
+       {/* Lock Card Modal */}
+      <Modal
+        opened={lockModalOpened}
+        onClose={() => setLockModalOpened(false)}
+        title="Xác Nhận Khóa Thẻ"
+        centered
+      >
+        {selectedReader && (
+          <Stack>
+            <Alert color="orange" title="Cảnh Báo" icon={<IconAlertCircle />}>
+              Bạn có chắc chắn muốn khóa thẻ của độc giả{' '}
+              <strong>{selectedReader.HoTen}</strong> ({selectedReader.MaDG})?
+              <br />
+              Thao tác này sẽ tạm thời khóa thẻ và không thể hoàn tác trực tiếp.
+            </Alert>
+
+            <Group justify="flex-end">
+              <Button variant="default" onClick={() => setLockModalOpened(false)}>
+                Hủy
+              </Button>
+              <Button color="orange" onClick={handleLockCard}>
+                Khóa thẻ
+              </Button>
+            </Group>
+          </Stack>
+        )}
+      </Modal>
+
+      {/* Unlock Card Modal */}
+      <Modal
+        opened={unlockModalOpened}
+        onClose={() => setUnlockModalOpened(false)}
+        title="Xác Nhận Mở Khóa Thẻ"
+        centered
+      >
+        {selectedReader && (
+          <Stack>
+            <Alert color="green" title="Xác Nhận" icon={<IconAlertCircle />}>
+              Bạn có chắc chắn muốn mở khóa thẻ của độc giả{' '}
+              <strong>{selectedReader.HoTen}</strong> ({selectedReader.MaDG})?
+              <br />
+              Thao tác này sẽ cho phép độc giả mượn sách trở lại.
+            </Alert>
+
+            <Group justify="flex-end">
+              <Button variant="default" onClick={() => setUnlockModalOpened(false)}>
+                Hủy
+              </Button>
+              <Button color="green" onClick={handleUnlockCard}>
+                Mở khóa thẻ
               </Button>
             </Group>
           </Stack>

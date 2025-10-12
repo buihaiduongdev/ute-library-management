@@ -272,7 +272,7 @@ class ReaderController {
             const recentBorrows = await db.phieuMuon.findMany({
                 where: { IdDG: parseInt(id) },
                 take: 5,
-                orderBy: { NgayMuon: 'desc' },
+                orderBy: { MaPM: 'desc' },
                 include: { ChiTietMuon: true }
             });
 
@@ -376,6 +376,74 @@ class ReaderController {
                 });
             }
             res.status(500).json({ message: 'Lỗi hệ thống khi xóa độc giả.', error: error.message });
+        }
+    }
+
+    // [PUT] /api/readers/:id/lock-card
+    async lockCard(req, res) {
+        const { id } = req.params;
+        try {
+            const reader = await db.docGia.findUnique({ where: { IdDG: parseInt(id) } });
+            if (!reader) {
+                return res.status(404).json({ message: 'Không tìm thấy độc giả.' });
+            }
+
+            const activeBorrowsCount = await db.chiTietMuon.count({
+                where: {
+                    PhieuMuon: {
+                        IdDG: parseInt(id)
+                    },
+                    TrangThai: 'DangMuon'
+                }
+            });
+
+            if (activeBorrowsCount > 0) {
+                return res.status(400).json({
+                    message: `Không thể khóa thẻ. Độc giả đang mượn ${activeBorrowsCount} cuốn sách.`
+                });
+            }
+
+            await db.docGia.update({
+                where: { IdDG: parseInt(id) },
+                data: { TrangThai: 'TamKhoa' },
+            });
+
+            res.status(200).json({
+                message: `Khóa thẻ thành công.`,
+            });
+        } catch (error) {
+            console.error('❌ Error in lockCard:', error);
+            res.status(500).json({ message: 'Lỗi hệ thống khi khóa thẻ.', error: error.message });
+        }
+    }
+
+    // [PUT] /api/readers/:id/unlock-card
+    async unlockCard(req, res) {
+        const { id } = req.params;
+        try {
+            const reader = await db.docGia.findUnique({ where: { IdDG: parseInt(id) } });
+            if (!reader) {
+                return res.status(404).json({ message: 'Không tìm thấy độc giả.' });
+            }
+
+            const isExpired = new Date() > new Date(reader.NgayHetHan);
+            if(isExpired) {
+                return res.status(400).json({
+                    message: `Không thể mở khóa thẻ. Thẻ đã hết hạn.`
+                });
+            }
+
+            await db.docGia.update({
+                where: { IdDG: parseInt(id) },
+                data: { TrangThai: 'ConHan' },
+            });
+
+            res.status(200).json({
+                message: `Mở khóa thẻ thành công.`,
+            });
+        } catch (error) {
+            console.error('❌ Error in unlockCard:', error);
+            res.status(500).json({ message: 'Lỗi hệ thống khi mở khóa thẻ.', error: error.message });
         }
     }
 }

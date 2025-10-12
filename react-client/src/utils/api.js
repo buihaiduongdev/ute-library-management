@@ -133,6 +133,9 @@ export const getReaderCardInfo = (id) => {
 };
 export const renewReaderCard = (id, renewData) => put(`/readers/${id}/renew`, renewData);
 export const deactivateReaderCard = (id) => put(`/readers/${id}/deactivate`);
+export const lockReaderCard = (id) => authPost(`/readers/${id}/lock-card`);
+export const unlockReaderCard = (id) => authPost(`/readers/${id}/unlock-card`);
+
 
 // 📊 Statistics APIs
 export const getDashboardStats = () => get(`/stats/dashboard`);
