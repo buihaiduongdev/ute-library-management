@@ -180,10 +180,26 @@ class BorrowController {
           data: chiTietMuonData,
         });
 
+        // Cập nhật trạng thái cuốn sách
         await tx.cuonSach.updateMany({
           where: { MaCuonSach: { in: maCuonSachList } },
           data: { TrangThaiCS: "DangMuon" },
         });
+
+        // Giảm số lượng sách trong kho cho từng cuốn
+        for (const maCuonSach of maCuonSachList) {
+          const cuonSach = await tx.cuonSach.findUnique({
+            where: { MaCuonSach: maCuonSach },
+            select: { MaSach: true }
+          });
+          
+          await tx.sach.update({
+            where: { MaSach: cuonSach.MaSach },
+            data: {
+              SoLuong: { decrement: 1 }  // Giảm số lượng đi 1
+            }
+          });
+        }
 
         return phieuMuon;
       });
@@ -412,7 +428,10 @@ class BorrowController {
 
           const ngayTra = new Date();
           const ngayHenTra = new Date(chiTiet.NgayHenTra);
-          const trangThaiMoi = ngayTra > ngayHenTra ? "TreHan" : "DaTra";
+          
+          // Sau khi trả, luôn đổi trạng thái thành "DaTra"
+          // Thông tin trễ hạn sẽ được lưu trong bảng ThePhat
+          const trangThaiMoi = "DaTra";
 
           await tx.chiTietMuon.update({
             where: {
@@ -465,10 +484,28 @@ class BorrowController {
           if (chatLuong === "Mat") trangThaiCS = "Mat";
           else if (chatLuong === "HuHong") trangThaiCS = "Hong";
 
+          // Lấy thông tin cuốn sách để cập nhật số lượng
+          const cuonSach = await tx.cuonSach.findUnique({
+            where: { MaCuonSach: maCuonSach },
+            select: { MaSach: true }
+          });
+
           await tx.cuonSach.update({
             where: { MaCuonSach: maCuonSach },
             data: { TrangThaiCS: trangThaiCS },
           });
+
+          // Cập nhật số lượng sách trong kho (chỉ khi KHÔNG mất)
+          if (chatLuong !== "Mat") {
+            // Sách Tốt hoặc Hư hỏng: Cập nhật số lượng trong kho
+            await tx.sach.update({
+              where: { MaSach: cuonSach.MaSach },
+              data: {
+                SoLuong: { increment: 1 }  // Tăng số lượng thêm 1
+              }
+            });
+          }
+          // Nếu sách Mất: Không cập nhật số lượng vì sách không còn
         }
 
         return { traSach, thePhatList };
