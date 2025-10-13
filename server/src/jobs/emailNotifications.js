@@ -422,7 +422,7 @@ const sendUnpaidFineReminders = cron.schedule(
  * Chạy mỗi ngày lúc 00:00
  */
 const updateOverdueStatus = cron.schedule(
-  "49 00 * * *",
+  "49 14 * * *",
   async () => {
     console.log("🔄 [CRON] Bắt đầu cập nhật trạng thái sách quá hạn...");
 

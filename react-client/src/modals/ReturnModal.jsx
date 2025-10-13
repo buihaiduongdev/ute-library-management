@@ -17,17 +17,64 @@ function ReturnModal({ opened, onClose, refresh }) {
       const res = await fetch(`/api/borrow/${returnMaPM}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (res.ok) {
-        const chiTietMuon = data.data.ChiTietMuon.filter((ct) => ct.TrangThai === "DangMuon");
-        setReturnBooks(
-          chiTietMuon.map((ct) => ({
+        // Lọc các sách có thể trả: DangMuon HOẶC TreHan (đã bị job tự động đổi)
+        const chiTietMuon = data.data.ChiTietMuon.filter(
+          (ct) => ct.TrangThai === "DangMuon" || ct.TrangThai === "TreHan"
+        );
+        
+        if (chiTietMuon.length === 0) {
+          notifications.show({ 
+            title: "Thông báo", 
+            message: "Phiếu mượn này không có sách nào đang mượn để trả. Tất cả sách đã được trả.", 
+            color: "yellow" 
+          });
+          setReturnBooks([]);
+          return;
+        }
+        
+        // Tính toán trạng thái trễ hạn cho mỗi sách
+        const today = new Date();
+        const booksToReturn = chiTietMuon.map((ct) => {
+          const ngayHenTra = new Date(ct.NgayHenTra);
+          const isOverdue = today > ngayHenTra;
+          const daysOverdue = isOverdue ? Math.floor((today - ngayHenTra) / (1000 * 60 * 60 * 24)) : 0;
+          
+          return {
             MaCuonSach: ct.MaCuonSach,
             TieuDe: ct.CuonSach.Sach.TieuDe,
             chatLuong: "Tot",
-          }))
-        );
+            NgayHenTra: ct.NgayHenTra,
+            isOverdue,
+            daysOverdue
+          };
+        });
+        
+        setReturnBooks(booksToReturn);
+        
+        // Thông báo nếu có sách trễ hạn
+        const overdueCount = booksToReturn.filter(book => book.isOverdue).length;
+        if (overdueCount > 0) {
+          notifications.show({ 
+            title: "Cảnh báo", 
+            message: `Có ${overdueCount} sách trễ hạn trong phiếu mượn này. Sẽ có phí phạt khi trả.`, 
+            color: "orange",
+            autoClose: 5000
+          });
+        } else {
+          notifications.show({ 
+            title: "Thành công", 
+            message: `Tìm thấy ${booksToReturn.length} sách đang mượn. Tất cả đều trong hạn.`, 
+            color: "green" 
+          });
+        }
       } else throw new Error(data.message);
-    } catch {
-      notifications.show({ title: "Lỗi", message: "Không tìm thấy phiếu mượn", color: "red" });
+    } catch (error) {
+      notifications.show({ 
+        title: "Lỗi", 
+        message: error.message || "Không thể tải thông tin phiếu mượn. Vui lòng kiểm tra mã phiếu mượn.", 
+        color: "red" 
+      });
+      setReturnBooks([]);
     }
   };
 
@@ -121,18 +168,31 @@ function ReturnModal({ opened, onClose, refresh }) {
                   withBorder 
                   radius="md"
                   style={{ 
-                    backgroundColor: "#f8f9fa",
+                    backgroundColor: book.isOverdue ? "#fff5f5" : "#f8f9fa",
+                    borderLeft: book.isOverdue ? "4px solid #fa5252" : "none",
                     transition: "all 0.2s ease"
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#e9ecef"}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#f8f9fa"}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = book.isOverdue ? "#ffe3e3" : "#e9ecef"}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = book.isOverdue ? "#fff5f5" : "#f8f9fa"}
                 >
                   <Group justify="space-between" align="flex-start">
                     <div style={{ flex: 1 }}>
-                      <Text size="md" fw={600} mb={4}>{book.TieuDe}</Text>
-                      <Badge variant="light" color="gray" size="sm">
-                        Mã: {book.MaCuonSach}
-                      </Badge>
+                      <Group gap="xs" mb={4}>
+                        <Text size="md" fw={600}>{book.TieuDe}</Text>
+                        {book.isOverdue && (
+                          <Badge variant="filled" color="red" size="sm">
+                            Trễ {book.daysOverdue} ngày
+                          </Badge>
+                        )}
+                      </Group>
+                      <Group gap="xs">
+                        <Badge variant="light" color="gray" size="sm">
+                          Mã: {book.MaCuonSach}
+                        </Badge>
+                        <Badge variant="light" color={book.isOverdue ? "red" : "blue"} size="sm">
+                          Hẹn trả: {new Date(book.NgayHenTra).toLocaleDateString('vi-VN')}
+                        </Badge>
+                      </Group>
                     </div>
                     <Select
                       label="Chất lượng"
