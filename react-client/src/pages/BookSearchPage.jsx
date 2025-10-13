@@ -74,17 +74,13 @@ function BookSearchPage() {
   
     const speech = window.speechSynthesis;
     const playSpeech = (voices) => {
-      // Hủy phát âm hiện tại nếu có
       if (moTa !== currentMoTa) {
         speech.cancel();
         const utter = new SpeechSynthesisUtterance(moTa);
         utter.lang = 'vi-VN';
-        // Tùy chỉnh giọng nói
-        utter.rate = 1.0; // Tốc độ nói (0.5 đến 2.0)
-        utter.pitch = 1.0; // Cao độ (0.1 đến 2.0)
-        utter.volume = 1.0; // Âm lượng (0.0 đến 1.0)
-  
-        // Tìm giọng tiếng Việt
+        utter.rate = 1.0;
+        utter.pitch = 1.0;
+        utter.volume = 1.0;
         const vietVoice = voices.find((v) => v.lang.startsWith('vi'));
         if (!vietVoice) {
           Notifications.show({
@@ -95,18 +91,14 @@ function BookSearchPage() {
         } else {
           utter.voice = vietVoice;
         }
-  
-        // Xử lý khi phát xong
         utter.onend = () => {
           setIsPlaying(false);
           setCurrentMoTa('');
         };
-  
         speech.speak(utter);
         setCurrentMoTa(moTa);
         setIsPlaying(true);
       } else {
-        // Tạm dừng hoặc tiếp tục
         if (isPlaying) {
           speech.pause();
           setIsPlaying(false);
@@ -117,10 +109,8 @@ function BookSearchPage() {
       }
     };
   
-    // Kiểm tra danh sách giọng nói
     let voices = speech.getVoices();
     if (voices.length === 0) {
-      // Chờ sự kiện onvoiceschanged nếu danh sách giọng rỗng
       speech.onvoiceschanged = () => {
         voices = speech.getVoices();
         playSpeech(voices);
@@ -334,14 +324,13 @@ function BookSearchPage() {
                   <IconMapPin size={20} />
                   <Text size="md">{selectedBook.ViTriKe}</Text>
                 </Group>
-              
               </Input.Wrapper>
               <Input.Wrapper label="Mô tả" mt="sm">
                 <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                   <IconInfoCircle size={20} />
                   <Text size="md">{selectedBook.MoTa}</Text>
                 </Group>
-                </Input.Wrapper>
+              </Input.Wrapper>
               <Input.Wrapper label="Trạng thái" mt="sm">
                 <Group gap="xs" align="center" p="sm" style={{ border: '1px solid #dee2e6', borderRadius: '4px', backgroundColor: '#f8f9fa' }}>
                   <IconPackage size={20} />
@@ -366,7 +355,6 @@ function BookSearchPage() {
                   fallbackSrc="https://via.placeholder.com/100?text=Preview"
                 />
               )}
-              
             </Tabs.Panel>
       
             <Tabs.Panel value="author" pt="xs">
@@ -476,9 +464,9 @@ function BookSearchPage() {
 
             <Group justify="flex-end" mt="lg">
               <Button
-                component={Link}
-                to={usn ? `/book-detail/${selectedBook.MaSach}` : '/'}
-                disabled={selectedBook.TrangThai !== 'Còn sách'}
+                component={selectedBook?.TrangThai === 'Còn sách' && selectedBook?.SoLuong > 0 ? Link : 'button'}
+                to={selectedBook?.TrangThai === 'Còn sách' && selectedBook?.SoLuong > 0 ? `/book-detail/${selectedBook.MaSach}` : undefined}
+                disabled={selectedBook?.TrangThai !== 'Còn sách' || selectedBook?.SoLuong <= 0}
                 color="cyan"
                 radius="md"
               >
