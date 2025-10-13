@@ -344,13 +344,14 @@ class BorrowController {
 
     try {
       // 1. Kiểm tra phiếu mượn
+      // Chấp nhận cả trạng thái "DangMuon" và "TreHan" (job tự động cập nhật)
       const phieuMuon = await prisma.phieuMuon.findUnique({
         where: { MaPM: parseInt(maPM) },
         include: {
           ChiTietMuon: {
             where: {
               MaCuonSach: { in: sachTra.map((s) => parseInt(s.maCuonSach)) },
-              TrangThai: "DangMuon",
+              TrangThai: { in: ["DangMuon", "TreHan"] },
             },
           },
         },
@@ -513,7 +514,7 @@ class BorrowController {
 
       const overdueBooks = await prisma.chiTietMuon.findMany({
         where: {
-          TrangThai: "DangMuon",
+          TrangThai: { in: ["DangMuon", "TreHan"] },
           NgayHenTra: { lt: today },
         },
         include: {
