@@ -32,7 +32,7 @@ class BorrowController {
   // [POST] /api/borrow - Tạo phiếu mượn sách
   async createBorrow(req, res) {
     const { idDG, sachMuon } = req.body;
-    const idNV = req.user.id;
+    const maTK = req.user.id; // MaTK từ JWT
 
     if (
       !idDG ||
@@ -46,7 +46,20 @@ class BorrowController {
     }
 
     try {
-      // 0. Lấy cấu hình số ngày mượn
+      // 0. Lấy thông tin nhân viên từ MaTK
+      const nhanVien = await prisma.nhanVien.findUnique({
+        where: { MaTK: parseInt(maTK) },
+      });
+
+      if (!nhanVien) {
+        return res.status(403).json({
+          message: "Không tìm thấy thông tin nhân viên. Vui lòng đăng nhập lại.",
+        });
+      }
+
+      const idNV = nhanVien.IdNV; // IdNV thực từ bảng NhanVien
+
+      // 1. Lấy cấu hình số ngày mượn
       const configSoNgay = await prisma.cauHinhHeThong.findFirst({
         where: { Nhom: "MuonSach", TenThamSo: "SoNgayMuonMacDinh" },
       });
@@ -77,7 +90,7 @@ class BorrowController {
         }
       }
 
-      // 1. Kiểm tra độc giả
+      // 2. Kiểm tra độc giả
       const docGia = await prisma.docGia.findUnique({
         where: { IdDG: parseInt(idDG) },
         include: {
@@ -144,7 +157,7 @@ class BorrowController {
         });
       }
 
-      // 2. Kiểm tra cuốn sách có sẵn
+      // 3. Kiểm tra cuốn sách có sẵn
       const maCuonSachList = sachMuon.map((s) => parseInt(s.maCuonSach));
       const cuonSachs = await prisma.cuonSach.findMany({
         where: {
@@ -159,7 +172,7 @@ class BorrowController {
         });
       }
 
-      // 3. Transaction tạo phiếu mượn
+      // 4. Transaction tạo phiếu mượn
       const result = await prisma.$transaction(async (tx) => {
         const phieuMuon = await tx.phieuMuon.create({
           data: {
@@ -204,7 +217,7 @@ class BorrowController {
         return phieuMuon;
       });
 
-      // 4. Lấy chi tiết phiếu mượn
+      // 5. Lấy chi tiết phiếu mượn
       const phieuMuonDetail = await prisma.phieuMuon.findUnique({
         where: { MaPM: result.MaPM },
         include: {
@@ -350,7 +363,7 @@ class BorrowController {
   // [POST] /api/borrow/return - Trả sách
   async returnBooks(req, res) {
     const { maPM, sachTra } = req.body;
-    const idNV = req.user.id;
+    const maTK = req.user.id; // MaTK từ JWT
 
     if (!maPM || !sachTra || !Array.isArray(sachTra) || sachTra.length === 0) {
       return res.status(400).json({
@@ -359,6 +372,19 @@ class BorrowController {
     }
 
     try {
+      // 0. Lấy thông tin nhân viên từ MaTK
+      const nhanVien = await prisma.nhanVien.findUnique({
+        where: { MaTK: parseInt(maTK) },
+      });
+
+      if (!nhanVien) {
+        return res.status(403).json({
+          message: "Không tìm thấy thông tin nhân viên. Vui lòng đăng nhập lại.",
+        });
+      }
+
+      const idNV = nhanVien.IdNV; // IdNV thực từ bảng NhanVien
+
       // 1. Kiểm tra phiếu mượn
       // Chấp nhận cả trạng thái "DangMuon" và "TreHan" (job tự động cập nhật)
       const phieuMuon = await prisma.phieuMuon.findUnique({

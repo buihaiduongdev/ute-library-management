@@ -237,9 +237,22 @@ class RequestController {
   // [PUT] /api/requests/:id/approve - Duyệt yêu cầu (tạo phiếu mượn)
   async approveRequest(req, res) {
     const { id } = req.params;
-    const idNV = req.user.id;
+    const maTK = req.user.id; // MaTK từ JWT
 
     try {
+      // 0. Lấy thông tin nhân viên từ MaTK
+      const nhanVien = await prisma.nhanVien.findUnique({
+        where: { MaTK: parseInt(maTK) },
+      });
+
+      if (!nhanVien) {
+        return res.status(403).json({
+          message: "Không tìm thấy thông tin nhân viên. Vui lòng đăng nhập lại.",
+        });
+      }
+
+      const idNV = nhanVien.IdNV; // IdNV thực từ bảng NhanVien
+
       // 1. Kiểm tra yêu cầu
       const yeuCau = await prisma.yeuCauMuon.findUnique({
         where: { MaYeuCau: parseInt(id) },
@@ -377,7 +390,7 @@ class RequestController {
   async rejectRequest(req, res) {
     const { id } = req.params;
     const { lyDoTuChoi } = req.body;
-    const idNV = req.user.id;
+    const maTK = req.user.id; // MaTK từ JWT
 
     if (!lyDoTuChoi || !lyDoTuChoi.trim()) {
       return res.status(400).json({
@@ -386,6 +399,18 @@ class RequestController {
     }
 
     try {
+      // 0. Lấy thông tin nhân viên từ MaTK
+      const nhanVien = await prisma.nhanVien.findUnique({
+        where: { MaTK: parseInt(maTK) },
+      });
+
+      if (!nhanVien) {
+        return res.status(403).json({
+          message: "Không tìm thấy thông tin nhân viên. Vui lòng đăng nhập lại.",
+        });
+      }
+
+      const idNV = nhanVien.IdNV; // IdNV thực từ bảng NhanVien
       const yeuCau = await prisma.yeuCauMuon.findUnique({
         where: { MaYeuCau: parseInt(id) }
       });
