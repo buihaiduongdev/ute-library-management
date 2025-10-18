@@ -28,9 +28,10 @@ const ReaderForm = () => {
     const validate = (name, value) => {
         switch (name) {
             case 'HoTen':
-                if (!value) return 'Tên không được để trống.';
-                if (!/^[a-zA-Z\u00C0-\u017F\s]+$/.test(value)) {
-                    return 'Tên chỉ được chứa chữ cái và khoảng trắng.';
+                if (!value || value.trim() === '') return 'Tên không được để trống.';
+                // Cho phép chữ cái (a-z, A-Z), tiếng Việt có dấu, và khoảng trắng
+                if (!/^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s]+$/.test(value)) {
+                    return 'Họ tên không hợp lệ. Chỉ cho phép chữ cái và khoảng trắng.';
                 }
                 return '';
             case 'SoDienThoai':

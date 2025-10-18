@@ -1,4 +1,3 @@
-
 const db = require('../models/db');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
@@ -10,8 +9,8 @@ const validateReaderInput = (data) => {
 
     if (!HoTen || HoTen.trim() === '') {
         errors.HoTen = 'Tên không được để trống.';
-    } else if (!/^[a-zA-Z\u00C0-\u017F\s]+$/.test(HoTen)) {
-        errors.HoTen = 'Tên chỉ được chứa chữ cái và khoảng trắng.';
+    } else if (!/^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s]+$/.test(HoTen)) {
+        errors.HoTen = 'Họ tên không hợp lệ. Chỉ cho phép chữ cái và khoảng trắng.';
     }
 
     if (!SoDienThoai || SoDienThoai.trim() === '') {
