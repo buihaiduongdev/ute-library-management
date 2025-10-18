@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài liệu API tham khảo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Trang chủ</a> &gt; Tài liệu API tham khảo
+        </div>
+
+        <h1>📚 Tài liệu API tham khảo</h1>
+        <p class="subtitle">API liên quan đến Quản lý độc giả và Gia hạn thẻ</p>
+
+        <div class="section">
+            <h2>Danh sách API</h2>
+            <ul class="api-list">
+                <li><a href="#api-register">POST /api/auth/register - Đăng ký tài khoản</a></li>
+                <li><a href="#api-login">POST /api/auth/login - Đăng nhập</a></li>
+                <li><a href="#api-get-reader">GET /api/readers/:id - Xem thông tin độc giả</a></li>
+                <li><a href="#api-update-reader">PUT /api/readers/:id - Cập nhật thông tin</a></li>
+                <li><a href="#api-card-info">GET /api/readers/:id/card-info - Xem thông tin thẻ</a></li>
+                <li><a href="#api-borrow-info">GET /api/readers/:id/borrow-info - Xem tổng quan mượn sách</a></li>
+            </ul>
+        </div>
+
+        <div class="api-detail" id="api-register">
+            <h2>1. POST /api/auth/register</h2>
+            <p><strong>Mô tả:</strong> Đăng ký tài khoản độc giả mới</p>
+            <p><strong>Quyền:</strong> Public (không cần token)</p>
+            
+            <h3>Request</h3>
+            <div class="code-block">
+                <p><strong>URL:</strong> http://localhost:5000/api/auth/register</p>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Content-Type: application/json</pre>
+                <p><strong>Body:</strong></p>
+                <pre>{
+  "username": "reader123",
+  "password": "123456",
+  "email": "reader@example.com",
+  "fullName": "Nguyen Van A",
+  "phone": "0123456789"
+}</pre>
+            </div>
+
+            <h3>Response thành công (201)</h3>
+            <div class="code-block">
+                <pre>{
+  "success": true,
+  "message": "Đăng ký thành công",
+  "data": {
+    "user_id": 5,
+    "username": "reader123",
+    "email": "reader@example.com",
+    "role": "reader"
+  }
+}</pre>
+            </div>
+
+            <h3>Response lỗi</h3>
+            <table class="error-table">
+                <tr>
+                    <th>Code</th>
+                    <th>Nguyên nhân</th>
+                </tr>
+                <tr>
+                    <td>400</td>
+                    <td>Thiếu thông tin bắt buộc</td>
+                </tr>
+                <tr>
+                    <td>409</td>
+                    <td>Username hoặc email đã tồn tại</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="api-detail" id="api-login">
+            <h2>2. POST /api/auth/login</h2>
+            <p><strong>Mô tả:</strong> Đăng nhập vào hệ thống</p>
+            <p><strong>Quyền:</strong> Public (không cần token)</p>
+            
+            <h3>Request</h3>
+            <div class="code-block">
+                <p><strong>URL:</strong> http://localhost:5000/api/auth/login</p>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Content-Type: application/json</pre>
+                <p><strong>Body:</strong></p>
+                <pre>{
+  "username": "reader123",
+  "password": "123456"
+}</pre>
+            </div>
+
+            <h3>Response thành công (200)</h3>
+            <div class="code-block">
+                <pre>{
+  "success": true,
+  "message": "Đăng nhập thành công",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": 5,
+      "username": "reader123",
+      "email": "reader@example.com",
+      "fullName": "Nguyen Van A",
+      "role": "reader"
+    }
+  }
+}</pre>
+            </div>
+
+            <h3>Response lỗi</h3>
+            <table class="error-table">
+                <tr>
+                    <th>Code</th>
+                    <th>Nguyên nhân</th>
+                </tr>
+                <tr>
+                    <td>401</td>
+                    <td>Username hoặc password sai</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="api-detail" id="api-get-reader">
+            <h2>3. GET /api/readers/:id</h2>
+            <p><strong>Mô tả:</strong> Xem thông tin cá nhân</p>
+            <p><strong>Quyền:</strong> Reader (cần token, chỉ xem của mình)</p>
+            
+            <h3>Request</h3>
+            <div class="code-block">
+                <p><strong>URL:</strong> http://localhost:5000/api/readers/5</p>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Authorization: Bearer {token}
+Content-Type: application/json</pre>
+                <p><strong>Path Parameters:</strong></p>
+                <ul>
+                    <li><code>id</code>: ID độc giả (phải là ID của bạn)</li>
+                </ul>
+            </div>
+
+            <h3>Response thành công (200)</h3>
+            <div class="code-block">
+                <pre>{
+  "success": true,
+  "data": {
+    "id": 5,
+    "username": "reader123",
+    "email": "reader@example.com",
+    "fullName": "Nguyen Van A",
+    "phone": "0123456789",
+    "address": "123 Le Van Viet, Q9",
+    "created_at": "2024-01-15T10:30:00Z",
+    "status": "active"
+  }
+}</pre>
+            </div>
+
+            <h3>Response lỗi</h3>
+            <table class="error-table">
+                <tr>
+                    <th>Code</th>
+                    <th>Nguyên nhân</th>
+                </tr>
+                <tr>
+                    <td>401</td>
+                    <td>Chưa đăng nhập hoặc token hết hạn</td>
+                </tr>
+                <tr>
+                    <td>403</td>
+                    <td>Không có quyền xem thông tin này</td>
+                </tr>
+                <tr>
+                    <td>404</td>
+                    <td>Không tìm thấy độc giả</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="api-detail" id="api-update-reader">
+            <h2>4. PUT /api/readers/:id</h2>
+            <p><strong>Mô tả:</strong> Cập nhật thông tin cá nhân</p>
+            <p><strong>Quyền:</strong> Reader (cần token, chỉ sửa của mình)</p>
+            
+            <h3>Request</h3>
+            <div class="code-block">
+                <p><strong>URL:</strong> http://localhost:5000/api/readers/5</p>
+                <p><strong>Method:</strong> PUT</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Authorization: Bearer {token}
+Content-Type: application/json</pre>
+                <p><strong>Body:</strong> (chỉ gửi các trường cần cập nhật)</p>
+                <pre>{
+  "email": "newemail@example.com",
+  "phone": "0987654321",
+  "address": "123 Nguyen Van Linh, Q7"
+}</pre>
+            </div>
+
+            <h3>Response thành công (200)</h3>
+            <div class="code-block">
+                <pre>{
+  "success": true,
+  "message": "Cập nhật thông tin thành công",
+  "data": {
+    "id": 5,
+    "username": "reader123",
+    "email": "newemail@example.com",
+    "phone": "0987654321",
+    "address": "123 Nguyen Van Linh, Q7",
+    "fullName": "Nguyen Van A"
+  }
+}</pre>
+            </div>
+
+            <h3>Response lỗi</h3>
+            <table class="error-table">
+                <tr>
+                    <th>Code</th>
+                    <th>Nguyên nhân</th>
+                </tr>
+                <tr>
+                    <td>400</td>
+                    <td>Dữ liệu không hợp lệ</td>
+                </tr>
+                <tr>
+                    <td>401</td>
+                    <td>Chưa đăng nhập</td>
+                </tr>
+                <tr>
+                    <td>403</td>
+                    <td>Không có quyền sửa</td>
+                </tr>
+                <tr>
+                    <td>409</td>
+                    <td>Email đã được sử dụng</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="api-detail" id="api-card-info">
+            <h2>5. GET /api/readers/:id/card-info</h2>
+            <p><strong>Mô tả:</strong> Xem thông tin thẻ thư viện</p>
+            <p><strong>Quyền:</strong> Reader (cần token)</p>
+            
+            <h3>Request</h3>
+            <div class="code-block">
+                <p><strong>URL:</strong> http://localhost:5000/api/readers/5/card-info</p>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Authorization: Bearer {token}
+Content-Type: application/json</pre>
+            </div>
+
+            <h3>Response thành công (200)</h3>
+            <div class="code-block">
+                <pre>{
+  "success": true,
+  "data": {
+    "card_number": "LIB2024001",
+    "issue_date": "2024-01-15",
+    "expiry_date": "2024-12-31",
+    "status": "active",
+    "days_remaining": 79,
+    "reader_info": {
+      "id": 5,
+      "fullName": "Nguyen Van A",
+      "email": "reader@example.com"
+    }
+  }
+}</pre>
+            </div>
+
+            <h3>Các trạng thái thẻ</h3>
+            <ul>
+                <li><strong>active:</strong> Thẻ đang hoạt động</li>
+                <li><strong>expired:</strong> Thẻ đã hết hạn</li>
+                <li><strong>suspended:</strong> Thẻ bị đình chỉ</li>
+            </ul>
+        </div>
+
+        <div class="api-detail" id="api-borrow-info">
+            <h2>6. GET /api/readers/:id/borrow-info</h2>
+            <p><strong>Mô tả:</strong> Xem thông tin mượn sách tổng quan</p>
+            <p><strong>Quyền:</strong> Reader (cần token)</p>
+            
+            <h3>Request</h3>
+            <div class="code-block">
+                <p><strong>URL:</strong> http://localhost:5000/api/readers/5/borrow-info</p>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Authorization: Bearer {token}
+Content-Type: application/json</pre>
+            </div>
+
+            <h3>Response thành công (200)</h3>
+            <div class="code-block">
+                <pre>{
+  "success": true,
+  "data": {
+    "reader_id": 5,
+    "books_borrowed": 3,
+    "books_overdue": 1,
+    "total_fines": 50000,
+    "borrow_limit": 5,
+    "can_borrow_more": true
+  }
+}</pre>
+            </div>
+
+            <h3>Giải thích các trường</h3>
+            <table class="data-table">
+                <tr>
+                    <th>Trường</th>
+                    <th>Ý nghĩa</th>
+                </tr>
+                <tr>
+                    <td>books_borrowed</td>
+                    <td>Số sách đang mượn</td>
+                </tr>
+                <tr>
+                    <td>books_overdue</td>
+                    <td>Số sách quá hạn</td>
+                </tr>
+                <tr>
+                    <td>total_fines</td>
+                    <td>Tổng tiền phạt (VNĐ)</td>
+                </tr>
+                <tr>
+                    <td>borrow_limit</td>
+                    <td>Giới hạn mượn tối đa</td>
+                </tr>
+                <tr>
+                    <td>can_borrow_more</td>
+                    <td>Có thể mượn thêm không</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Ghi chú chung</h2>
+            
+            <h3>Base URL</h3>
+            <div class="code-block">
+                <pre>Development: http://localhost:5000
+Production: https://api.library.ute.edu.vn (ví dụ)</pre>
+            </div>
+
+            <h3>Format dữ liệu</h3>
+            <ul>
+                <li>Tất cả request/response đều dùng JSON</li>
+                <li>Encoding: UTF-8</li>
+                <li>Ngày tháng: ISO 8601 (YYYY-MM-DD)</li>
+            </ul>
+
+            <h3>HTTP Status Codes</h3>
+            <table class="status-table">
+                <tr>
+                    <th>Code</th>
+                    <th>Ý nghĩa</th>
+                </tr>
+                <tr class="success">
+                    <td>200</td>
+                    <td>Thành công</td>
+                </tr>
+                <tr class="success">
+                    <td>201</td>
+                    <td>Tạo mới thành công</td>
+                </tr>
+                <tr class="error">
+                    <td>400</td>
+                    <td>Dữ liệu không hợp lệ</td>
+                </tr>
+                <tr class="error">
+                    <td>401</td>
+                    <td>Chưa xác thực</td>
+                </tr>
+                <tr class="error">
+                    <td>403</td>
+                    <td>Không có quyền</td>
+                </tr>
+                <tr class="error">
+                    <td>404</td>
+                    <td>Không tìm thấy</td>
+                </tr>
+                <tr class="error">
+                    <td>409</td>
+                    <td>Conflict (trùng lặp)</td>
+                </tr>
+                <tr class="error">
+                    <td>500</td>
+                    <td>Lỗi server</td>
+                </tr>
+            </table>
+
+            <h3>Rate Limiting</h3>
+            <p>Giới hạn: 100 requests / 15 phút / IP (có thể thay đổi)</p>
+            <p>Nếu vượt quá, sẽ nhận HTTP 429 - Too Many Requests</p>
+        </div>
+
+        <div class="navigation">
+            <a href="troubleshooting.html" class="btn">← Xử lý sự cố</a>
+            <a href="index.html" class="btn">Trang chủ →</a>
+        </div>
+    </div>
+</body>
+</html>
+
+

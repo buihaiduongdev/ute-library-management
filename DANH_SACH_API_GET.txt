@@ -1,0 +1,400 @@
+================================================================================
+                    DANH SÁCH TẤT CẢ API PHƯƠNG THỨC GET
+                    HỆ THỐNG QUẢN LÝ THƯ VIỆN UTE
+================================================================================
+
+Ngày tạo: 13/10/2024
+Tổng số API GET: 54 endpoints
+
+================================================================================
+MODULE 1: AUTHENTICATION (XÁC THỰC)
+================================================================================
+
+Không có API GET trong module này.
+Module này chỉ có POST (login, register).
+
+================================================================================
+MODULE 2: BOOKS (QUẢN LÝ SÁCH)
+================================================================================
+
+2.1. GET /api/books
+    Mô tả: Lấy danh sách tất cả sách
+    Quyền: Cần đăng nhập (token)
+    Params: page, limit, sortBy (optional)
+
+2.2. GET /api/books/trending
+    Mô tả: Lấy danh sách sách đang thịnh hành
+    Quyền: Cần đăng nhập (token)
+
+2.3. GET /api/books/new-arrivals
+    Mô tả: Lấy danh sách sách mới về
+    Quyền: Cần đăng nhập (token)
+
+2.4. GET /api/books/recommended
+    Mô tả: Lấy danh sách sách gợi ý
+    Quyền: Cần đăng nhập (token)
+
+2.5. GET /api/books/search
+    Mô tả: Tìm kiếm sách
+    Quyền: Cần đăng nhập (token)
+    Params: q (từ khóa tìm kiếm)
+
+2.6. GET /api/books/export
+    Mô tả: Export danh sách sách ra file
+    Quyền: Cần đăng nhập (token)
+
+2.7. GET /api/books/:id
+    Mô tả: Lấy thông tin chi tiết 1 cuốn sách
+    Quyền: Cần đăng nhập (token)
+    Params: id (ID của sách)
+
+2.8. GET /api/books/:id/copies
+    Mô tả: Lấy danh sách bản sao của sách
+    Quyền: Cần đăng nhập (token)
+    Params: id (ID của sách)
+
+2.9. GET /api/books/:id/related
+    Mô tả: Lấy danh sách sách liên quan
+    Quyền: Cần đăng nhập (token)
+    Params: id (ID của sách)
+
+================================================================================
+MODULE 3: BOOK SEARCH (TÌM KIẾM SÁCH - PUBLIC)
+================================================================================
+
+3.1. GET /api/booksearch
+    Mô tả: Tìm kiếm sách (public, không cần token)
+    Params: q, searchBy
+
+3.2. GET /api/booksearch/trending
+    Mô tả: Lấy sách trending (public)
+
+3.3. GET /api/booksearch/new-arrivals
+    Mô tả: Lấy sách mới về (public)
+
+3.4. GET /api/booksearch/:id
+    Mô tả: Xem chi tiết sách (public)
+    Params: id (ID của sách)
+
+================================================================================
+MODULE 4: AUTHORS (TÁC GIẢ)
+================================================================================
+
+4.1. GET /api/authors
+    Mô tả: Lấy danh sách tác giả
+    Quyền: Cần đăng nhập (token)
+
+4.2. GET /api/authors/search
+    Mô tả: Tìm kiếm tác giả
+    Quyền: Cần đăng nhập (token)
+    Params: q (từ khóa)
+
+4.3. GET /api/authors/export
+    Mô tả: Export danh sách tác giả
+    Quyền: Cần đăng nhập (token)
+
+4.4. GET /api/authors/:id
+    Mô tả: Lấy thông tin chi tiết tác giả
+    Quyền: Cần đăng nhập (token)
+    Params: id (ID tác giả)
+
+================================================================================
+MODULE 5: GENRES (THỂ LOẠI)
+================================================================================
+
+5.1. GET /api/genres
+    Mô tả: Lấy danh sách thể loại
+    Quyền: Cần đăng nhập (token)
+
+5.2. GET /api/genres/export
+    Mô tả: Export danh sách thể loại
+    Quyền: Cần đăng nhập (token)
+
+5.3. GET /api/genres/:id
+    Mô tả: Lấy thông tin chi tiết thể loại
+    Quyền: Cần đăng nhập (token)
+    Params: id (ID thể loại)
+
+================================================================================
+MODULE 6: PUBLISHERS (NHÀ XUẤT BẢN)
+================================================================================
+
+6.1. GET /api/publishers
+    Mô tả: Lấy danh sách nhà xuất bản
+    Quyền: Cần đăng nhập (token)
+
+6.2. GET /api/publishers/export
+    Mô tả: Export danh sách nhà xuất bản
+    Quyền: Cần đăng nhập (token)
+
+6.3. GET /api/publishers/:id
+    Mô tả: Lấy thông tin chi tiết nhà xuất bản
+    Quyền: Cần đăng nhập (token)
+    Params: id (ID nhà xuất bản)
+
+================================================================================
+MODULE 7: BORROW (MƯỢN/TRẢ SÁCH)
+================================================================================
+
+7.1. GET /api/borrow
+    Mô tả: Lấy danh sách phiếu mượn
+    Quyền: Staff hoặc Admin
+    Params: page, limit, status
+
+7.2. GET /api/borrow/:id
+    Mô tả: Lấy chi tiết 1 phiếu mượn
+    Quyền: Staff hoặc Admin
+    Params: id (ID phiếu mượn)
+
+7.3. GET /api/borrow/statistics
+    Mô tả: Thống kê mượn/trả sách
+    Quyền: Staff hoặc Admin
+
+7.4. GET /api/borrow/overdue
+    Mô tả: Lấy danh sách sách quá hạn
+    Quyền: Staff hoặc Admin
+
+7.5. GET /api/borrow/fines
+    Mô tả: Lấy danh sách phạt chưa thanh toán
+    Quyền: Tất cả user đã đăng nhập
+
+7.6. GET /api/borrow/reader/:idDG
+    Mô tả: Lấy lịch sử mượn của độc giả
+    Quyền: Tất cả user đã đăng nhập
+    Params: idDG (ID độc giả)
+
+7.7. GET /api/borrow/extendable
+    Mô tả: Lấy danh sách sách có thể gia hạn
+    Quyền: Tất cả user đã đăng nhập
+
+7.8. GET /api/borrow (với query params khác)
+    Mô tả: Lấy phiếu mượn theo điều kiện
+    Quyền: Staff hoặc Admin
+
+7.9. GET /api/borrow (thêm 1 endpoint nữa)
+    Mô tả: Endpoint khác cho borrow
+    Quyền: Staff hoặc Admin
+
+================================================================================
+MODULE 8: READERS (ĐỘC GIẢ)
+================================================================================
+
+8.1. GET /api/readers
+    Mô tả: Lấy danh sách độc giả
+    Quyền: Admin (role 0)
+
+8.2. GET /api/readers/:id
+    Mô tả: Lấy thông tin chi tiết độc giả
+    Quyền: Admin (role 0)
+    Params: id (ID độc giả)
+
+8.3. GET /api/readers/:id/borrow-info
+    Mô tả: Lấy thông tin mượn sách của độc giả
+    Quyền: Admin hoặc Staff (role 0, 1)
+    Params: id (ID độc giả)
+
+8.4. GET /api/readers/:id/card-info
+    Mô tả: Lấy thông tin thẻ của độc giả
+    Quyền: Admin hoặc Staff (role 0, 1)
+    Params: id (ID độc giả)
+
+================================================================================
+MODULE 9: REQUESTS (YÊU CẦU MƯỢN SÁCH)
+================================================================================
+
+9.1. GET /api/requests
+    Mô tả: Lấy danh sách yêu cầu mượn sách
+    Quyền: Staff hoặc Admin
+
+9.2. GET /api/requests/my
+    Mô tả: Lấy danh sách yêu cầu của tôi
+    Quyền: Reader (độc giả)
+
+9.3. GET /api/requests/:id
+    Mô tả: Lấy chi tiết 1 yêu cầu
+    Quyền: Tất cả user đã đăng nhập
+    Params: id (ID yêu cầu)
+
+================================================================================
+MODULE 10: STATISTICS (THỐNG KÊ TỔNG QUÁT)
+================================================================================
+
+10.1. GET /api/statistics
+     Mô tả: Lấy thống kê tổng quát hệ thống
+     Quyền: Cần xác thực
+
+================================================================================
+MODULE 11: STATS (THỐNG KÊ DASHBOARD)
+================================================================================
+
+11.1. GET /api/stats/dashboard
+     Mô tả: Lấy thống kê cho dashboard
+     Quyền: Cần xác thực
+
+================================================================================
+MODULE 12: READER STATS (THỐNG KÊ ĐỘC GIẢ)
+================================================================================
+
+12.1. GET /api/reader-stats/borrowing-status
+     Mô tả: Thống kê tình trạng mượn sách
+     Quyền: Cần xác thực
+
+12.2. GET /api/reader-stats/readers-overview
+     Mô tả: Tổng quan về độc giả
+     Quyền: Cần xác thực
+
+12.3. GET /api/reader-stats/readers-registration-timeline
+     Mô tả: Timeline đăng ký của độc giả
+     Quyền: Cần xác thực
+
+12.4. GET /api/reader-stats/readers-by-age
+     Mô tả: Thống kê độc giả theo độ tuổi
+     Quyền: Cần xác thực
+
+12.5. GET /api/reader-stats/readers-by-location
+     Mô tả: Thống kê độc giả theo địa điểm
+     Quyền: Cần xác thực
+
+12.6. GET /api/reader-stats/top-active-readers
+     Mô tả: Top độc giả hoạt động nhiều nhất
+     Quyền: Cần xác thực
+
+12.7. GET /api/reader-stats/expiring-cards
+     Mô tả: Danh sách thẻ sắp hết hạn
+     Quyền: Cần xác thực
+
+12.8. GET /api/reader-stats/reader-borrowing-activity
+     Mô tả: Hoạt động mượn sách của độc giả
+     Quyền: Cần xác thực
+
+================================================================================
+MODULE 13: CONFIG (CẤU HÌNH HỆ THỐNG)
+================================================================================
+
+13.1. GET /api/configs
+     Mô tả: Lấy cấu hình hệ thống
+     Quyền: Admin
+
+================================================================================
+MODULE 14: PERFORMANCE (GIÁM SÁT HIỆU SUẤT)
+================================================================================
+
+14.1. GET /api/performance/stats
+     Mô tả: Lấy thống kê performance tổng quan
+     Quyền: Không cần (public)
+     Response: Tổng requests, thời gian TB, min, max
+
+14.2. GET /api/performance/logs
+     Mô tả: Lấy logs chi tiết các request
+     Quyền: Không cần (public)
+     Params: limit (số lượng logs, mặc định 100)
+
+14.3. GET /api/performance/endpoints
+     Mô tả: Thống kê performance theo từng endpoint
+     Quyền: Không cần (public)
+     Response: Danh sách endpoints với thời gian TB
+
+14.4. GET /api/performance/export
+     Mô tả: Export toàn bộ dữ liệu performance
+     Quyền: Không cần (public)
+     Response: File JSON download
+
+================================================================================
+TỔNG KẾT
+================================================================================
+
+Tổng số API GET: 54 endpoints
+
+Phân loại theo module:
+- Books: 9 APIs
+- Book Search (Public): 4 APIs
+- Authors: 4 APIs
+- Genres: 3 APIs
+- Publishers: 3 APIs
+- Borrow: 9 APIs
+- Readers: 4 APIs
+- Requests: 3 APIs
+- Statistics: 1 API
+- Stats: 1 API
+- Reader Stats: 8 APIs
+- Config: 1 API
+- Performance: 4 APIs
+
+Phân loại theo quyền truy cập:
+- Public (không cần token): 8 APIs
+- Cần đăng nhập (token): 35 APIs
+- Staff/Admin only: 11 APIs
+
+APIs quan trọng nhất để test:
+1. GET /api/books - Lấy danh sách sách
+2. GET /api/books/:id - Chi tiết sách
+3. GET /api/borrow - Danh sách phiếu mượn
+4. GET /api/readers - Danh sách độc giả
+5. GET /api/statistics - Thống kê hệ thống
+6. GET /api/performance/stats - Performance monitoring
+7. GET /api/booksearch - Tìm kiếm sách (public)
+8. GET /api/reader-stats/borrowing-status - Thống kê mượn sách
+
+APIs có pagination (nên test với page, limit):
+- GET /api/books
+- GET /api/authors
+- GET /api/genres
+- GET /api/publishers
+- GET /api/borrow
+- GET /api/readers
+- GET /api/requests
+
+APIs có search (nên test với từ khóa):
+- GET /api/books/search
+- GET /api/booksearch
+- GET /api/authors/search
+
+APIs export (nên test download):
+- GET /api/books/export
+- GET /api/authors/export
+- GET /api/genres/export
+- GET /api/publishers/export
+- GET /api/performance/export
+
+================================================================================
+GHI CHÚ QUAN TRỌNG
+================================================================================
+
+1. Tất cả API (trừ public) đều cần Header:
+   Authorization: Bearer {token}
+
+2. Để lấy token, gọi trước:
+   POST /api/auth/login
+
+3. Test với nhiều roles khác nhau:
+   - Role 0: Admin
+   - Role 1: Staff
+   - Role 2: Reader
+
+4. Kiểm tra response time cho mỗi API:
+   - Mục tiêu: < 300ms
+   - Chấp nhận được: < 500ms
+   - Cần optimize: > 500ms
+
+5. APIs cần test đặc biệt:
+   - APIs có params (:id)
+   - APIs có query params (page, limit)
+   - APIs có search (q, searchBy)
+   - APIs protected (cần token)
+   - APIs có phân quyền (role-based)
+
+6. Test cases cho mỗi API:
+   - Happy path (dữ liệu hợp lệ)
+   - Không có token (nếu protected)
+   - Token sai/hết hạn
+   - ID không tồn tại (404)
+   - Params không hợp lệ (400)
+
+================================================================================
+KẾT THÚC
+================================================================================
+
+File được tạo tự động bởi hệ thống
+Ngày: 13/10/2024
+Version: 1.0
+

@@ -40,7 +40,15 @@ const RegisterPage = () => {
 
         // --- VALIDATION ---
         const newErrors = {};
-        if (!hoTen) newErrors.hoTen = 'Vui lòng nhập họ tên.';
+        if (!hoTen) {
+            newErrors.hoTen = 'Vui lòng nhập họ tên.';
+        } else {
+            // Validate Vietnamese name with diacritics
+            const vietnameseNameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂĐÊÔƠƯưăâđêôơư\s\-\.]+$/;
+            if (!vietnameseNameRegex.test(hoTen)) {
+                newErrors.hoTen = 'Họ tên chỉ được chứa chữ cái, khoảng trắng và dấu gạch ngang';
+            }
+        }
         if (!ngaySinh) newErrors.ngaySinh = 'Vui lòng chọn ngày sinh.';
         if (!diaChi) newErrors.diaChi = 'Vui lòng nhập địa chỉ.';
         if (!email) newErrors.email = 'Vui lòng nhập email.';

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cập nhật thông tin cá nhân</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Trang chủ</a> &gt; Cập nhật thông tin cá nhân
+        </div>
+
+        <h1>✏️ Cập nhật thông tin cá nhân</h1>
+
+        <div class="section">
+            <h2>Tổng quan</h2>
+            <p>Bạn có thể cập nhật một số thông tin cá nhân như email, số điện thoại, địa chỉ. Một số thông tin như username, ID độc giả không thể thay đổi.</p>
+        </div>
+
+        <div class="section">
+            <h2>Thông tin có thể cập nhật</h2>
+            
+            <table class="data-table">
+                <tr>
+                    <th>Trường thông tin</th>
+                    <th>Có thể sửa</th>
+                    <th>Ghi chú</th>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>✓ Có</td>
+                    <td>Email hợp lệ, chưa được sử dụng</td>
+                </tr>
+                <tr>
+                    <td>Số điện thoại</td>
+                    <td>✓ Có</td>
+                    <td>10-11 số</td>
+                </tr>
+                <tr>
+                    <td>Địa chỉ</td>
+                    <td>✓ Có</td>
+                    <td>Địa chỉ liên lạc</td>
+                </tr>
+                <tr>
+                    <td>Họ tên</td>
+                    <td>⚠️ Hạn chế</td>
+                    <td>Cần liên hệ thư viện để đổi</td>
+                </tr>
+                <tr>
+                    <td>Username</td>
+                    <td>✗ Không</td>
+                    <td>Không thể thay đổi</td>
+                </tr>
+                <tr>
+                    <td>ID độc giả</td>
+                    <td>✗ Không</td>
+                    <td>Không thể thay đổi</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Cách cập nhật thông tin</h2>
+            
+            <h3>Bước 1: Đăng nhập và lấy token</h3>
+            <p>Xem hướng dẫn tại: <a href="authentication.html">Đăng ký & Đăng nhập</a></p>
+
+            <h3>Bước 2: Gọi API cập nhật</h3>
+            <div class="code-block">
+                <p><strong>Endpoint:</strong> PUT /api/readers/:id</p>
+                <p><strong>URL mẫu:</strong> http://localhost:5000/api/readers/5</p>
+                <p><strong>Method:</strong> PUT</p>
+                <p><strong>Quyền:</strong> Reader (cần token, chỉ sửa của mình)</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Authorization: Bearer {your_token_here}
+Content-Type: application/json</pre>
+            </div>
+
+            <h3>Request Body</h3>
+            <div class="code-block">
+                <pre>{
+  "email": "newemail@example.com",
+  "phone": "0987654321",
+  "address": "123 Nguyen Van Linh, Q7, TP.HCM"
+}</pre>
+            </div>
+
+            <div class="tip">
+                <strong>💡 Mẹo:</strong> Bạn không cần gửi tất cả các trường. Chỉ gửi những trường muốn thay đổi.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Ví dụ chi tiết</h2>
+            
+            <h3>Ví dụ 1: Chỉ đổi email</h3>
+            <div class="code-block">
+                <p><strong>Request:</strong></p>
+                <pre>PUT http://localhost:5000/api/readers/5
+Headers: 
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  Content-Type: application/json
+
+Body:
+{
+  "email": "new.email@ute.edu.vn"
+}</pre>
+            </div>
+
+            <div class="code-block">
+                <p><strong>Response (200 OK):</strong></p>
+                <pre>{
+  "success": true,
+  "message": "Cập nhật thông tin thành công",
+  "data": {
+    "id": 5,
+    "username": "reader123",
+    "email": "new.email@ute.edu.vn",
+    "phone": "0123456789",
+    "address": "123 Le Van Viet",
+    "fullName": "Nguyen Van A"
+  }
+}</pre>
+            </div>
+
+            <h3>Ví dụ 2: Đổi nhiều thông tin cùng lúc</h3>
+            <div class="code-block">
+                <p><strong>Request:</strong></p>
+                <pre>PUT http://localhost:5000/api/readers/5
+Headers: 
+  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  Content-Type: application/json
+
+Body:
+{
+  "email": "nguyenvana@ute.edu.vn",
+  "phone": "0909123456",
+  "address": "456 Le Van Viet, Q9, TP.HCM"
+}</pre>
+            </div>
+
+            <h3>Ví dụ 3: Sử dụng JavaScript</h3>
+            <div class="code-block">
+                <pre>const token = localStorage.getItem('token');
+const userId = 5;
+
+const updateData = {
+  email: "newemail@example.com",
+  phone: "0987654321",
+  address: "123 Nguyen Van Linh, Q7"
+};
+
+fetch(`http://localhost:5000/api/readers/${userId}`, {
+  method: 'PUT',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(updateData)
+})
+.then(response => response.json())
+.then(data => {
+  if (data.success) {
+    console.log('Cập nhật thành công:', data.data);
+  } else {
+    console.error('Lỗi:', data.message);
+  }
+})
+.catch(error => {
+  console.error('Lỗi kết nối:', error);
+});</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Xử lý lỗi</h2>
+            
+            <div class="error-box">
+                <h3>❌ 400 Bad Request - Dữ liệu không hợp lệ</h3>
+                <p><strong>Nguyên nhân:</strong></p>
+                <ul>
+                    <li>Email không đúng định dạng</li>
+                    <li>Số điện thoại không hợp lệ</li>
+                    <li>Dữ liệu trống hoặc thiếu</li>
+                </ul>
+                <p><strong>Giải pháp:</strong> Kiểm tra lại định dạng dữ liệu</p>
+                <div class="code-block">
+                    <pre>// Email hợp lệ
+"email": "user@example.com"
+
+// Số điện thoại hợp lệ
+"phone": "0909123456"  // 10 số
+"phone": "84909123456" // 11 số</pre>
+                </div>
+            </div>
+
+            <div class="error-box">
+                <h3>❌ 401 Unauthorized - Chưa đăng nhập</h3>
+                <p><strong>Nguyên nhân:</strong> Thiếu token hoặc token không hợp lệ</p>
+                <p><strong>Giải pháp:</strong> Đăng nhập lại và lấy token mới</p>
+            </div>
+
+            <div class="error-box">
+                <h3>❌ 403 Forbidden - Không có quyền</h3>
+                <p><strong>Nguyên nhân:</strong> Cố gắng sửa thông tin của người khác</p>
+                <p><strong>Giải pháp:</strong> Chỉ sửa thông tin của chính mình (ID phải khớp)</p>
+            </div>
+
+            <div class="error-box">
+                <h3>❌ 409 Conflict - Email đã tồn tại</h3>
+                <p><strong>Nguyên nhân:</strong> Email mới đã được người khác sử dụng</p>
+                <p><strong>Giải pháp:</strong> Chọn email khác</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Kiểm tra kết quả</h2>
+            
+            <p>Sau khi cập nhật thành công, bạn có thể xác nhận bằng cách:</p>
+
+            <h3>Cách 1: Kiểm tra response</h3>
+            <p>Response trả về sẽ chứa thông tin mới đã cập nhật trong trường <code>data</code>.</p>
+
+            <h3>Cách 2: Gọi lại API xem thông tin</h3>
+            <div class="code-block">
+                <pre>GET http://localhost:5000/api/readers/5
+Headers: 
+  Authorization: Bearer {your_token}</pre>
+            </div>
+            <p>Kiểm tra các trường đã được cập nhật đúng chưa.</p>
+        </div>
+
+        <div class="section">
+            <h2>Lưu ý quan trọng</h2>
+            
+            <div class="warning">
+                <ul>
+                    <li>⚠️ Email mới phải chưa được sử dụng trong hệ thống</li>
+                    <li>⚠️ Không thể đổi username sau khi đã đăng ký</li>
+                    <li>⚠️ Chỉ có thể sửa thông tin của chính mình</li>
+                    <li>⚠️ Một số thông tin như họ tên cần liên hệ thư viện để thay đổi</li>
+                    <li>⚠️ Thông tin mới sẽ được sử dụng cho các thông báo và liên lạc</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Câu hỏi thường gặp</h2>
+            
+            <div class="faq">
+                <p><strong>Q: Tôi có thể đổi username không?</strong></p>
+                <p>A: Không, username không thể thay đổi sau khi đăng ký. Nếu cần, bạn phải tạo tài khoản mới.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Làm sao đổi mật khẩu?</strong></p>
+                <p>A: Chức năng đổi mật khẩu thường được triển khai riêng. Liên hệ thư viện hoặc xem API đổi mật khẩu (nếu có).</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Email cũ có còn hoạt động không sau khi đổi?</strong></p>
+                <p>A: Không, email mới sẽ thay thế hoàn toàn email cũ trong hệ thống.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Tôi có thể để trống địa chỉ không?</strong></p>
+                <p>A: Tùy cấu hình hệ thống. Nên điền đầy đủ để tiện liên lạc khi cần.</p>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="card_renewal.html" class="btn">← Gia hạn thẻ</a>
+            <a href="card_info.html" class="btn">Xem thông tin thẻ →</a>
+        </div>
+    </div>
+</body>
+</html>
+
+

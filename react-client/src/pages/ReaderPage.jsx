@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Title, Group, Modal, TextInput, Stack, Text, Container } from '@mantine/core';
+import { Table, Button, Title, Group, Modal, TextInput, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { IconSearch } from '@tabler/icons-react';
@@ -18,6 +18,8 @@ function ReaderPage() {
     // Form quản lý dữ liệu độc giả
     const form = useForm({
         initialValues: {
+            MaTK: '', // Optional - sẽ tự động tạo nếu để trống
+            MaDG: '',
             HoTen: '',
             Email: '',
             DiaChi: '',
@@ -28,7 +30,14 @@ function ReaderPage() {
             TrangThai: true,
         },
         validate: {
-            HoTen: (value) => (value ? null : 'Họ tên không được để trống'),
+            MaTK: (value) => null, // Không bắt buộc
+            MaDG: (value) => (value ? null : 'Mã độc giả không được để trống'),
+            HoTen: (value) => {
+                if (!value) return 'Họ tên không được để trống';
+                // Cho phép chữ cái tiếng Việt có dấu, khoảng trắng và một số ký tự đặc biệt cơ bản
+                const vietnameseNameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂĐÊÔƠƯưăâđêôơư\s\-\.]+$/;
+                return vietnameseNameRegex.test(value) ? null : 'Họ tên chỉ được chứa chữ cái, khoảng trắng và dấu gạch ngang';
+            },
             Email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Email không hợp lệ'),
         },
     });
@@ -80,6 +89,8 @@ function ReaderPage() {
     const handleEdit = (reader) => {
         setEditingReader(reader);
         form.setValues({
+            MaTK: reader.MaTK || '',
+            MaDG: reader.MaDG || '',
             HoTen: reader.HoTen || '',
             Email: reader.Email || '',
             DiaChi: reader.DiaChi || '',
@@ -95,14 +106,22 @@ function ReaderPage() {
     // Hàm xử lý khi submit form (tạo mới hoặc cập nhật)
     const handleSubmit = async (values) => {
         try {
+            console.log('📝 Form values:', values);
+            
             if (editingReader) {
-                await updateReader(editingReader.IdDG, values);
+                // Cập nhật độc giả - không gửi MaTK vì nó là foreign key
+                const { MaTK, ...updateData } = values;
+                console.log('🔄 Update data:', updateData);
+                await updateReader(editingReader.IdDG, updateData);
                 notifications.show({
                     title: 'Thành công',
                     message: 'Đã cập nhật thông tin độc giả!',
                     color: 'green',
                 });
             } else {
+                // Tạo độc giả mới
+                console.log('➕ Create reader data:', values);
+                console.log('🔍 NgaySinh in form:', values.NgaySinh, 'type:', typeof values.NgaySinh);
                 await createReader(values);
                 notifications.show({
                     title: 'Thành công',
@@ -114,6 +133,7 @@ function ReaderPage() {
             resetToCreateMode();
             fetchReaders(); // Tải lại danh sách
         } catch (error) {
+            console.error('❌ Submit error:', error);
             setError(error.message || 'Xử lý độc giả thất bại. Vui lòng thử lại.');
         }
     };
@@ -167,7 +187,7 @@ function ReaderPage() {
     ));
 
     return (
-        <Container p='lg'>
+        <>
             {/* Modal create/edit */}
             <Modal 
                 opened={opened} 
@@ -182,6 +202,8 @@ function ReaderPage() {
                 <form onSubmit={form.onSubmit(handleSubmit)}>
                     <Stack>
                         {error && <Text c="red" size="sm">{error}</Text>}
+                        <TextInput label="Mã Độc Giả" placeholder="DG001" {...form.getInputProps('MaDG')} required />
+                        <TextInput label="Mã Tài Khoản (Tùy chọn)" placeholder="Để trống để tự động tạo tài khoản mới" {...form.getInputProps('MaTK')} />
                         <TextInput label="Họ Tên" placeholder="Nguyễn Văn A" {...form.getInputProps('HoTen')} required />
                         <TextInput label="Email" placeholder="example@mail.com" {...form.getInputProps('Email')} required />
                         <TextInput label="Ngày Sinh" type="date" {...form.getInputProps('NgaySinh')} />
@@ -258,7 +280,7 @@ function ReaderPage() {
                     }
                 </Table.Tbody>
             </Table>
-        </Container>
+        </>
     );
 }
 

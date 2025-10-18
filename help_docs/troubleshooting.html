@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xử lý sự cố thường gặp</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Trang chủ</a> &gt; Xử lý sự cố thường gặp
+        </div>
+
+        <h1>⚠️ Xử lý sự cố thường gặp</h1>
+
+        <div class="section">
+            <h2>Sự cố xác thực (Authentication)</h2>
+            
+            <div class="problem-box">
+                <h3>🔴 Không đăng nhập được</h3>
+                
+                <div class="solution">
+                    <p><strong>Triệu chứng:</strong> Nhập username/password nhưng báo lỗi 401</p>
+                    <p><strong>Nguyên nhân:</strong></p>
+                    <ul>
+                        <li>Username hoặc password sai</li>
+                        <li>Phân biệt chữ hoa/thường</li>
+                        <li>Tài khoản bị khóa</li>
+                    </ul>
+                    <p><strong>Giải pháp:</strong></p>
+                    <ol>
+                        <li>Kiểm tra kỹ username và password</li>
+                        <li>Đảm bảo không có khoảng trắng thừa</li>
+                        <li>Thử đăng ký tài khoản mới nếu quên mật khẩu</li>
+                        <li>Liên hệ thư viện nếu tài khoản bị khóa</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-box">
+                <h3>🔴 Token hết hạn</h3>
+                
+                <div class="solution">
+                    <p><strong>Triệu chứng:</strong> Báo lỗi "Token expired" hoặc 401 khi gọi API</p>
+                    <p><strong>Nguyên nhân:</strong> Token có thời hạn 24 giờ</p>
+                    <p><strong>Giải pháp:</strong></p>
+                    <ol>
+                        <li>Đăng nhập lại để lấy token mới</li>
+                        <li>Lưu token mới vào localStorage</li>
+                        <li>Sử dụng token mới cho các request tiếp theo</li>
+                    </ol>
+                    <div class="code-block">
+                        <pre>// Xử lý token hết hạn tự động
+fetch(url, {
+  headers: { 'Authorization': `Bearer ${token}` }
+})
+.then(response => {
+  if (response.status === 401) {
+    // Token hết hạn, chuyển đến trang login
+    window.location.href = '/login';
+  }
+  return response.json();
+});</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Sự cố về thông tin cá nhân</h2>
+            
+            <div class="problem-box">
+                <h3>🔴 Không xem được thông tin</h3>
+                
+                <div class="solution">
+                    <p><strong>Triệu chứng:</strong> API trả về 403 Forbidden</p>
+                    <p><strong>Nguyên nhân:</strong> Đang cố xem thông tin của người khác</p>
+                    <p><strong>Giải pháp:</strong></p>
+                    <ul>
+                        <li>Kiểm tra ID trong URL có khớp với ID của bạn không</li>
+                        <li>ID của bạn được trả về khi đăng nhập (trường user.id)</li>
+                        <li>Chỉ sử dụng ID của chính mình</li>
+                    </ul>
+                    <div class="code-block">
+                        <pre>// Lấy ID từ response đăng nhập
+const loginResponse = {
+  "user": {
+    "id": 5,  // ← Đây là ID của bạn
+    "username": "reader123"
+  }
+};
+
+// Sử dụng đúng ID
+GET /api/readers/5  // ✓ Đúng
+GET /api/readers/3  // ✗ Sai (ID của người khác)</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="problem-box">
+                <h3>🔴 Không cập nhật được email</h3>
+                
+                <div class="solution">
+                    <p><strong>Triệu chứng:</strong> API trả về 409 Conflict</p>
+                    <p><strong>Nguyên nhân:</strong> Email mới đã được người khác sử dụng</p>
+                    <p><strong>Giải pháp:</strong></p>
+                    <ul>
+                        <li>Chọn email khác chưa được đăng ký</li>
+                        <li>Kiểm tra chính tả email</li>
+                        <li>Sử dụng email cá nhân riêng</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Sự cố về thẻ thư viện</h2>
+            
+            <div class="problem-box">
+                <h3>🔴 Thẻ hết hạn không mượn được sách</h3>
+                
+                <div class="solution">
+                    <p><strong>Triệu chứng:</strong> Không tạo được yêu cầu mượn sách</p>
+                    <p><strong>Nguyên nhân:</strong> Thẻ thư viện đã hết hạn</p>
+                    <p><strong>Giải pháp:</strong></p>
+                    <ol>
+                        <li>Kiểm tra trạng thái thẻ: GET /api/readers/:id/card-info</li>
+                        <li>Nếu hết hạn, liên hệ thư viện để gia hạn</li>
+                        <li>Sau khi gia hạn, thử lại</li>
+                    </ol>
+                    <p><strong>Xem chi tiết:</strong> <a href="card_renewal.html">Hướng dẫn gia hạn thẻ</a></p>
+                </div>
+            </div>
+
+            <div class="problem-box">
+                <h3>🔴 Không biết khi nào thẻ hết hạn</h3>
+                
+                <div class="solution">
+                    <p><strong>Giải pháp:</strong></p>
+                    <ol>
+                        <li>Gọi API: GET /api/readers/:id/card-info</li>
+                        <li>Xem trường expiry_date và days_remaining</li>
+                        <li>Nếu days_remaining &lt; 30, nên gia hạn sớm</li>
+                    </ol>
+                    <div class="code-block">
+                        <pre>// Kiểm tra tự động
+function alertIfExpiring(cardInfo) {
+  if (cardInfo.days_remaining < 7) {
+    alert('⚠️ KHẨN CẤP: Thẻ còn ' + cardInfo.days_remaining + ' ngày!');
+  } else if (cardInfo.days_remaining < 30) {
+    console.warn('Thẻ còn ' + cardInfo.days_remaining + ' ngày');
+  }
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Sự cố kết nối API</h2>
+            
+            <div class="problem-box">
+                <h3>🔴 Lỗi CORS (Cross-Origin)</h3>
+                
+                <div class="solution">
+                    <p><strong>Triệu chứng:</strong> Console báo "CORS policy blocked"</p>
+                    <p><strong>Nguyên nhân:</strong> Frontend và Backend khác domain</p>
+                    <p><strong>Giải pháp tạm thời:</strong></p>
+                    <ul>
+                        <li>Sử dụng proxy trong development</li>
+                        <li>Hoặc cài extension CORS Unblock cho Chrome</li>
+                    </ul>
+                    <p><strong>Giải pháp lâu dài:</strong> Yêu cầu admin backend cấu hình CORS</p>
+                </div>
+            </div>
+
+            <div class="problem-box">
+                <h3>🔴 Lỗi Network/Timeout</h3>
+                
+                <div class="solution">
+                    <p><strong>Triệu chứng:</strong> Request không có response hoặc timeout</p>
+                    <p><strong>Nguyên nhân:</strong></p>
+                    <ul>
+                        <li>Server không chạy</li>
+                        <li>URL sai</li>
+                        <li>Firewall chặn</li>
+                    </ul>
+                    <p><strong>Giải pháp:</strong></p>
+                    <ol>
+                        <li>Kiểm tra server có đang chạy: http://localhost:5000</li>
+                        <li>Kiểm tra URL đúng chưa (port, path)</li>
+                        <li>Thử ping hoặc curl để test kết nối</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-box">
+                <h3>🔴 Lỗi 500 Internal Server Error</h3>
+                
+                <div class="solution">
+                    <p><strong>Triệu chứng:</strong> API trả về lỗi 500</p>
+                    <p><strong>Nguyên nhân:</strong> Lỗi từ phía server</p>
+                    <p><strong>Giải pháp:</strong></p>
+                    <ul>
+                        <li>Kiểm tra request body có đúng format không</li>
+                        <li>Xem console log của server để biết lỗi cụ thể</li>
+                        <li>Liên hệ admin nếu lỗi lặp lại</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Checklist debug</h2>
+            
+            <div class="checklist-box">
+                <h3>✅ Khi gặp lỗi, kiểm tra theo thứ tự:</h3>
+                <ol>
+                    <li>
+                        <input type="checkbox"> Server có đang chạy không?
+                        <div class="code-block">
+                            <pre>// Test
+curl http://localhost:5000
+// Hoặc mở browser: http://localhost:5000</pre>
+                        </div>
+                    </li>
+                    <li>
+                        <input type="checkbox"> URL có đúng không? (port, endpoint, ID)
+                        <div class="code-block">
+                            <pre>// Đúng
+http://localhost:5000/api/readers/5
+
+// Sai
+http://localhost:3000/api/readers/5  // ✗ Port sai
+http://localhost:5000/readers/5      // ✗ Thiếu /api
+http://localhost:5000/api/reader/5   // ✗ reader thay vì readers</pre>
+                        </div>
+                    </li>
+                    <li>
+                        <input type="checkbox"> Header có token chưa?
+                        <div class="code-block">
+                            <pre>// Kiểm tra trong code
+console.log('Token:', token);
+
+// Header phải có
+Authorization: Bearer eyJhbGciOiJI...</pre>
+                        </div>
+                    </li>
+                    <li>
+                        <input type="checkbox"> Token còn hạn không?
+                        <div class="code-block">
+                            <pre>// Nếu gặp lỗi 401, thử login lại
+POST /api/auth/login</pre>
+                        </div>
+                    </li>
+                    <li>
+                        <input type="checkbox"> Request body đúng format không?
+                        <div class="code-block">
+                            <pre>// Phải là JSON hợp lệ
+{
+  "email": "test@example.com"  // ✓ Đúng
+}
+
+{
+  email: "test@example.com"    // ✗ Sai (thiếu dấu ngoặc kép)
+}</pre>
+                        </div>
+                    </li>
+                    <li>
+                        <input type="checkbox"> Xem console log có lỗi gì không?
+                    </li>
+                    <li>
+                        <input type="checkbox"> Xem Network tab trong DevTools
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Tools hữu ích để debug</h2>
+            
+            <div class="tools-box">
+                <h3>1. Browser DevTools</h3>
+                <p>Mở bằng F12, xem tab:</p>
+                <ul>
+                    <li><strong>Console:</strong> Xem lỗi JavaScript</li>
+                    <li><strong>Network:</strong> Xem request/response</li>
+                    <li><strong>Application:</strong> Xem localStorage, token</li>
+                </ul>
+
+                <h3>2. Postman / Insomnia</h3>
+                <p>Tools chuyên dụng để test API:</p>
+                <ul>
+                    <li>Dễ dàng thêm header, body</li>
+                    <li>Lưu collection API</li>
+                    <li>Xem response rõ ràng</li>
+                </ul>
+
+                <h3>3. cURL (Command line)</h3>
+                <div class="code-block">
+                    <pre># Test đăng nhập
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"reader123","password":"123456"}'
+
+# Test API với token
+curl -X GET http://localhost:5000/api/readers/5 \
+  -H "Authorization: Bearer YOUR_TOKEN"</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Liên hệ hỗ trợ</h2>
+            
+            <div class="contact-box">
+                <p>Nếu vẫn không giải quyết được, liên hệ:</p>
+                <ul>
+                    <li>📧 <strong>Email:</strong> support@ute.edu.vn</li>
+                    <li>📞 <strong>Điện thoại:</strong> (028) 3896 5757</li>
+                    <li>🏢 <strong>Địa chỉ:</strong> Thư viện UTE, giờ hành chính</li>
+                </ul>
+                
+                <p><strong>Khi liên hệ, cung cấp:</strong></p>
+                <ol>
+                    <li>Mô tả chi tiết lỗi</li>
+                    <li>Screenshot (nếu có)</li>
+                    <li>Status code (401, 403, 500...)</li>
+                    <li>URL bạn đang gọi</li>
+                    <li>Request body (nếu có)</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="card_info.html" class="btn">← Xem thông tin thẻ</a>
+            <a href="api_reference.html" class="btn">Tài liệu API →</a>
+        </div>
+    </div>
+</body>
+</html>
+
+

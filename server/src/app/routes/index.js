@@ -12,6 +12,7 @@ const statsRouter = require('./stats');
 const readerStatsRouter = require('./reader-stats');
 const configRouter = require('./config');
 const acountsRouter = require('./accounts');
+const performanceRouter = require('./performance');
 
 
 function route(app) {
@@ -29,6 +30,7 @@ function route(app) {
   app.use('/api/reader-stats', readerStatsRouter);
   app.use('/api/configs', configRouter);
   app.use('/api/accounts', acountsRouter);
+  app.use('/api/performance', performanceRouter);
 }
 
 module.exports = route;

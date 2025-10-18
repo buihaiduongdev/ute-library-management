@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gia hạn thẻ thư viện</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Trang chủ</a> &gt; Gia hạn thẻ thư viện
+        </div>
+
+        <h1>🎫 Gia hạn thẻ thư viện</h1>
+
+        <div class="section">
+            <h2>Tổng quan</h2>
+            <p>Thẻ thư viện có thời hạn sử dụng nhất định. Khi thẻ hết hạn, bạn cần gia hạn để tiếp tục sử dụng các dịch vụ của thư viện như mượn sách, đăng ký yêu cầu mượn sách mới.</p>
+        </div>
+
+        <div class="section">
+            <h2>Kiểm tra thời hạn thẻ</h2>
+            
+            <h3>Bước 1: Đăng nhập vào hệ thống</h3>
+            <p>Trước tiên, bạn cần đăng nhập để lấy token xác thực. Xem hướng dẫn tại: <a href="authentication.html">Đăng ký & Đăng nhập</a></p>
+
+            <h3>Bước 2: Xem thông tin thẻ</h3>
+            <div class="code-block">
+                <p><strong>Endpoint:</strong> GET /api/readers/:id/card-info</p>
+                <p><strong>URL mẫu:</strong> http://localhost:5000/api/readers/5/card-info</p>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Authorization: Bearer {your_token_here}
+Content-Type: application/json</pre>
+            </div>
+
+            <h3>Ví dụ response</h3>
+            <div class="code-block">
+                <pre>{
+  "card_number": "LIB2024001",
+  "issue_date": "2024-01-15",
+  "expiry_date": "2024-12-31",
+  "status": "active",
+  "days_remaining": 79
+}</pre>
+            </div>
+
+            <div class="tip">
+                <strong>💡 Mẹo:</strong> Hãy kiểm tra trường <code>days_remaining</code> để biết thẻ còn bao nhiêu ngày. Nếu còn ít hơn 30 ngày, nên gia hạn sớm.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Các trường hợp cần gia hạn thẻ</h2>
+            
+            <div class="warning-box">
+                <h3>⚠️ Bạn cần gia hạn thẻ khi:</h3>
+                <ul>
+                    <li>Thẻ sắp hết hạn (còn ít hơn 30 ngày)</li>
+                    <li>Thẻ đã hết hạn (<code>status: "expired"</code>)</li>
+                    <li>Hệ thống thông báo cần gia hạn khi bạn cố mượn sách</li>
+                    <li><code>days_remaining</code> = 0 hoặc số âm</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Quy trình gia hạn thẻ</h2>
+            
+            <div class="process">
+                <div class="step-box">
+                    <h3>Bước 1: Kiểm tra điều kiện gia hạn</h3>
+                    <p>Trước khi gia hạn, đảm bảo bạn:</p>
+                    <ul>
+                        <li>✓ Không có sách quá hạn chưa trả</li>
+                        <li>✓ Không có tiền phạt chưa thanh toán</li>
+                        <li>✓ Tài khoản đang ở trạng thái hoạt động</li>
+                    </ul>
+                    <p>Kiểm tra bằng API: <code>GET /api/readers/:id/borrow-info</code></p>
+                </div>
+
+                <div class="step-box">
+                    <h3>Bước 2: Liên hệ thư viện để gia hạn</h3>
+                    <p><strong>Lưu ý quan trọng:</strong> Hiện tại hệ thống chưa hỗ trợ gia hạn thẻ tự động qua API. Bạn cần:</p>
+                    <ul>
+                        <li>Đến trực tiếp quầy thư viện</li>
+                        <li>Hoặc liên hệ với nhân viên thư viện qua email/điện thoại</li>
+                        <li>Mang theo thẻ thư viện và CMND/CCCD</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <h3>Bước 3: Xác nhận gia hạn thành công</h3>
+                    <p>Sau khi nhân viên thư viện xử lý, kiểm tra lại thông tin thẻ:</p>
+                    <div class="code-block">
+                        <p><strong>API:</strong> GET /api/readers/:id/card-info</p>
+                    </div>
+                    <p>Xác nhận <code>expiry_date</code> đã được cập nhật và <code>status</code> là "active".</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Xử lý khi thẻ hết hạn</h2>
+            
+            <div class="warning">
+                <h3>⚠️ Khi thẻ hết hạn, bạn sẽ:</h3>
+                <ul>
+                    <li>✗ Không thể tạo yêu cầu mượn sách mới</li>
+                    <li>✗ Không thể gia hạn sách đang mượn</li>
+                    <li>✓ Vẫn xem được thông tin sách</li>
+                    <li>✓ Vẫn cần trả sách đang mượn</li>
+                    <li>✓ Vẫn phải thanh toán tiền phạt (nếu có)</li>
+                </ul>
+            </div>
+
+            <h3>Giải pháp</h3>
+            <ol>
+                <li>Trả hết sách đang mượn (nếu có)</li>
+                <li>Thanh toán hết tiền phạt (nếu có)</li>
+                <li>Liên hệ thư viện để gia hạn thẻ</li>
+                <li>Sau khi gia hạn, có thể tiếp tục mượn sách</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>Thông tin liên hệ</h2>
+            
+            <div class="contact-box">
+                <h3>📞 Liên hệ thư viện UTE</h3>
+                <p><strong>Địa chỉ:</strong> Thư viện trường Đại học Sư phạm Kỹ thuật TP.HCM</p>
+                <p><strong>Email:</strong> library@ute.edu.vn</p>
+                <p><strong>Điện thoại:</strong> (028) 3896 5757</p>
+                <p><strong>Giờ làm việc:</strong> Thứ 2 - Thứ 7, 7:00 - 17:00</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Câu hỏi thường gặp</h2>
+            
+            <div class="faq">
+                <p><strong>Q: Thẻ thư viện có thời hạn bao lâu?</strong></p>
+                <p>A: Thông thường thẻ có thời hạn 1 năm kể từ ngày cấp. Sinh viên được gia hạn hàng năm cho đến khi tốt nghiệp.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Chi phí gia hạn thẻ là bao nhiêu?</strong></p>
+                <p>A: Sinh viên trong trường được gia hạn miễn phí. Độc giả ngoài trường vui lòng liên hệ thư viện.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Tôi có thể gia hạn thẻ online không?</strong></p>
+                <p>A: Hiện tại chưa hỗ trợ gia hạn online. Bạn cần đến thư viện hoặc liên hệ trực tiếp với nhân viên.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Nếu thẻ hết hạn khi tôi đang mượn sách thì sao?</strong></p>
+                <p>A: Bạn vẫn phải trả sách đúng hạn. Tuy nhiên, không thể mượn sách mới hoặc gia hạn sách cho đến khi gia hạn thẻ.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Làm sao biết khi nào cần gia hạn thẻ?</strong></p>
+                <p>A: Kiểm tra thường xuyên qua API card-info, hệ thống cũng sẽ gửi thông báo khi thẻ sắp hết hạn (nếu bạn đã cấu hình email).</p>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="reader_management.html" class="btn">← Quản lý độc giả</a>
+            <a href="profile_update.html" class="btn">Cập nhật thông tin →</a>
+        </div>
+    </div>
+</body>
+</html>
+
+

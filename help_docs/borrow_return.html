@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mượn và Trả Sách - Hướng dẫn sử dụng</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📖 Mượn và Trả Sách</h1>
+        
+        <div class="section">
+            <h2 id="overview">Tổng quan</h2>
+            <p>Module mượn/trả sách quản lý toàn bộ quy trình cho mượn sách và nhận trả sách từ độc giả.</p>
+        </div>
+
+        <div class="section">
+            <h2 id="borrow-book">Cho mượn sách</h2>
+            <h3>Điều kiện cho mượn:</h3>
+            <ul>
+                <li>Độc giả có thẻ thư viện còn hiệu lực</li>
+                <li>Không vi phạm quy định (quá hạn, nợ phạt...)</li>
+                <li>Chưa mượn quá số lượng sách cho phép</li>
+                <li>Sách còn bản sao có sẵn</li>
+            </ul>
+
+            <h3>Các bước thực hiện:</h3>
+            <ol>
+                <li>Vào menu <strong>Mượn/Trả</strong> → <strong>Cho mượn sách</strong></li>
+                <li>Nhập mã độc giả hoặc quét thẻ thư viện</li>
+                <li>Hệ thống hiển thị thông tin độc giả và trạng thái</li>
+                <li>Quét mã sách hoặc nhập mã sách</li>
+                <li>Kiểm tra thông tin:
+                    <ul>
+                        <li>Tên sách</li>
+                        <li>Ngày mượn (hôm nay)</li>
+                        <li>Ngày hết hạn (tự động tính)</li>
+                    </ul>
+                </li>
+                <li>Click <strong>Xác nhận cho mượn</strong></li>
+                <li>In phiếu mượn (nếu cần)</li>
+            </ol>
+
+            <div class="note">
+                <strong>💡 Lưu ý:</strong>
+                <ul>
+                    <li>Thời hạn mượn mặc định: 14 ngày</li>
+                    <li>Số sách tối đa: 5 cuốn/độc giả</li>
+                    <li>Có thể mượn nhiều sách cùng lúc</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="return-book">Nhận trả sách</h2>
+            <h3>Các bước thực hiện:</h3>
+            <ol>
+                <li>Vào menu <strong>Mượn/Trả</strong> → <strong>Nhận trả sách</strong></li>
+                <li>Quét mã sách hoặc nhập mã sách</li>
+                <li>Hệ thống hiển thị:
+                    <ul>
+                        <li>Thông tin độc giả đang mượn</li>
+                        <li>Ngày mượn</li>
+                        <li>Ngày hết hạn</li>
+                        <li>Số ngày quá hạn (nếu có)</li>
+                        <li>Tiền phạt (nếu có)</li>
+                    </ul>
+                </li>
+                <li>Kiểm tra tình trạng sách:
+                    <ul>
+                        <li>Còn nguyên vẹn</li>
+                        <li>Bị hư hỏng</li>
+                        <li>Bị mất</li>
+                    </ul>
+                </li>
+                <li>Nhập ghi chú (nếu có vấn đề)</li>
+                <li>Click <strong>Xác nhận trả sách</strong></li>
+                <li>Xử lý phạt (nếu có)</li>
+            </ol>
+
+            <div class="warning">
+                <strong>⚠️ Phạt trả muộn:</strong>
+                <ul>
+                    <li>2.000đ/ngày/sách đối với sách thường</li>
+                    <li>5.000đ/ngày/sách đối với sách tham khảo</li>
+                    <li>Phạt tối đa: 50% giá trị sách</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="renew-book">Gia hạn mượn sách</h2>
+            <h3>Điều kiện gia hạn:</h3>
+            <ul>
+                <li>Sách chưa quá hạn</li>
+                <li>Không có độc giả khác đặt trước</li>
+                <li>Chưa gia hạn quá 2 lần</li>
+            </ul>
+
+            <h3>Các bước thực hiện:</h3>
+            <ol>
+                <li>Vào <strong>Danh sách đang mượn</strong></li>
+                <li>Tìm sách cần gia hạn</li>
+                <li>Click nút <strong>Gia hạn</strong></li>
+                <li>Xác nhận gia hạn</li>
+                <li>Ngày hết hạn mới sẽ được cập nhật (thêm 14 ngày)</li>
+            </ol>
+
+            <div class="note">
+                <strong>💡 Lưu ý:</strong> Mỗi lần gia hạn thêm 14 ngày, tối đa 2 lần gia hạn.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="view-borrows">Xem danh sách mượn</h2>
+            <h3>Xem tất cả phiếu mượn:</h3>
+            <ol>
+                <li>Vào menu <strong>Mượn/Trả</strong> → <strong>Danh sách mượn</strong></li>
+                <li>Xem danh sách với các trạng thái:
+                    <ul>
+                        <li><span class="badge badge-info">Đang mượn</span></li>
+                        <li><span class="badge badge-warning">Sắp hết hạn</span></li>
+                        <li><span class="badge badge-danger">Quá hạn</span></li>
+                        <li><span class="badge badge-success">Đã trả</span></li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Bộ lọc:</h3>
+            <ul>
+                <li><strong>Theo độc giả:</strong> Xem sách một độc giả đang mượn</li>
+                <li><strong>Theo trạng thái:</strong> Lọc theo trạng thái mượn</li>
+                <li><strong>Theo ngày:</strong> Lọc theo khoảng thời gian</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2 id="request-borrow">Yêu cầu mượn sách (Độc giả)</h2>
+            <p>Độc giả có thể tự yêu cầu mượn sách qua hệ thống online:</p>
+            
+            <h3>Các bước thực hiện (Độc giả):</h3>
+            <ol>
+                <li>Đăng nhập vào hệ thống</li>
+                <li>Tìm sách muốn mượn</li>
+                <li>Click <strong>Yêu cầu mượn</strong></li>
+                <li>Chọn ngày muốn nhận sách</li>
+                <li>Gửi yêu cầu</li>
+                <li>Đợi thư viện viên duyệt</li>
+            </ol>
+
+            <h3>Xử lý yêu cầu (Thư viện viên):</h3>
+            <ol>
+                <li>Vào <strong>Danh sách yêu cầu</strong></li>
+                <li>Xem chi tiết yêu cầu</li>
+                <li>Kiểm tra điều kiện</li>
+                <li>Chọn <strong>Duyệt</strong> hoặc <strong>Từ chối</strong></li>
+                <li>Nhập lý do (nếu từ chối)</li>
+                <li>Xác nhận</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2 id="fines">Quản lý phạt</h2>
+            <h3>Xem danh sách phạt:</h3>
+            <ol>
+                <li>Vào menu <strong>Mượn/Trả</strong> → <strong>Quản lý phạt</strong></li>
+                <li>Xem danh sách với các trạng thái:
+                    <ul>
+                        <li><span class="badge badge-warning">Chưa thanh toán</span></li>
+                        <li><span class="badge badge-success">Đã thanh toán</span></li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Thu phạt:</h3>
+            <ol>
+                <li>Tìm phiếu phạt cần thu</li>
+                <li>Click <strong>Thu phạt</strong></li>
+                <li>Nhập số tiền thu (có thể giảm nếu có lý do)</li>
+                <li>Chọn phương thức thanh toán</li>
+                <li>Xác nhận</li>
+                <li>In biên lai (nếu cần)</li>
+            </ol>
+
+            <div class="note">
+                <strong>💡 Lưu ý:</strong> Độc giả có nợ phạt không thể mượn sách mới cho đến khi thanh toán xong.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="api-reference">API liên quan</h2>
+            <div class="code-block">
+                <h4>POST /api/borrows</h4>
+                <p>Tạo phiếu mượn mới</p>
+                
+                <h4>GET /api/borrows</h4>
+                <p>Lấy danh sách phiếu mượn</p>
+                
+                <h4>PUT /api/borrows/:id/return</h4>
+                <p>Trả sách</p>
+                
+                <h4>PUT /api/borrows/:id/renew</h4>
+                <p>Gia hạn mượn sách</p>
+                
+                <h4>GET /api/requests</h4>
+                <p>Lấy danh sách yêu cầu mượn</p>
+                
+                <h4>PUT /api/requests/:id/approve</h4>
+                <p>Duyệt yêu cầu mượn</p>
+                
+                <h4>GET /api/fines</h4>
+                <p>Lấy danh sách phạt</p>
+                
+                <h4>POST /api/fines/:id/pay</h4>
+                <p>Thanh toán phạt</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="troubleshooting">Xử lý sự cố</h2>
+            
+            <h3>❌ Không thể cho mượn sách</h3>
+            <p><strong>Nguyên nhân:</strong></p>
+            <ul>
+                <li>Thẻ thư viện hết hạn</li>
+                <li>Độc giả đang nợ phạt</li>
+                <li>Đã mượn quá số lượng cho phép</li>
+                <li>Sách hết bản sao</li>
+            </ul>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Yêu cầu độc giả gia hạn thẻ</li>
+                <li>Thu phạt trước khi cho mượn</li>
+                <li>Yêu cầu trả bớt sách đang mượn</li>
+                <li>Đặt trước sách hoặc chọn sách khác</li>
+            </ul>
+
+            <h3>❌ Không tìm thấy phiếu mượn khi trả sách</h3>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Kiểm tra lại mã sách</li>
+                <li>Tìm theo mã độc giả</li>
+                <li>Kiểm tra trong danh sách đã trả</li>
+            </ul>
+
+            <h3>❌ Không thể gia hạn sách</h3>
+            <p><strong>Nguyên nhân:</strong></p>
+            <ul>
+                <li>Sách đã quá hạn</li>
+                <li>Đã gia hạn tối đa 2 lần</li>
+                <li>Có độc giả khác đặt trước</li>
+            </ul>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Trả sách và mượn lại (nếu chưa có người đặt)</li>
+                <li>Liên hệ thư viện viên để xử lý đặc biệt</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><a href="index.html">← Quay lại trang chủ</a></p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+

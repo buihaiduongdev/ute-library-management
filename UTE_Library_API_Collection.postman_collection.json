@@ -1,0 +1,663 @@
+{
+  "info": {
+    "name": "UTE Library Management API",
+    "description": "Collection đầy đủ các API của hệ thống quản lý thư viện UTE",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto login nếu chưa có token",
+          "if (!pm.environment.get('token') && pm.request.url.path.join('/') !== 'api/auth/login') {",
+          "    console.log('No token found, attempting auto-login...');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "[POST] Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Kiểm tra status code",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Kiểm tra response có token",
+                  "pm.test(\"Response has token\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "});",
+                  "",
+                  "// Kiểm tra response có user info",
+                  "pm.test(\"Response has user info\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('user');",
+                  "});",
+                  "",
+                  "// Lưu token vào environment",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"token\", jsonData.token);",
+                  "    console.log(\"✅ Token saved:\", jsonData.token.substring(0, 20) + \"...\");",
+                  "}",
+                  "",
+                  "// Kiểm tra response time",
+                  "pm.test(\"Response time is less than 500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "auth", "login"]
+            },
+            "description": "Đăng nhập để lấy JWT token"
+          },
+          "response": []
+        },
+        {
+          "name": "[POST] Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 200\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time < 500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser_{{$timestamp}}\",\n  \"password\": \"123456\",\n  \"email\": \"test{{$timestamp}}@example.com\",\n  \"fullName\": \"Test User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "auth", "register"]
+            },
+            "description": "Đăng ký tài khoản mới"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Books Management",
+      "item": [
+        {
+          "name": "[GET] Get All Books",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Has at least one book\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "// Lưu book_id đầu tiên",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.length > 0) {",
+                  "        pm.environment.set(\"book_id\", jsonData[0].id);",
+                  "        console.log(\"✅ Saved book_id:\", jsonData[0].id);",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test(\"Response time < 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/books",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "books"]
+            },
+            "description": "Lấy danh sách tất cả sách"
+          },
+          "response": []
+        },
+        {
+          "name": "[GET] Get Books with Pagination",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns max 10 items\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.length).to.be.at.most(10);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/books?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "books"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[GET] Get Book by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Book has required fields\", function () {",
+                  "    var book = pm.response.json();",
+                  "    pm.expect(book).to.have.property('id');",
+                  "    pm.expect(book).to.have.property('title');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/books/{{book_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "books", "{{book_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[POST] Create Book",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has book id\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('id');",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"new_book_id\", jsonData.id);",
+                  "    console.log(\"✅ Created book ID:\", jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Book {{$timestamp}}\",\n  \"author_id\": 1,\n  \"genre_id\": 1,\n  \"publisher_id\": 1,\n  \"publish_year\": 2024,\n  \"quantity\": 10,\n  \"isbn\": \"TEST{{$randomInt}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/books",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "books"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[PUT] Update Book",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Book Title\",\n  \"quantity\": 15\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/books/{{book_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "books", "{{book_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[DELETE] Delete Book",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 204\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/books/{{new_book_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "books", "{{new_book_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Borrow Management",
+      "item": [
+        {
+          "name": "[GET] Get All Borrows",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/borrow",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "borrow"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[POST] Create Borrow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"borrow_id\", jsonData.id);",
+                  "    console.log(\"✅ Created borrow ID:\", jsonData.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reader_id\": 1,\n  \"book_id\": 1,\n  \"borrow_date\": \"2024-10-13\",\n  \"due_date\": \"2024-10-27\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/borrow",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "borrow"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[POST] Return Book",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has fine info\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('fine_amount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"return_date\": \"2024-10-25\",\n  \"condition\": \"GOOD\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/borrow/{{borrow_id}}/return",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "borrow", "{{borrow_id}}", "return"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Search",
+      "item": [
+        {
+          "name": "[GET] Search Books",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Response time < 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/booksearch?q=test&searchBy=title",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "booksearch"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "test"
+                },
+                {
+                  "key": "searchBy",
+                  "value": "title"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Statistics",
+      "item": [
+        {
+          "name": "[GET] Get Overview Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Has statistics data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('object');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/statistics/overview",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "statistics", "overview"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Performance Monitoring",
+      "item": [
+        {
+          "name": "[GET] Performance Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Has performance data\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('totalRequests');",
+                  "    pm.expect(jsonData).to.have.property('averageTime');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/performance/stats",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "performance", "stats"]
+            },
+            "description": "Xem thống kê performance của tất cả API"
+          },
+          "response": []
+        },
+        {
+          "name": "[GET] Performance Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/performance/logs?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "performance", "logs"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "Xem chi tiết logs của các request gần đây"
+          },
+          "response": []
+        },
+        {
+          "name": "[GET] Performance By Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{api_prefix}}/performance/endpoints",
+              "host": ["{{base_url}}"],
+              "path": ["{{api_prefix}}", "performance", "endpoints"]
+            },
+            "description": "Xem thống kê performance theo từng endpoint"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "api_prefix",
+      "value": "/api",
+      "type": "string"
+    }
+  ]
+}
+
+
+
+

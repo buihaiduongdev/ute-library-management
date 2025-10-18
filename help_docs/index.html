@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng dẫn sử dụng - Hệ thống Quản lý Thư viện UTE</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Hệ thống Quản lý Thư viện UTE</h1>
+        <h2>Hướng dẫn Sử dụng Toàn diện</h2>
+        
+        <div class="version-info">
+            <p><strong>Phiên bản:</strong> 2.0</p>
+            <p><strong>Ngày cập nhật:</strong> 14/10/2025</p>
+            <p><strong>Dành cho:</strong> Tất cả người dùng (Độc giả, Thư viện viên, Quản trị viên)</p>
+        </div>
+
+        <div class="section">
+            <h3>Giới thiệu</h3>
+            <p>Tài liệu này hướng dẫn chi tiết cách sử dụng tất cả các chức năng trong hệ thống quản lý thư viện UTE, bao gồm quản lý sách, mượn/trả, quản lý độc giả, thống kê báo cáo và quản trị hệ thống.</p>
+        </div>
+
+        <div class="section">
+            <h3>📖 Mục lục</h3>
+            
+            <h4>🔐 Xác thực & Tài khoản</h4>
+            <ul class="main-menu">
+                <li><a href="authentication.html">Đăng ký & Đăng nhập</a></li>
+                <li><a href="profile_update.html">Cập nhật thông tin cá nhân</a></li>
+            </ul>
+
+            <h4>👥 Quản lý Độc giả</h4>
+            <ul class="main-menu">
+                <li><a href="reader_management.html">Quản lý thông tin độc giả</a></li>
+                <li><a href="card_info.html">Xem thông tin thẻ thư viện</a></li>
+                <li><a href="card_renewal.html">Gia hạn thẻ thư viện</a></li>
+            </ul>
+
+            <h4>📚 Quản lý Sách</h4>
+            <ul class="main-menu">
+                <li><a href="book_management.html">Quản lý Sách (Thêm, Sửa, Xóa)</a></li>
+                <li><a href="book_search.html">Tìm kiếm Sách</a></li>
+                <li><a href="author_genre_publisher.html">Quản lý Tác giả, Thể loại, Nhà xuất bản</a></li>
+            </ul>
+
+            <h4>📖 Mượn & Trả Sách</h4>
+            <ul class="main-menu">
+                <li><a href="borrow_return.html">Mượn và Trả Sách</a></li>
+                <li><a href="borrow_return.html#renew-book">Gia hạn mượn sách</a></li>
+                <li><a href="borrow_return.html#request-borrow">Yêu cầu mượn sách</a></li>
+                <li><a href="borrow_return.html#fines">Quản lý phạt</a></li>
+            </ul>
+
+            <h4>📊 Thống kê & Báo cáo</h4>
+            <ul class="main-menu">
+                <li><a href="statistics_reports.html">Thống kê và Báo cáo</a></li>
+                <li><a href="statistics_reports.html#dashboard">Dashboard Tổng quan</a></li>
+                <li><a href="statistics_reports.html#book-stats">Thống kê Sách</a></li>
+                <li><a href="statistics_reports.html#reader-stats">Thống kê Độc giả</a></li>
+                <li><a href="statistics_reports.html#export-reports">Xuất Báo cáo</a></li>
+            </ul>
+
+            <h4>⚙️ Quản trị Hệ thống</h4>
+            <ul class="main-menu">
+                <li><a href="system_admin.html">Quản lý Tài khoản</a></li>
+                <li><a href="system_admin.html#permissions">Phân quyền</a></li>
+                <li><a href="system_admin.html#system-config">Cấu hình Hệ thống</a></li>
+                <li><a href="system_admin.html#backup-restore">Sao lưu & Phục hồi</a></li>
+            </ul>
+
+            <h4>📚 Tài liệu Khác</h4>
+            <ul class="main-menu">
+                <li><a href="api_reference.html">Tài liệu API tham khảo</a></li>
+                <li><a href="troubleshooting.html">Xử lý sự cố thường gặp</a></li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>👥 Phân quyền Người dùng</h3>
+            <div class="note">
+                <h4>🔵 Độc giả (Reader)</h4>
+                <ul>
+                    <li>Tìm kiếm và xem thông tin sách</li>
+                    <li>Yêu cầu mượn sách</li>
+                    <li>Xem lịch sử mượn/trả của bản thân</li>
+                    <li>Gia hạn thẻ thư viện</li>
+                    <li>Cập nhật thông tin cá nhân</li>
+                </ul>
+
+                <h4>🟢 Thư viện viên (Staff)</h4>
+                <ul>
+                    <li>Tất cả quyền của Độc giả</li>
+                    <li>Quản lý sách (thêm, sửa, xóa)</li>
+                    <li>Quản lý tác giả, thể loại, nhà xuất bản</li>
+                    <li>Cho mượn và nhận trả sách</li>
+                    <li>Quản lý độc giả</li>
+                    <li>Xem thống kê và báo cáo</li>
+                </ul>
+
+                <h4>🔴 Quản trị viên (Admin)</h4>
+                <ul>
+                    <li>Tất cả quyền của Thư viện viên</li>
+                    <li>Quản lý tài khoản hệ thống</li>
+                    <li>Phân quyền người dùng</li>
+                    <li>Cấu hình hệ thống</li>
+                    <li>Sao lưu và phục hồi dữ liệu</li>
+                    <li>Xem nhật ký hệ thống</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section note">
+            <h3>⚠️ Lưu ý quan trọng</h3>
+            <ul>
+                <li>Bạn cần đăng nhập để sử dụng các chức năng của hệ thống</li>
+                <li>Token xác thực có hiệu lực 24 giờ, sau đó cần đăng nhập lại</li>
+                <li>Mỗi loại tài khoản có quyền hạn khác nhau</li>
+                <li>Thẻ thư viện cần được gia hạn trước khi hết hạn</li>
+                <li>Độc giả có nợ phạt không thể mượn sách mới</li>
+                <li>Chỉ Admin mới có quyền thay đổi cấu hình hệ thống</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>🚀 Bắt đầu nhanh</h3>
+            <div class="note">
+                <h4>Dành cho Độc giả:</h4>
+                <ol>
+                    <li><a href="authentication.html">Đăng ký tài khoản</a></li>
+                    <li><a href="book_search.html">Tìm kiếm sách</a></li>
+                    <li><a href="borrow_return.html#request-borrow">Yêu cầu mượn sách</a></li>
+                    <li><a href="card_renewal.html">Gia hạn thẻ khi cần</a></li>
+                </ol>
+
+                <h4>Dành cho Thư viện viên:</h4>
+                <ol>
+                    <li><a href="book_management.html">Quản lý kho sách</a></li>
+                    <li><a href="borrow_return.html">Xử lý mượn/trả sách</a></li>
+                    <li><a href="reader_management.html">Quản lý độc giả</a></li>
+                    <li><a href="statistics_reports.html">Xem thống kê</a></li>
+                </ol>
+
+                <h4>Dành cho Quản trị viên:</h4>
+                <ol>
+                    <li><a href="system_admin.html">Quản lý tài khoản</a></li>
+                    <li><a href="system_admin.html#system-config">Cấu hình hệ thống</a></li>
+                    <li><a href="system_admin.html#backup-restore">Thiết lập sao lưu tự động</a></li>
+                    <li><a href="statistics_reports.html">Theo dõi hoạt động</a></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>💡 Tính năng nổi bật</h3>
+            <ul>
+                <li>✅ Giao diện thân thiện, dễ sử dụng</li>
+                <li>✅ Tìm kiếm sách mạnh mẽ với bộ lọc nâng cao</li>
+                <li>✅ Quản lý mượn/trả tự động</li>
+                <li>✅ Thông báo qua email</li>
+                <li>✅ Thống kê và báo cáo chi tiết</li>
+                <li>✅ Thanh toán phạt trực tuyến</li>
+                <li>✅ Gia hạn thẻ online</li>
+                <li>✅ Sao lưu dữ liệu tự động</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>📞 Hỗ trợ</h3>
+            <p>Nếu bạn gặp vấn đề khi sử dụng, vui lòng:</p>
+            <ul>
+                <li>Xem mục <a href="troubleshooting.html">Xử lý sự cố thường gặp</a></li>
+                <li>Liên hệ quản trị viên thư viện</li>
+                <li>Gửi email hỗ trợ: <strong>support@ute.edu.vn</strong></li>
+                <li>Hotline: <strong>028-xxxx-xxxx</strong></li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <hr>
+            <p style="text-align: center; color: #666;">
+                © 2025 Thư viện Đại học Sư phạm Kỹ thuật TP.HCM<br>
+                Phiên bản 2.0 - Cập nhật: 14/10/2025
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
+

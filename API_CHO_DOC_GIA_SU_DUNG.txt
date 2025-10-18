@@ -1,0 +1,457 @@
+================================================================================
+              CÁC API MÀ ĐỘC GIẢ (READER) CÓ THỂ SỬ DỤNG
+                    HỆ THỐNG QUẢN LÝ THƯ VIỆN UTE
+================================================================================
+
+Ngày tạo: 13/10/2024
+Đối tượng: Độc giả (Reader - Role 2)
+
+================================================================================
+LƯU Ý QUAN TRỌNG
+================================================================================
+
+Để sử dụng các API này, độc giả cần:
+1. Đăng ký tài khoản: POST /api/auth/register
+2. Đăng nhập: POST /api/auth/login
+3. Lấy token từ response
+4. Thêm token vào Header: Authorization: Bearer {token}
+
+================================================================================
+NHÓM 1: XÁC THỰC (AUTHENTICATION) - KHÔNG CẦN TOKEN
+================================================================================
+
+1. POST /api/auth/register
+   Mô tả: Đăng ký tài khoản độc giả mới
+   Quyền: Public (không cần token)
+   Body: {
+     "username": "reader123",
+     "password": "123456",
+     "email": "reader@example.com",
+     "fullName": "Nguyen Van A",
+     "phone": "0123456789"
+   }
+
+2. POST /api/auth/login
+   Mô tả: Đăng nhập vào hệ thống
+   Quyền: Public (không cần token)
+   Body: {
+     "username": "reader123",
+     "password": "123456"
+   }
+   Response: Trả về token để sử dụng cho các API khác
+
+================================================================================
+NHÓM 2: TÌM KIẾM SÁCH (PUBLIC) - KHÔNG CẦN TOKEN
+================================================================================
+
+3. GET /api/booksearch
+   Endpoint: http://localhost:5000/api/booksearch?q=clean&searchBy=title
+   Mô tả: Tìm kiếm sách theo từ khóa
+   Quyền: Public (không cần token)
+   Query Params:
+     - q: Từ khóa tìm kiếm
+     - searchBy: title/author/isbn
+   Sử dụng khi: Độc giả muốn tìm sách trước khi đăng nhập
+
+4. GET /api/booksearch/trending
+   Endpoint: http://localhost:5000/api/booksearch/trending
+   Mô tả: Xem sách đang thịnh hành
+   Quyền: Public (không cần token)
+   Sử dụng khi: Xem sách hot nhất
+
+5. GET /api/booksearch/new-arrivals
+   Endpoint: http://localhost:5000/api/booksearch/new-arrivals
+   Mô tả: Xem sách mới về thư viện
+   Quyền: Public (không cần token)
+   Sử dụng khi: Xem sách mới nhất
+
+6. GET /api/booksearch/:id
+   Endpoint: http://localhost:5000/api/booksearch/1
+   Mô tả: Xem chi tiết sách
+   Quyền: Public (không cần token)
+   Sử dụng khi: Xem thông tin chi tiết 1 cuốn sách
+
+================================================================================
+NHÓM 3: XEM THÔNG TIN SÁCH - CẦN TOKEN
+================================================================================
+
+7. GET /api/books
+   Endpoint: http://localhost:5000/api/books?page=1&limit=10
+   Mô tả: Xem danh sách tất cả sách
+   Quyền: Cần token
+   Headers: Authorization: Bearer {token}
+   Query Params:
+     - page: Số trang
+     - limit: Số sách mỗi trang
+     - sortBy: Sắp xếp theo (title/author/year)
+   Sử dụng khi: Duyệt danh sách sách trong thư viện
+
+8. GET /api/books/:id
+   Endpoint: http://localhost:5000/api/books/1
+   Mô tả: Xem chi tiết sách (phiên bản đầy đủ)
+   Quyền: Cần token
+   Headers: Authorization: Bearer {token}
+   Sử dụng khi: Xem thông tin chi tiết, số lượng còn, vị trí
+
+9. GET /api/books/trending
+   Endpoint: http://localhost:5000/api/books/trending
+   Mô tả: Sách thịnh hành (có thêm thông tin)
+   Quyền: Cần token
+   Headers: Authorization: Bearer {token}
+
+10. GET /api/books/new-arrivals
+    Endpoint: http://localhost:5000/api/books/new-arrivals
+    Mô tả: Sách mới về (có thêm thông tin)
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+
+11. GET /api/books/recommended
+    Endpoint: http://localhost:5000/api/books/recommended
+    Mô tả: Sách gợi ý dựa trên sở thích
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Xem sách phù hợp với sở thích cá nhân
+
+12. GET /api/books/:id/related
+    Endpoint: http://localhost:5000/api/books/1/related
+    Mô tả: Xem sách liên quan
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Tìm sách tương tự
+
+13. GET /api/books/:id/copies
+    Endpoint: http://localhost:5000/api/books/1/copies
+    Mô tả: Xem các bản sao của sách
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Kiểm tra bản sao nào còn, nào đang được mượn
+
+14. GET /api/books/search
+    Endpoint: http://localhost:5000/api/books/search?q=clean
+    Mô tả: Tìm kiếm sách (phiên bản có token)
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+
+================================================================================
+NHÓM 4: YÊU CẦU MƯỢN SÁCH - CẦN TOKEN
+================================================================================
+
+15. POST /api/requests
+    Endpoint: http://localhost:5000/api/requests
+    Mô tả: Tạo yêu cầu mượn sách mới
+    Quyền: Reader (cần token)
+    Headers: Authorization: Bearer {token}
+    Body: {
+      "book_id": 1,
+      "borrow_date": "2024-10-15",
+      "notes": "Muốn mượn sách này"
+    }
+    Sử dụng khi: Độc giả muốn đăng ký mượn sách
+
+16. GET /api/requests/my
+    Endpoint: http://localhost:5000/api/requests/my
+    Mô tả: Xem danh sách yêu cầu mượn sách của tôi
+    Quyền: Reader (cần token)
+    Headers: Authorization: Bearer {token}
+    Query Params:
+      - status: pending/approved/rejected
+    Sử dụng khi: Kiểm tra trạng thái yêu cầu mượn sách
+
+17. GET /api/requests/:id
+    Endpoint: http://localhost:5000/api/requests/1
+    Mô tả: Xem chi tiết 1 yêu cầu
+    Quyền: Reader (cần token, chỉ xem yêu cầu của mình)
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Xem chi tiết yêu cầu, lý do từ chối (nếu có)
+
+18. PUT /api/requests/:id
+    Endpoint: http://localhost:5000/api/requests/1
+    Mô tả: Cập nhật yêu cầu (nếu chưa được duyệt)
+    Quyền: Reader (cần token)
+    Headers: Authorization: Bearer {token}
+    Body: {
+      "borrow_date": "2024-10-20",
+      "notes": "Thay đổi ngày mượn"
+    }
+
+19. DELETE /api/requests/:id
+    Endpoint: http://localhost:5000/api/requests/1
+    Mô tả: Hủy yêu cầu mượn sách
+    Quyền: Reader (cần token)
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Không muốn mượn nữa
+
+================================================================================
+NHÓM 5: QUẢN LÝ SÁCH ĐANG MƯỢN - CẦN TOKEN
+================================================================================
+
+20. GET /api/borrow/reader/:idDG
+    Endpoint: http://localhost:5000/api/borrow/reader/5
+    Mô tả: Xem lịch sử mượn sách của tôi
+    Quyền: Reader (cần token, chỉ xem của mình)
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Xem tất cả sách đã mượn, đang mượn, đã trả
+
+21. GET /api/borrow/fines
+    Endpoint: http://localhost:5000/api/borrow/fines
+    Mô tả: Xem danh sách phạt chưa thanh toán
+    Quyền: Reader (cần token)
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Kiểm tra có phạt nào chưa thanh toán
+
+22. GET /api/borrow/extendable
+    Endpoint: http://localhost:5000/api/borrow/extendable
+    Mô tả: Xem sách có thể gia hạn
+    Quyền: Reader (cần token)
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Kiểm tra sách nào có thể xin gia hạn thêm
+
+23. POST /api/borrow/:id/extend
+    Endpoint: http://localhost:5000/api/borrow/1/extend
+    Mô tả: Yêu cầu gia hạn sách
+    Quyền: Reader (cần token)
+    Headers: Authorization: Bearer {token}
+    Body: {
+      "extend_days": 7
+    }
+    Sử dụng khi: Muốn mượn thêm thời gian
+
+================================================================================
+NHÓM 6: THANH TOÁN PHẠT - CẦN TOKEN
+================================================================================
+
+24. POST /api/borrow/fines/:id/pay
+    Endpoint: http://localhost:5000/api/borrow/fines/1/pay
+    Mô tả: Thanh toán tiền phạt
+    Quyền: Reader (cần token)
+    Headers: Authorization: Bearer {token}
+    Body: {
+      "payment_method": "cash/bank_transfer",
+      "amount": 50000
+    }
+    Sử dụng khi: Thanh toán phạt trễ hạn
+
+================================================================================
+NHÓM 7: XEM THÔNG TIN CÁ NHÂN - CẦN TOKEN
+================================================================================
+
+25. GET /api/readers/:id
+    Endpoint: http://localhost:5000/api/readers/5
+    Mô tả: Xem thông tin cá nhân của tôi
+    Quyền: Reader (cần token, chỉ xem của mình)
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Xem profile, thông tin tài khoản
+
+26. PUT /api/readers/:id
+    Endpoint: http://localhost:5000/api/readers/5
+    Mô tả: Cập nhật thông tin cá nhân
+    Quyền: Reader (cần token, chỉ sửa của mình)
+    Headers: Authorization: Bearer {token}
+    Body: {
+      "email": "newemail@example.com",
+      "phone": "0987654321",
+      "address": "123 Nguyen Van Linh"
+    }
+
+27. GET /api/readers/:id/card-info
+    Endpoint: http://localhost:5000/api/readers/5/card-info
+    Mô tả: Xem thông tin thẻ thư viện
+    Quyền: Reader (cần token)
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Kiểm tra thẻ còn hạn không
+
+28. GET /api/readers/:id/borrow-info
+    Endpoint: http://localhost:5000/api/readers/5/borrow-info
+    Mô tả: Xem thông tin mượn sách tổng quan
+    Quyền: Reader (cần token)
+    Headers: Authorization: Bearer {token}
+    Response:
+      - Số sách đang mượn
+      - Số sách quá hạn
+      - Tổng tiền phạt
+
+================================================================================
+NHÓM 8: XEM TÁC GIẢ, THỂ LOẠI, NHÀ XUẤT BẢN - CẦN TOKEN
+================================================================================
+
+29. GET /api/authors
+    Endpoint: http://localhost:5000/api/authors
+    Mô tả: Xem danh sách tác giả
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+
+30. GET /api/authors/:id
+    Endpoint: http://localhost:5000/api/authors/1
+    Mô tả: Xem chi tiết tác giả
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+
+31. GET /api/authors/search
+    Endpoint: http://localhost:5000/api/authors/search?q=nguyen
+    Mô tả: Tìm kiếm tác giả
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+
+32. GET /api/genres
+    Endpoint: http://localhost:5000/api/genres
+    Mô tả: Xem danh sách thể loại
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+
+33. GET /api/genres/:id
+    Endpoint: http://localhost:5000/api/genres/1
+    Mô tả: Xem chi tiết thể loại
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+
+34. GET /api/publishers
+    Endpoint: http://localhost:5000/api/publishers
+    Mô tả: Xem danh sách nhà xuất bản
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+
+35. GET /api/publishers/:id
+    Endpoint: http://localhost:5000/api/publishers/1
+    Mô tả: Xem chi tiết nhà xuất bản
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+
+================================================================================
+NHÓM 9: XEM THỐNG KÊ - CẦN TOKEN
+================================================================================
+
+36. GET /api/stats/dashboard
+    Endpoint: http://localhost:5000/api/stats/dashboard
+    Mô tả: Xem thống kê dashboard
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+    Sử dụng khi: Xem tổng quan hệ thống
+
+37. GET /api/reader-stats/borrowing-status
+    Endpoint: http://localhost:5000/api/reader-stats/borrowing-status
+    Mô tả: Thống kê tình trạng mượn sách
+    Quyền: Cần token
+    Headers: Authorization: Bearer {token}
+
+================================================================================
+TỔNG KẾT
+================================================================================
+
+Tổng số API độc giả có thể sử dụng: 37 APIs
+
+Phân loại theo nhóm chức năng:
+1. Xác thực (không cần token): 2 APIs
+2. Tìm kiếm sách public (không cần token): 4 APIs
+3. Xem thông tin sách (cần token): 8 APIs
+4. Yêu cầu mượn sách (cần token): 5 APIs
+5. Quản lý sách đang mượn (cần token): 4 APIs
+6. Thanh toán phạt (cần token): 1 API
+7. Thông tin cá nhân (cần token): 4 APIs
+8. Xem tác giả, thể loại, NXB (cần token): 7 APIs
+9. Xem thống kê (cần token): 2 APIs
+
+APIs QUAN TRỌNG NHẤT cho độc giả:
+1. POST /api/auth/login - Đăng nhập
+2. GET /api/books - Xem danh sách sách
+3. GET /api/books/:id - Xem chi tiết sách
+4. POST /api/requests - Tạo yêu cầu mượn sách
+5. GET /api/requests/my - Xem yêu cầu của tôi
+6. GET /api/borrow/reader/:idDG - Xem lịch sử mượn
+7. GET /api/borrow/fines - Xem tiền phạt
+8. GET /api/borrow/extendable - Xem sách có thể gia hạn
+9. GET /api/readers/:id/borrow-info - Xem tổng quan mượn sách
+10. GET /api/booksearch - Tìm kiếm sách
+
+================================================================================
+LUỒNG SỬ DỤNG ĐIỂN HÌNH CỦA ĐỘC GIẢ
+================================================================================
+
+BƯỚC 1: ĐĂNG KÝ VÀ ĐĂNG NHẬP
+  1. POST /api/auth/register - Đăng ký tài khoản
+  2. POST /api/auth/login - Đăng nhập, lấy token
+
+BƯỚC 2: TÌM KIẾM VÀ XEM SÁCH
+  3. GET /api/booksearch?q=clean - Tìm sách
+  4. GET /api/books/:id - Xem chi tiết sách
+  5. GET /api/books/:id/copies - Kiểm tra còn sách không
+
+BƯỚC 3: TẠO YÊU CẦU MƯỢN
+  6. POST /api/requests - Tạo yêu cầu mượn sách
+  7. GET /api/requests/my - Kiểm tra trạng thái yêu cầu
+
+BƯỚC 4: QUẢN LÝ SÁCH ĐANG MƯỢN
+  8. GET /api/borrow/reader/:idDG - Xem sách đang mượn
+  9. GET /api/borrow/extendable - Kiểm tra có thể gia hạn không
+  10. POST /api/borrow/:id/extend - Gia hạn sách
+
+BƯỚC 5: KIỂM TRA VÀ THANH TOÁN PHẠT
+  11. GET /api/borrow/fines - Xem có phạt không
+  12. POST /api/borrow/fines/:id/pay - Thanh toán phạt
+
+BƯỚC 6: QUẢN LÝ THÔNG TIN CÁ NHÂN
+  13. GET /api/readers/:id - Xem thông tin cá nhân
+  14. GET /api/readers/:id/card-info - Kiểm tra thẻ
+  15. PUT /api/readers/:id - Cập nhật thông tin
+
+================================================================================
+LƯU Ý QUAN TRỌNG KHI SỬ DỤNG
+================================================================================
+
+1. Token có thời hạn (thường 24 giờ):
+   - Nếu token hết hạn, cần login lại
+   - Lưu token vào localStorage hoặc sessionStorage
+
+2. Độc giả chỉ xem được dữ liệu của mình:
+   - Không xem được yêu cầu của người khác
+   - Không xem được lịch sử mượn của người khác
+   - Chỉ sửa được thông tin cá nhân của mình
+
+3. Một số hạn chế:
+   - Không thể tự duyệt yêu cầu mượn (phải staff duyệt)
+   - Không thể tự trả sách (phải đến thư viện)
+   - Không thể xóa lịch sử mượn
+   - Không thể thay đổi số tiền phạt
+
+4. Quy định mượn sách:
+   - Tối đa X cuốn cùng lúc (xem config)
+   - Thời hạn mượn Y ngày (xem config)
+   - Có thể gia hạn Z lần (xem config)
+   - Phạt N đồng/ngày nếu trễ hạn
+
+5. Test các trường hợp:
+   - Mượn sách khi đã mượn tối đa
+   - Mượn sách khi có phạt chưa thanh toán
+   - Mượn sách khi thẻ hết hạn
+   - Gia hạn sách đã gia hạn tối đa
+
+================================================================================
+CÁC THÔNG SỐ CẦN LƯU KHI TEST
+================================================================================
+
+Với mỗi API, ghi lại:
+- Method (GET/POST/PUT/DELETE)
+- URL endpoint đầy đủ
+- Headers (Authorization token)
+- Body (nếu có)
+- Query/Path params (nếu có)
+- Status code (200/201/400/401/403/404)
+- Response time (ms)
+- Response body
+- Test result: PASS/FAIL
+- Notes đặc biệt
+
+Mục tiêu performance:
+- Response time < 300ms: Excellent
+- Response time 300-500ms: Good
+- Response time > 500ms: Cần optimize
+
+================================================================================
+KẾT THÚC
+================================================================================
+
+File được tạo: 13/10/2024
+Dành cho: Độc giả (Reader)
+Version: 1.0
+
+Chúc bạn sử dụng hệ thống thư viện hiệu quả!
+

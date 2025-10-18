@@ -10,7 +10,23 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, "../public")));
 
-app.use(cors());
+// Cấu hình CORS để cho phép tất cả origins
+app.use(cors({
+  origin: true, // Cho phép tất cả origins
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  preflightContinue: false,
+  optionsSuccessStatus: 200
+}));
+
+// Xử lý preflight requests trước khi đến CORS middleware
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.sendStatus(200);
+});
 
 app.use(express.json());
 
