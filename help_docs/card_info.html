@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem thông tin thẻ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Trang chủ</a> &gt; Xem thông tin thẻ
+        </div>
+
+        <h1>ℹ️ Xem thông tin thẻ thư viện</h1>
+
+        <div class="section">
+            <h2>Giới thiệu</h2>
+            <p>Thẻ thư viện là công cụ quan trọng để bạn sử dụng các dịch vụ của thư viện. Trang này hướng dẫn bạn cách kiểm tra thông tin thẻ và hiểu các thông số quan trọng.</p>
+        </div>
+
+        <div class="section">
+            <h2>Cách xem thông tin thẻ</h2>
+            
+            <h3>Bước 1: Chuẩn bị</h3>
+            <ul>
+                <li>Đăng nhập vào hệ thống để lấy token</li>
+                <li>Biết ID độc giả của bạn (được cung cấp khi đăng nhập)</li>
+            </ul>
+
+            <h3>Bước 2: Gọi API</h3>
+            <div class="code-block">
+                <p><strong>Endpoint:</strong> GET /api/readers/:id/card-info</p>
+                <p><strong>URL mẫu:</strong> http://localhost:5000/api/readers/5/card-info</p>
+                <p><strong>Method:</strong> GET</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Authorization: Bearer {your_token_here}
+Content-Type: application/json</pre>
+            </div>
+
+            <h3>Response mẫu</h3>
+            <div class="code-block">
+                <pre>{
+  "success": true,
+  "data": {
+    "card_number": "LIB2024001",
+    "issue_date": "2024-01-15",
+    "expiry_date": "2024-12-31",
+    "status": "active",
+    "days_remaining": 79,
+    "reader_info": {
+      "id": 5,
+      "fullName": "Nguyen Van A",
+      "email": "reader@example.com"
+    }
+  }
+}</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Giải thích các trường thông tin</h2>
+            
+            <table class="data-table">
+                <tr>
+                    <th>Trường</th>
+                    <th>Ý nghĩa</th>
+                    <th>Ví dụ</th>
+                </tr>
+                <tr>
+                    <td>card_number</td>
+                    <td>Số thẻ thư viện</td>
+                    <td>LIB2024001</td>
+                </tr>
+                <tr>
+                    <td>issue_date</td>
+                    <td>Ngày cấp thẻ</td>
+                    <td>2024-01-15</td>
+                </tr>
+                <tr>
+                    <td>expiry_date</td>
+                    <td>Ngày hết hạn</td>
+                    <td>2024-12-31</td>
+                </tr>
+                <tr>
+                    <td>status</td>
+                    <td>Trạng thái thẻ</td>
+                    <td>active / expired / suspended</td>
+                </tr>
+                <tr>
+                    <td>days_remaining</td>
+                    <td>Số ngày còn lại</td>
+                    <td>79 (tính từ ngày hiện tại)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Các trạng thái thẻ</h2>
+            
+            <div class="status-box active">
+                <h3>✅ Active (Đang hoạt động)</h3>
+                <p><strong>Ý nghĩa:</strong> Thẻ đang còn hạn và hoạt động bình thường</p>
+                <p><strong>Bạn có thể:</strong></p>
+                <ul>
+                    <li>✓ Mượn sách mới</li>
+                    <li>✓ Gia hạn sách đang mượn</li>
+                    <li>✓ Sử dụng đầy đủ dịch vụ thư viện</li>
+                </ul>
+            </div>
+
+            <div class="status-box warning">
+                <h3>⚠️ Expiring Soon (Sắp hết hạn)</h3>
+                <p><strong>Ý nghĩa:</strong> Thẻ còn ít hơn 30 ngày</p>
+                <p><strong>Khuyến nghị:</strong></p>
+                <ul>
+                    <li>Liên hệ thư viện để gia hạn thẻ sớm</li>
+                    <li>Chuẩn bị giấy tờ cần thiết cho việc gia hạn</li>
+                </ul>
+            </div>
+
+            <div class="status-box expired">
+                <h3>❌ Expired (Hết hạn)</h3>
+                <p><strong>Ý nghĩa:</strong> Thẻ đã hết hạn sử dụng</p>
+                <p><strong>Hạn chế:</strong></p>
+                <ul>
+                    <li>✗ Không thể mượn sách mới</li>
+                    <li>✗ Không thể gia hạn sách</li>
+                    <li>✓ Vẫn phải trả sách đang mượn</li>
+                </ul>
+                <p><strong>Giải pháp:</strong> Liên hệ thư viện ngay để gia hạn thẻ</p>
+            </div>
+
+            <div class="status-box suspended">
+                <h3>🚫 Suspended (Bị đình chỉ)</h3>
+                <p><strong>Ý nghĩa:</strong> Thẻ bị tạm ngưng do vi phạm quy định</p>
+                <p><strong>Nguyên nhân thường gặp:</strong></p>
+                <ul>
+                    <li>Trả sách trễ quá nhiều lần</li>
+                    <li>Có nhiều tiền phạt chưa thanh toán</li>
+                    <li>Làm mất hoặc hư hỏng sách</li>
+                </ul>
+                <p><strong>Giải pháp:</strong> Liên hệ thư viện để giải quyết vấn đề</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Cách hiểu days_remaining</h2>
+            
+            <table class="status-table">
+                <tr>
+                    <th>Số ngày còn lại</th>
+                    <th>Đánh giá</th>
+                    <th>Hành động</th>
+                </tr>
+                <tr class="good">
+                    <td>&gt; 90 ngày</td>
+                    <td>Rất tốt</td>
+                    <td>Không cần lo lắng</td>
+                </tr>
+                <tr class="ok">
+                    <td>30-90 ngày</td>
+                    <td>Bình thường</td>
+                    <td>Theo dõi định kỳ</td>
+                </tr>
+                <tr class="warning">
+                    <td>7-30 ngày</td>
+                    <td>Cần chú ý</td>
+                    <td>Chuẩn bị gia hạn</td>
+                </tr>
+                <tr class="danger">
+                    <td>1-7 ngày</td>
+                    <td>Khẩn cấp</td>
+                    <td>Gia hạn ngay</td>
+                </tr>
+                <tr class="expired">
+                    <td>≤ 0 ngày</td>
+                    <td>Hết hạn</td>
+                    <td>Liên hệ thư viện</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Kiểm tra thẻ định kỳ</h2>
+            
+            <h3>Tần suất khuyến nghị</h3>
+            <ul>
+                <li><strong>Hàng tháng:</strong> Kiểm tra ít nhất 1 lần/tháng</li>
+                <li><strong>Khi sắp mượn sách:</strong> Kiểm tra trước khi tạo yêu cầu mượn</li>
+                <li><strong>Khi nhận được thông báo:</strong> Kiểm tra khi hệ thống gửi cảnh báo</li>
+            </ul>
+
+            <h3>Ví dụ code tự động kiểm tra</h3>
+            <div class="code-block">
+                <pre>async function checkCardStatus(userId, token) {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/readers/${userId}/card-info`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    
+    const result = await response.json();
+    const cardInfo = result.data;
+    
+    // Kiểm tra trạng thái
+    if (cardInfo.status === 'expired') {
+      alert('⚠️ Thẻ của bạn đã hết hạn! Vui lòng gia hạn.');
+      return false;
+    }
+    
+    if (cardInfo.days_remaining < 30) {
+      alert(`⚠️ Thẻ còn ${cardInfo.days_remaining} ngày. Nên gia hạn sớm!`);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Lỗi kiểm tra thẻ:', error);
+    return false;
+  }
+}
+
+// Sử dụng
+const userId = 5;
+const token = localStorage.getItem('token');
+checkCardStatus(userId, token);</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Xử lý lỗi</h2>
+            
+            <div class="error-box">
+                <h3>❌ 401 Unauthorized</h3>
+                <p>Token không hợp lệ hoặc đã hết hạn. Đăng nhập lại.</p>
+            </div>
+
+            <div class="error-box">
+                <h3>❌ 403 Forbidden</h3>
+                <p>Bạn đang cố xem thông tin thẻ của người khác. Chỉ xem được thẻ của mình.</p>
+            </div>
+
+            <div class="error-box">
+                <h3>❌ 404 Not Found</h3>
+                <p>Không tìm thấy thông tin thẻ. ID độc giả có thể không đúng.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Câu hỏi thường gặp</h2>
+            
+            <div class="faq">
+                <p><strong>Q: Số thẻ thư viện dùng để làm gì?</strong></p>
+                <p>A: Số thẻ là mã định danh duy nhất của bạn trong hệ thống thư viện, dùng khi đến mượn/trả sách trực tiếp.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Tại sao days_remaining là số âm?</strong></p>
+                <p>A: Số âm nghĩa là thẻ đã quá hạn bấy nhiêu ngày. Ví dụ: -5 nghĩa là hết hạn từ 5 ngày trước.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Thẻ bị suspended có tự động active lại không?</strong></p>
+                <p>A: Không, bạn cần liên hệ thư viện để giải quyết vấn đề và kích hoạt lại thẻ.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Có thể xem lịch sử gia hạn thẻ không?</strong></p>
+                <p>A: Hiện tại API chỉ hiển thị ngày cấp và ngày hết hạn hiện tại. Liên hệ thư viện để xem lịch sử chi tiết.</p>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="profile_update.html" class="btn">← Cập nhật thông tin</a>
+            <a href="troubleshooting.html" class="btn">Xử lý sự cố →</a>
+        </div>
+    </div>
+</body>
+</html>
+
+

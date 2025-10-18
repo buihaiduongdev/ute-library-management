@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Tác giả, Thể loại, Nhà xuất bản - Hướng dẫn sử dụng</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>👥 Quản lý Tác giả, Thể loại, Nhà xuất bản</h1>
+        
+        <div class="section">
+            <h2 id="overview">Tổng quan</h2>
+            <p>Module này quản lý các danh mục phụ trợ cho hệ thống thư viện, bao gồm tác giả, thể loại và nhà xuất bản.</p>
+        </div>
+
+        <!-- QUẢN LÝ TÁC GIẢ -->
+        <div class="section">
+            <h2 id="author-management">📝 Quản lý Tác giả</h2>
+            
+            <h3>Xem danh sách tác giả:</h3>
+            <ol>
+                <li>Vào menu <strong>Quản lý</strong> → <strong>Quản lý Tác giả</strong></li>
+                <li>Danh sách hiển thị:
+                    <ul>
+                        <li>Mã tác giả</li>
+                        <li>Tên tác giả</li>
+                        <li>Quốc tịch</li>
+                        <li>Năm sinh</li>
+                        <li>Tiểu sử (tóm tắt)</li>
+                        <li>Số lượng sách</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Thêm tác giả mới:</h3>
+            <ol>
+                <li>Click nút <strong>Thêm tác giả</strong></li>
+                <li>Điền thông tin:
+                    <ul>
+                        <li><strong>Tên tác giả</strong> (bắt buộc)</li>
+                        <li><strong>Quốc tịch</strong></li>
+                        <li><strong>Năm sinh</strong></li>
+                        <li><strong>Năm mất</strong> (nếu có)</li>
+                        <li><strong>Tiểu sử</strong></li>
+                        <li><strong>Website</strong> (nếu có)</li>
+                    </ul>
+                </li>
+                <li>Click <strong>Lưu</strong></li>
+            </ol>
+
+            <h3>Chỉnh sửa tác giả:</h3>
+            <ol>
+                <li>Tìm tác giả cần chỉnh sửa</li>
+                <li>Click nút <strong>Chỉnh sửa</strong></li>
+                <li>Cập nhật thông tin</li>
+                <li>Click <strong>Cập nhật</strong></li>
+            </ol>
+
+            <h3>Xóa tác giả:</h3>
+            <ol>
+                <li>Tìm tác giả cần xóa</li>
+                <li>Click nút <strong>Xóa</strong></li>
+                <li>Xác nhận xóa</li>
+            </ol>
+
+            <div class="warning">
+                <strong>⚠️ Cảnh báo:</strong> Không thể xóa tác giả đang có sách trong hệ thống.
+            </div>
+
+            <h3>API liên quan:</h3>
+            <div class="code-block">
+                <p><strong>GET /api/authors</strong> - Lấy danh sách tác giả</p>
+                <p><strong>GET /api/authors/:id</strong> - Lấy thông tin chi tiết tác giả</p>
+                <p><strong>POST /api/authors</strong> - Thêm tác giả mới</p>
+                <p><strong>PUT /api/authors/:id</strong> - Cập nhật tác giả</p>
+                <p><strong>DELETE /api/authors/:id</strong> - Xóa tác giả</p>
+            </div>
+        </div>
+
+        <!-- QUẢN LÝ THỂ LOẠI -->
+        <div class="section">
+            <h2 id="genre-management">📚 Quản lý Thể loại</h2>
+            
+            <h3>Xem danh sách thể loại:</h3>
+            <ol>
+                <li>Vào menu <strong>Quản lý</strong> → <strong>Quản lý Thể loại</strong></li>
+                <li>Danh sách hiển thị:
+                    <ul>
+                        <li>Mã thể loại</li>
+                        <li>Tên thể loại</li>
+                        <li>Mô tả</li>
+                        <li>Số lượng sách</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Thêm thể loại mới:</h3>
+            <ol>
+                <li>Click nút <strong>Thêm thể loại</strong></li>
+                <li>Điền thông tin:
+                    <ul>
+                        <li><strong>Tên thể loại</strong> (bắt buộc)</li>
+                        <li><strong>Mô tả</strong></li>
+                    </ul>
+                </li>
+                <li>Click <strong>Lưu</strong></li>
+            </ol>
+
+            <h3>Các thể loại phổ biến:</h3>
+            <ul>
+                <li>Văn học</li>
+                <li>Khoa học - Công nghệ</li>
+                <li>Kinh tế</li>
+                <li>Lịch sử</li>
+                <li>Triết học</li>
+                <li>Nghệ thuật</li>
+                <li>Giáo trình</li>
+                <li>Tham khảo</li>
+                <li>Thiếu nhi</li>
+                <li>Ngoại ngữ</li>
+            </ul>
+
+            <h3>Chỉnh sửa thể loại:</h3>
+            <ol>
+                <li>Tìm thể loại cần chỉnh sửa</li>
+                <li>Click nút <strong>Chỉnh sửa</strong></li>
+                <li>Cập nhật thông tin</li>
+                <li>Click <strong>Cập nhật</strong></li>
+            </ol>
+
+            <h3>Xóa thể loại:</h3>
+            <ol>
+                <li>Tìm thể loại cần xóa</li>
+                <li>Click nút <strong>Xóa</strong></li>
+                <li>Xác nhận xóa</li>
+            </ol>
+
+            <div class="warning">
+                <strong>⚠️ Cảnh báo:</strong> Không thể xóa thể loại đang có sách.
+            </div>
+
+            <h3>API liên quan:</h3>
+            <div class="code-block">
+                <p><strong>GET /api/genres</strong> - Lấy danh sách thể loại</p>
+                <p><strong>GET /api/genres/:id</strong> - Lấy thông tin chi tiết thể loại</p>
+                <p><strong>POST /api/genres</strong> - Thêm thể loại mới</p>
+                <p><strong>PUT /api/genres/:id</strong> - Cập nhật thể loại</p>
+                <p><strong>DELETE /api/genres/:id</strong> - Xóa thể loại</p>
+            </div>
+        </div>
+
+        <!-- QUẢN LÝ NHÀ XUẤT BẢN -->
+        <div class="section">
+            <h2 id="publisher-management">🏢 Quản lý Nhà xuất bản</h2>
+            
+            <h3>Xem danh sách nhà xuất bản:</h3>
+            <ol>
+                <li>Vào menu <strong>Quản lý</strong> → <strong>Quản lý Nhà xuất bản</strong></li>
+                <li>Danh sách hiển thị:
+                    <ul>
+                        <li>Mã NXB</li>
+                        <li>Tên NXB</li>
+                        <li>Địa chỉ</li>
+                        <li>Số điện thoại</li>
+                        <li>Email</li>
+                        <li>Số lượng sách</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h3>Thêm nhà xuất bản mới:</h3>
+            <ol>
+                <li>Click nút <strong>Thêm nhà xuất bản</strong></li>
+                <li>Điền thông tin:
+                    <ul>
+                        <li><strong>Tên NXB</strong> (bắt buộc)</li>
+                        <li><strong>Địa chỉ</strong></li>
+                        <li><strong>Số điện thoại</strong></li>
+                        <li><strong>Email</strong></li>
+                        <li><strong>Website</strong></li>
+                        <li><strong>Mô tả</strong></li>
+                    </ul>
+                </li>
+                <li>Click <strong>Lưu</strong></li>
+            </ol>
+
+            <h3>Các nhà xuất bản phổ biến tại Việt Nam:</h3>
+            <ul>
+                <li>NXB Trẻ</li>
+                <li>NXB Kim Đồng</li>
+                <li>NXB Giáo dục Việt Nam</li>
+                <li>NXB Văn học</li>
+                <li>NXB Chính trị Quốc gia</li>
+                <li>NXB Đại học Quốc gia TP.HCM</li>
+                <li>NXB Lao động</li>
+                <li>NXB Tổng hợp TP.HCM</li>
+            </ul>
+
+            <h3>Chỉnh sửa nhà xuất bản:</h3>
+            <ol>
+                <li>Tìm NXB cần chỉnh sửa</li>
+                <li>Click nút <strong>Chỉnh sửa</strong></li>
+                <li>Cập nhật thông tin</li>
+                <li>Click <strong>Cập nhật</strong></li>
+            </ol>
+
+            <h3>Xóa nhà xuất bản:</h3>
+            <ol>
+                <li>Tìm NXB cần xóa</li>
+                <li>Click nút <strong>Xóa</strong></li>
+                <li>Xác nhận xóa</li>
+            </ol>
+
+            <div class="warning">
+                <strong>⚠️ Cảnh báo:</strong> Không thể xóa NXB đang có sách trong hệ thống.
+            </div>
+
+            <h3>API liên quan:</h3>
+            <div class="code-block">
+                <p><strong>GET /api/publishers</strong> - Lấy danh sách NXB</p>
+                <p><strong>GET /api/publishers/:id</strong> - Lấy thông tin chi tiết NXB</p>
+                <p><strong>POST /api/publishers</strong> - Thêm NXB mới</p>
+                <p><strong>PUT /api/publishers/:id</strong> - Cập nhật NXB</p>
+                <p><strong>DELETE /api/publishers/:id</strong> - Xóa NXB</p>
+            </div>
+        </div>
+
+        <!-- TÌM KIẾM VÀ LỌC -->
+        <div class="section">
+            <h2 id="search-filter">🔍 Tìm kiếm và Lọc</h2>
+            
+            <h3>Tìm kiếm:</h3>
+            <ul>
+                <li>Sử dụng ô tìm kiếm ở đầu mỗi trang</li>
+                <li>Nhập từ khóa (tên, mã...)</li>
+                <li>Kết quả hiển thị ngay lập tức</li>
+            </ul>
+
+            <h3>Sắp xếp:</h3>
+            <ul>
+                <li>Theo tên (A-Z, Z-A)</li>
+                <li>Theo số lượng sách (tăng/giảm dần)</li>
+                <li>Theo ngày tạo (mới nhất/cũ nhất)</li>
+            </ul>
+
+            <h3>Phân trang:</h3>
+            <ul>
+                <li>Mỗi trang hiển thị 10-20 mục</li>
+                <li>Chuyển trang bằng nút Trước/Sau</li>
+                <li>Hoặc nhảy trực tiếp đến trang cụ thể</li>
+            </ul>
+        </div>
+
+        <!-- XỬ LÝ SỰ CỐ -->
+        <div class="section">
+            <h2 id="troubleshooting">Xử lý sự cố</h2>
+            
+            <h3>❌ Không thể thêm mới</h3>
+            <p><strong>Nguyên nhân:</strong></p>
+            <ul>
+                <li>Tên đã tồn tại</li>
+                <li>Thiếu thông tin bắt buộc</li>
+                <li>Không có quyền thêm mới</li>
+            </ul>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Kiểm tra tên không trùng</li>
+                <li>Điền đầy đủ thông tin bắt buộc</li>
+                <li>Kiểm tra quyền tài khoản</li>
+            </ul>
+
+            <h3>❌ Không thể xóa</h3>
+            <p><strong>Nguyên nhân:</strong></p>
+            <ul>
+                <li>Đang có sách liên kết</li>
+                <li>Dữ liệu đang được sử dụng</li>
+            </ul>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Xóa hoặc chuyển sách sang danh mục khác</li>
+                <li>Hoặc đánh dấu "Không hoạt động" thay vì xóa</li>
+            </ul>
+
+            <h3>❌ Tìm kiếm không chính xác</h3>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Kiểm tra chính tả</li>
+                <li>Thử tìm kiếm với từ khóa ngắn hơn</li>
+                <li>Sử dụng tìm kiếm nâng cao</li>
+            </ul>
+        </div>
+
+        <!-- MẸO VÀ THỰC HÀNH TỐT -->
+        <div class="section">
+            <h2 id="best-practices">💡 Mẹo và Thực hành tốt</h2>
+            
+            <h3>Đối với Tác giả:</h3>
+            <ul>
+                <li>Nhập tên đầy đủ và chuẩn</li>
+                <li>Thêm tiểu sử chi tiết để dễ tìm kiếm</li>
+                <li>Cập nhật thông tin khi có thay đổi</li>
+                <li>Gắn ảnh đại diện nếu có</li>
+            </ul>
+
+            <h3>Đối với Thể loại:</h3>
+            <ul>
+                <li>Tạo phân loại rõ ràng, không chồng chéo</li>
+                <li>Không tạo quá nhiều thể loại con</li>
+                <li>Đặt tên ngắn gọn, dễ hiểu</li>
+                <li>Có thể tạo thể loại cha-con nếu cần</li>
+            </ul>
+
+            <h3>Đối với Nhà xuất bản:</h3>
+            <ul>
+                <li>Nhập đầy đủ thông tin liên hệ</li>
+                <li>Cập nhật địa chỉ, SĐT khi thay đổi</li>
+                <li>Lưu logo NXB nếu có</li>
+                <li>Ghi chú các điều khoản hợp tác đặc biệt</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><a href="index.html">← Quay lại trang chủ</a></p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+

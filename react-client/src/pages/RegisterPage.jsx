@@ -29,10 +29,57 @@ const RegisterPage = () => {
 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [validationErrors, setValidationErrors] = useState({});
     const navigate = useNavigate();
+
+    const validateForm = () => {
+        const errors = {};
+        
+        // Validate HoTen
+        if (!hoTen.trim()) {
+            errors.hoTen = 'Họ tên không được để trống';
+        } else {
+            const vietnameseNameRegex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂÂĐÊÔƠƯưăâđêôơư\s\-\.]+$/;
+            if (!vietnameseNameRegex.test(hoTen)) {
+                errors.hoTen = 'Họ tên chỉ được chứa chữ cái, khoảng trắng và dấu gạch ngang';
+            }
+        }
+        
+        // Validate Email
+        if (!email.trim()) {
+            errors.email = 'Email không được để trống';
+        } else if (!/^\S+@\S+$/.test(email)) {
+            errors.email = 'Email không hợp lệ';
+        }
+        
+        // Validate Password
+        if (!password.trim()) {
+            errors.password = 'Mật khẩu không được để trống';
+        } else if (password.length < 6) {
+            errors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+        }
+        
+        // Validate Password Confirmation
+        if (!confirmedPassword.trim()) {
+            errors.confirmedPassword = 'Xác nhận mật khẩu không được để trống';
+        } else if (password !== confirmedPassword) {
+            errors.confirmedPassword = 'Mật khẩu xác nhận không khớp';
+        }
+        
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        
+        // Validate form before submitting
+        if (!validateForm()) {
+            return;
+        }
+        
+        // TODO: Implement registration logic here
+        console.log('Form is valid, ready to submit');
     };
 
     return (
@@ -43,10 +90,12 @@ const RegisterPage = () => {
                 <form onSubmit={handleSubmit}>
                     <TextInput
                         label="Họ tên"
+                        placeholder="Nguyễn Văn A"
                         required
                         value={hoTen}
                         onChange={(e) => setHoTen(e.currentTarget.value)}
                         size="md"
+                        error={validationErrors.hoTen}
                     />
                     <DatePickerInput
                         mt="md"
@@ -69,10 +118,12 @@ const RegisterPage = () => {
                     <TextInput
                         mt="md"
                         label="Email"
+                        placeholder="example@mail.com"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.currentTarget.value)}
                         size="md"
+                        error={validationErrors.email}
                     />
                     <TextInput
                         mt="md"
@@ -97,6 +148,7 @@ const RegisterPage = () => {
                         value={password}
                         onChange={(event) => setPassword(event.currentTarget.value)}
                         size="md"
+                        error={validationErrors.password}
                     />
                     <PasswordInput
                         label="Xác nhận mật khẩu"
@@ -105,6 +157,7 @@ const RegisterPage = () => {
                         value={confirmedPassword}
                         onChange={(event) => setConfirmedPassword(event.currentTarget.value)}
                         size="md"
+                        error={validationErrors.confirmedPassword}
                     />
                     <Button fullWidth mt="xl" type="submit">
                         Đăng ký

@@ -1,0 +1,234 @@
+================================================================================
+        HƯỚNG DẪN NHANH - TẠO FILE CHM QUẢN LÝ ĐỘC GIẢ & GIA HẠN THẺ
+================================================================================
+
+📁 CÁC FILE ĐÃ TẠO:
+
+✅ File HTML (nội dung):
+   - index.html                 (Trang chủ)
+   - authentication.html        (Đăng ký & Đăng nhập)
+   - reader_management.html     (Quản lý thông tin độc giả)
+   - card_renewal.html          (Gia hạn thẻ thư viện)
+   - profile_update.html        (Cập nhật thông tin cá nhân)
+   - card_info.html             (Xem thông tin thẻ)
+   - troubleshooting.html       (Xử lý sự cố thường gặp)
+   - api_reference.html         (Tài liệu API tham khảo)
+
+✅ File hỗ trợ:
+   - style.css                  (CSS cho tất cả trang)
+   - help_project.hhp           (File project CHM)
+   - help_toc.hhc               (Mục lục CHM)
+
+✅ File tiện ích:
+   - build.bat                  (Script tự động biên dịch CHM)
+   - README.md                  (Hướng dẫn chi tiết)
+   - HUONG_DAN_NHANH.txt       (File này)
+
+================================================================================
+⚡ CÁCH TẠO FILE CHM - NHANH NHẤT
+================================================================================
+
+BƯỚC 1: Cài đặt HTML Help Workshop
+--------------------------------------
+1. Download từ: https://www.microsoft.com/en-us/download/details.aspx?id=21138
+2. Chạy file cài đặt
+3. Cài đặt với cấu hình mặc định
+
+BƯỚC 2: Biên dịch file CHM
+--------------------------------------
+Cách 1 - Sử dụng script tự động (ĐƠN GIẢN NHẤT):
+   • Double-click vào file: build.bat
+   • Đợi biên dịch xong
+   • File CHM sẽ xuất hiện: QuanLyDocGia_GiaHanThe.chm
+
+Cách 2 - Sử dụng HTML Help Workshop:
+   • Mở HTML Help Workshop
+   • File > Open > Chọn "help_project.hhp"
+   • Click nút "Compile" hoặc nhấn F9
+   • Đợi biên dịch xong
+
+Cách 3 - Sử dụng Command Line:
+   • Mở Command Prompt
+   • cd đến thư mục help_docs
+   • Chạy lệnh:
+     "C:\Program Files (x86)\HTML Help Workshop\hhc.exe" help_project.hhp
+
+BƯỚC 3: Mở file CHM
+--------------------------------------
+1. Double-click file: QuanLyDocGia_GiaHanThe.chm
+2. Nếu bị chặn (Windows Security):
+   - Chuột phải vào file CHM
+   - Properties
+   - Tích "Unblock"
+   - Apply > OK
+   - Mở lại file
+
+================================================================================
+📖 XEM TRƯỚC KHÔNG CẦN BIÊN DỊCH
+================================================================================
+
+Nếu chưa cài HTML Help Workshop, bạn vẫn có thể xem nội dung:
+
+• Cách 1: Mở trực tiếp file HTML
+  - Double-click file: index.html
+  - Xem bằng trình duyệt web
+
+• Cách 2: Xem toàn bộ
+  - Mở index.html bằng Chrome/Firefox/Edge
+  - Click vào các link để điều hướng giữa các trang
+
+================================================================================
+🔧 XỬ LÝ LỖI THƯỜNG GẶP
+================================================================================
+
+❌ Lỗi: "hhc.exe not found"
+   ✅ Giải pháp: Cài đặt HTML Help Workshop hoặc sửa đường dẫn trong build.bat
+
+❌ Lỗi: "Cannot compile"
+   ✅ Giải pháp: 
+      - Kiểm tra tất cả file HTML đều có trong thư mục
+      - Đảm bảo file help_project.hhp và help_toc.hhc không bị lỗi
+
+❌ Lỗi: File CHM bị chặn khi mở
+   ✅ Giải pháp: Unblock file (xem Bước 3 ở trên)
+
+❌ Lỗi: Hiển thị lỗi font hoặc tiếng Việt
+   ✅ Giải pháo: 
+      - Đảm bảo file được save với encoding UTF-8
+      - Mở lại file CHM
+
+❌ File CHM trống hoặc không có nội dung
+   ✅ Giải pháp:
+      - Kiểm tra file style.css có cùng thư mục không
+      - Biên dịch lại
+
+================================================================================
+📝 NỘI DUNG TÀI LIỆU
+================================================================================
+
+Tài liệu bao gồm 2 phần chính:
+
+1️⃣ QUẢN LÝ THÔNG TIN ĐỘC GIẢ:
+   ✓ Đăng ký tài khoản mới
+   ✓ Đăng nhập vào hệ thống
+   ✓ Xem thông tin cá nhân
+   ✓ Cập nhật thông tin (email, SĐT, địa chỉ)
+   ✓ Xem tổng quan mượn sách
+
+2️⃣ GIA HẠN THẺ THƯ VIỆN:
+   ✓ Kiểm tra thời hạn thẻ
+   ✓ Xem thông tin thẻ chi tiết
+   ✓ Quy trình gia hạn thẻ
+   ✓ Xử lý khi thẻ hết hạn
+
+3️⃣ PHỤ LỤC:
+   ✓ Tài liệu API đầy đủ
+   ✓ Xử lý sự cố thường gặp
+   ✓ Câu hỏi thường gặp (FAQ)
+   ✓ Ví dụ code minh họa
+
+================================================================================
+🎯 TÍNH NĂNG NỔI BẬT
+================================================================================
+
+✨ Giao diện đẹp mắt, dễ đọc
+✨ Có mục lục điều hướng (Table of Contents)
+✨ Hỗ trợ tìm kiếm toàn văn (Full-text search)
+✨ Ví dụ code cụ thể cho từng API
+✨ Bảng biểu, hình minh họa rõ ràng
+✨ Phân loại theo màu sắc (Note, Warning, Error...)
+✨ Responsive cho nhiều kích thước màn hình
+✨ Có nút điều hướng giữa các trang
+✨ FAQ và troubleshooting chi tiết
+
+================================================================================
+📊 THỐNG KÊ
+================================================================================
+
+📄 Tổng số trang HTML: 8 trang
+📝 Tổng số API hướng dẫn: 6 APIs chính
+⚙️ Tổng số bước hướng dẫn: Hơn 50 bước chi tiết
+❓ Tổng số FAQ: Hơn 20 câu hỏi
+🎨 Tính năng CSS: Hơn 40 styles tùy chỉnh
+
+================================================================================
+💡 MẸO SỬ DỤNG
+================================================================================
+
+1. Sử dụng Ctrl+F để tìm kiếm nhanh trong file CHM
+2. Bookmark các trang hay dùng
+3. In ra giấy nếu cần (File > Print trong CHM viewer)
+4. Chia sẻ file CHM cho người khác (chỉ 1 file duy nhất)
+5. Đặt file CHM vào thư mục dễ tìm
+
+================================================================================
+🔄 CẬP NHẬT TÀI LIỆU
+================================================================================
+
+Nếu cần sửa đổi nội dung:
+
+1. Mở file HTML tương ứng bằng text editor
+2. Chỉnh sửa nội dung
+3. Lưu file (đảm bảo UTF-8 encoding)
+4. Chạy lại build.bat để tạo file CHM mới
+5. File CHM cũ sẽ bị ghi đè
+
+Nếu thêm trang mới:
+
+1. Tạo file HTML mới
+2. Thêm vào section [FILES] trong help_project.hhp
+3. Thêm vào mục lục trong help_toc.hhc
+4. Biên dịch lại
+
+================================================================================
+📧 HỖ TRỢ
+================================================================================
+
+Nếu gặp vấn đề:
+
+1. Đọc file README.md để biết chi tiết
+2. Kiểm tra phần "Xử lý lỗi" ở trên
+3. Đảm bảo đã cài đặt HTML Help Workshop đúng cách
+4. Kiểm tra tất cả file trong thư mục help_docs
+
+Thông tin liên hệ:
+📧 Email: support@ute.edu.vn
+📞 Điện thoại: (028) 3896 5757
+
+================================================================================
+✅ CHECKLIST HOÀN THÀNH
+================================================================================
+
+Trước khi phân phối file CHM, kiểm tra:
+
+☐ File CHM đã được tạo thành công
+☐ Mở file CHM không bị lỗi
+☐ Tất cả các trang đều hiển thị đúng
+☐ Mục lục hoạt động tốt
+☐ Tìm kiếm hoạt động (nhập từ khóa test)
+☐ Link giữa các trang hoạt động
+☐ Hình ảnh/CSS hiển thị đúng (nếu có)
+☐ Tiếng Việt hiển thị đúng
+☐ Nút điều hướng hoạt động
+☐ In thử để kiểm tra (nếu cần)
+
+================================================================================
+🎉 HOÀN TẤT!
+================================================================================
+
+Bạn đã có đầy đủ file để tạo CHM. Chỉ cần:
+
+1. ⬇️  Cài HTML Help Workshop (nếu chưa có)
+2. ▶️  Chạy build.bat
+3. 📖 Mở file QuanLyDocGia_GiaHanThe.chm
+4. ✨ Tận hưởng!
+
+Chúc bạn sử dụng tài liệu hiệu quả! 🚀
+
+================================================================================
+Phiên bản: 1.0
+Ngày tạo: 13/10/2024
+Người tạo: AI Assistant
+================================================================================
+
+

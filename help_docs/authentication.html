@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký & Đăng nhập</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Trang chủ</a> &gt; Đăng ký & Đăng nhập
+        </div>
+
+        <h1>🔐 Đăng ký & Đăng nhập</h1>
+
+        <div class="section">
+            <h2>1. Đăng ký tài khoản mới</h2>
+            
+            <h3>Mục đích</h3>
+            <p>Tạo tài khoản độc giả để sử dụng dịch vụ thư viện.</p>
+
+            <h3>API sử dụng</h3>
+            <div class="code-block">
+                <p><strong>Endpoint:</strong> POST /api/auth/register</p>
+                <p><strong>URL:</strong> http://localhost:5000/api/auth/register</p>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Quyền:</strong> Public (không cần token)</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Content-Type: application/json</pre>
+            </div>
+
+            <h3>Request Body</h3>
+            <div class="code-block">
+                <pre>{
+  "username": "reader123",
+  "password": "123456",
+  "email": "reader@example.com",
+  "fullName": "Nguyen Van A",
+  "phone": "0123456789"
+}</pre>
+            </div>
+
+            <h3>Yêu cầu dữ liệu</h3>
+            <table class="data-table">
+                <tr>
+                    <th>Trường</th>
+                    <th>Bắt buộc</th>
+                    <th>Định dạng</th>
+                    <th>Ghi chú</th>
+                </tr>
+                <tr>
+                    <td>username</td>
+                    <td>Có</td>
+                    <td>String, 3-20 ký tự</td>
+                    <td>Không có ký tự đặc biệt</td>
+                </tr>
+                <tr>
+                    <td>password</td>
+                    <td>Có</td>
+                    <td>String, tối thiểu 6 ký tự</td>
+                    <td>Nên dùng mật khẩu mạnh</td>
+                </tr>
+                <tr>
+                    <td>email</td>
+                    <td>Có</td>
+                    <td>Email hợp lệ</td>
+                    <td>Dùng để khôi phục mật khẩu</td>
+                </tr>
+                <tr>
+                    <td>fullName</td>
+                    <td>Có</td>
+                    <td>String</td>
+                    <td>Họ và tên đầy đủ</td>
+                </tr>
+                <tr>
+                    <td>phone</td>
+                    <td>Có</td>
+                    <td>10-11 số</td>
+                    <td>Số điện thoại liên lạc</td>
+                </tr>
+            </table>
+
+            <h3>Response thành công (201 Created)</h3>
+            <div class="code-block">
+                <pre>{
+  "success": true,
+  "message": "Đăng ký thành công",
+  "data": {
+    "user_id": 5,
+    "username": "reader123",
+    "email": "reader@example.com",
+    "role": "reader"
+  }
+}</pre>
+            </div>
+
+            <div class="tip">
+                <strong>💡 Lưu ý:</strong> Sau khi đăng ký thành công, bạn cần đăng nhập để lấy token xác thực.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>2. Đăng nhập</h2>
+            
+            <h3>Mục đích</h3>
+            <p>Đăng nhập vào hệ thống và nhận token để sử dụng các API khác.</p>
+
+            <h3>API sử dụng</h3>
+            <div class="code-block">
+                <p><strong>Endpoint:</strong> POST /api/auth/login</p>
+                <p><strong>URL:</strong> http://localhost:5000/api/auth/login</p>
+                <p><strong>Method:</strong> POST</p>
+                <p><strong>Quyền:</strong> Public (không cần token)</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Content-Type: application/json</pre>
+            </div>
+
+            <h3>Request Body</h3>
+            <div class="code-block">
+                <pre>{
+  "username": "reader123",
+  "password": "123456"
+}</pre>
+            </div>
+
+            <h3>Response thành công (200 OK)</h3>
+            <div class="code-block">
+                <pre>{
+  "success": true,
+  "message": "Đăng nhập thành công",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": 5,
+      "username": "reader123",
+      "email": "reader@example.com",
+      "fullName": "Nguyen Van A",
+      "role": "reader"
+    }
+  }
+}</pre>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Quan trọng:</strong> Lưu token này và sử dụng cho tất cả các API yêu cầu xác thực!
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>3. Sử dụng Token</h2>
+            
+            <h3>Cách thêm token vào request</h3>
+            <p>Sau khi đăng nhập thành công, thêm token vào header của mọi request:</p>
+            
+            <div class="code-block">
+                <pre>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</pre>
+            </div>
+
+            <h3>Ví dụ sử dụng với cURL</h3>
+            <div class="code-block">
+                <pre>curl -X GET http://localhost:5000/api/readers/5 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json"</pre>
+            </div>
+
+            <h3>Ví dụ sử dụng với JavaScript (fetch)</h3>
+            <div class="code-block">
+                <pre>fetch('http://localhost:5000/api/readers/5', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer ' + token,
+    'Content-Type': 'application/json'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));</pre>
+            </div>
+
+            <h3>Lưu trữ token</h3>
+            <ul>
+                <li><strong>localStorage:</strong> Lưu lâu dài, tồn tại ngay cả khi đóng trình duyệt</li>
+                <li><strong>sessionStorage:</strong> Chỉ tồn tại trong phiên làm việc hiện tại</li>
+                <li><strong>Cookie:</strong> Có thể thiết lập thời gian hết hạn</li>
+            </ul>
+
+            <div class="code-block">
+                <pre>// Lưu token vào localStorage
+localStorage.setItem('token', token);
+
+// Lấy token từ localStorage
+const token = localStorage.getItem('token');
+
+// Xóa token
+localStorage.removeItem('token');</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>4. Xử lý lỗi thường gặp</h2>
+            
+            <div class="error-box">
+                <h3>❌ 400 Bad Request - Thiếu thông tin</h3>
+                <p>Nguyên nhân: Chưa điền đủ các trường bắt buộc</p>
+                <p>Giải pháp: Kiểm tra lại request body, đảm bảo có đủ username, password, email, fullName, phone</p>
+            </div>
+
+            <div class="error-box">
+                <h3>❌ 401 Unauthorized - Sai thông tin đăng nhập</h3>
+                <p>Nguyên nhân: Username hoặc password không đúng</p>
+                <p>Giải pháp: Kiểm tra lại thông tin đăng nhập, phân biệt chữ hoa/thường</p>
+            </div>
+
+            <div class="error-box">
+                <h3>❌ 409 Conflict - Username đã tồn tại</h3>
+                <p>Nguyên nhân: Username hoặc email đã được đăng ký</p>
+                <p>Giải pháp: Chọn username/email khác hoặc đăng nhập nếu đã có tài khoản</p>
+            </div>
+
+            <div class="error-box">
+                <h3>❌ Token expired - Token hết hạn</h3>
+                <p>Nguyên nhân: Token có thời hạn 24 giờ, sau đó sẽ hết hạn</p>
+                <p>Giải pháp: Đăng nhập lại để lấy token mới</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>5. Best Practices</h2>
+            
+            <ul class="checklist">
+                <li>✓ Sử dụng mật khẩu mạnh (ít nhất 8 ký tự, có chữ hoa, chữ thường, số)</li>
+                <li>✓ Không chia sẻ token cho người khác</li>
+                <li>✓ Đăng xuất khi sử dụng máy tính công cộng</li>
+                <li>✓ Lưu token an toàn, không để trong code public</li>
+                <li>✓ Kiểm tra token có hết hạn trước khi gọi API</li>
+                <li>✓ Cập nhật email để nhận thông báo quan trọng</li>
+            </ul>
+        </div>
+
+        <div class="navigation">
+            <a href="index.html" class="btn">← Trang chủ</a>
+            <a href="reader_management.html" class="btn">Quản lý độc giả →</a>
+        </div>
+    </div>
+</body>
+</html>
+
+

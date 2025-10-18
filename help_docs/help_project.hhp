@@ -1,0 +1,34 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=UTE_Library_Management_Guide.chm
+Contents file=help_toc.hhc
+Default topic=index.html
+Display compile progress=No
+Full-text search=Yes
+Language=0x42a Vietnamese
+Title=Hướng dẫn sử dụng - Hệ thống Quản lý Thư viện UTE
+Default Window=main
+
+[WINDOWS]
+main="Hướng dẫn sử dụng - Hệ thống Quản lý Thư viện UTE","help_toc.hhc",,"index.html","index.html",,,,,0x63520,,0x384e,,,,,,,,0
+
+[FILES]
+index.html
+authentication.html
+profile_update.html
+reader_management.html
+card_info.html
+card_renewal.html
+book_management.html
+book_search.html
+author_genre_publisher.html
+borrow_return.html
+statistics_reports.html
+system_admin.html
+troubleshooting.html
+api_reference.html
+style.css
+
+[INFOTYPES]
+
+

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê và Báo cáo - Hướng dẫn sử dụng</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Thống kê và Báo cáo</h1>
+        
+        <div class="section">
+            <h2 id="overview">Tổng quan</h2>
+            <p>Module thống kê và báo cáo cung cấp các số liệu quan trọng về hoạt động của thư viện, giúp quản lý và ra quyết định hiệu quả.</p>
+        </div>
+
+        <!-- DASHBOARD TỔNG QUAN -->
+        <div class="section">
+            <h2 id="dashboard">📈 Dashboard Tổng quan</h2>
+            
+            <h3>Truy cập Dashboard:</h3>
+            <ol>
+                <li>Đăng nhập với tài khoản quản trị hoặc thư viện viên</li>
+                <li>Trang chủ sẽ hiển thị Dashboard tổng quan</li>
+            </ol>
+
+            <h3>Các chỉ số chính:</h3>
+            <ul>
+                <li><strong>Tổng số sách:</strong> Tổng số đầu sách và bản sao trong thư viện</li>
+                <li><strong>Tổng độc giả:</strong> Số lượng độc giả đã đăng ký</li>
+                <li><strong>Đang mượn:</strong> Số sách đang được mượn</li>
+                <li><strong>Quá hạn:</strong> Số sách đang quá hạn trả</li>
+                <li><strong>Yêu cầu chờ:</strong> Số yêu cầu mượn chưa xử lý</li>
+                <li><strong>Phạt chưa thu:</strong> Tổng tiền phạt chưa thanh toán</li>
+            </ul>
+
+            <h3>Biểu đồ:</h3>
+            <ul>
+                <li><strong>Biểu đồ mượn/trả:</strong> Theo ngày/tuần/tháng</li>
+                <li><strong>Biểu đồ thể loại phổ biến:</strong> Top sách được mượn nhiều</li>
+                <li><strong>Biểu đồ độc giả:</strong> Phân bố theo loại độc giả</li>
+                <li><strong>Biểu đồ xu hướng:</strong> Tăng trưởng theo thời gian</li>
+            </ul>
+
+            <div class="note">
+                <strong>💡 Lưu ý:</strong> Dashboard tự động cập nhật theo thời gian thực.
+            </div>
+        </div>
+
+        <!-- THỐNG KÊ SÁCH -->
+        <div class="section">
+            <h2 id="book-stats">📚 Thống kê Sách</h2>
+            
+            <h3>Truy cập:</h3>
+            <ol>
+                <li>Vào menu <strong>Thống kê</strong> → <strong>Thống kê Sách</strong></li>
+            </ol>
+
+            <h3>Các báo cáo:</h3>
+            
+            <h4>1. Sách được mượn nhiều nhất:</h4>
+            <ul>
+                <li>Top 10/20/50 sách phổ biến</li>
+                <li>Lọc theo khoảng thời gian</li>
+                <li>Hiển thị số lượt mượn</li>
+                <li>Xuất Excel/PDF</li>
+            </ul>
+
+            <h4>2. Sách ít được mượn:</h4>
+            <ul>
+                <li>Danh sách sách ít người quan tâm</li>
+                <li>Gợi ý loại bỏ hoặc quảng bá</li>
+            </ul>
+
+            <h4>3. Sách mới nhập:</h4>
+            <ul>
+                <li>Danh sách sách mới theo tháng</li>
+                <li>Phân loại theo thể loại</li>
+            </ul>
+
+            <h4>4. Tình trạng kho sách:</h4>
+            <ul>
+                <li>Sách còn trong kho</li>
+                <li>Sách đang được mượn</li>
+                <li>Sách hư hỏng/mất</li>
+                <li>Tỷ lệ sử dụng</li>
+            </ul>
+
+            <h4>5. Thống kê theo thể loại:</h4>
+            <ul>
+                <li>Số lượng sách mỗi thể loại</li>
+                <li>Tỷ lệ mượn theo thể loại</li>
+                <li>Biểu đồ tròn phân bố</li>
+            </ul>
+        </div>
+
+        <!-- THỐNG KÊ ĐỘC GIẢ -->
+        <div class="section">
+            <h2 id="reader-stats">👥 Thống kê Độc giả</h2>
+            
+            <h3>Truy cập:</h3>
+            <ol>
+                <li>Vào menu <strong>Thống kê</strong> → <strong>Thống kê Độc giả</strong></li>
+            </ol>
+
+            <h3>Các báo cáo:</h3>
+            
+            <h4>1. Tổng quan độc giả:</h4>
+            <ul>
+                <li>Tổng số độc giả</li>
+                <li>Độc giả mới trong tháng</li>
+                <li>Phân loại theo loại thẻ (sinh viên, giảng viên...)</li>
+                <li>Thẻ sắp hết hạn</li>
+            </ul>
+
+            <h4>2. Độc giả tích cực:</h4>
+            <ul>
+                <li>Top độc giả mượn nhiều nhất</li>
+                <li>Tần suất mượn sách</li>
+                <li>Thời gian trung bình giữ sách</li>
+            </ul>
+
+            <h4>3. Độc giả vi phạm:</h4>
+            <ul>
+                <li>Danh sách quá hạn</li>
+                <li>Danh sách nợ phạt</li>
+                <li>Lịch sử vi phạm</li>
+            </ul>
+
+            <h4>4. Phân tích hành vi:</h4>
+            <ul>
+                <li>Thể loại yêu thích</li>
+                <li>Thời gian mượn trung bình</li>
+                <li>Tỷ lệ gia hạn</li>
+            </ul>
+        </div>
+
+        <!-- THỐNG KÊ MƯỢN/TRẢ -->
+        <div class="section">
+            <h2 id="borrow-stats">📖 Thống kê Mượn/Trả</h2>
+            
+            <h3>Truy cập:</h3>
+            <ol>
+                <li>Vào menu <strong>Thống kê</strong> → <strong>Thống kê Mượn/Trả</strong></li>
+            </ol>
+
+            <h3>Các báo cáo:</h3>
+            
+            <h4>1. Tổng quan mượn/trả:</h4>
+            <ul>
+                <li>Số lượt mượn theo ngày/tuần/tháng</li>
+                <li>Số lượt trả theo ngày/tuần/tháng</li>
+                <li>Biểu đồ xu hướng</li>
+            </ul>
+
+            <h4>2. Thời gian mượn trung bình:</h4>
+            <ul>
+                <li>Theo thể loại sách</li>
+                <li>Theo loại độc giả</li>
+            </ul>
+
+            <h4>3. Tỷ lệ quá hạn:</h4>
+            <ul>
+                <li>Phần trăm sách trả muộn</li>
+                <li>Nguyên nhân chính</li>
+                <li>Xu hướng theo thời gian</li>
+            </ul>
+
+            <h4>4. Tỷ lệ gia hạn:</h4>
+            <ul>
+                <li>Số lượt gia hạn</li>
+                <li>Sách được gia hạn nhiều nhất</li>
+            </ul>
+        </div>
+
+        <!-- THỐNG KÊ TÀI CHÍNH -->
+        <div class="section">
+            <h2 id="financial-stats">💰 Thống kê Tài chính</h2>
+            
+            <h3>Truy cập:</h3>
+            <ol>
+                <li>Vào menu <strong>Thống kê</strong> → <strong>Thống kê Tài chính</strong></li>
+            </ol>
+
+            <h3>Các báo cáo:</h3>
+            
+            <h4>1. Doanh thu thẻ thư viện:</h4>
+            <ul>
+                <li>Doanh thu từ đăng ký thẻ mới</li>
+                <li>Doanh thu từ gia hạn thẻ</li>
+                <li>Theo tháng/quý/năm</li>
+            </ul>
+
+            <h4>2. Thu phạt:</h4>
+            <ul>
+                <li>Tổng tiền phạt đã thu</li>
+                <li>Tiền phạt chưa thu</li>
+                <li>Phân loại theo loại phạt</li>
+            </ul>
+
+            <h4>3. Chi phí vận hành:</h4>
+            <ul>
+                <li>Chi phí mua sách mới</li>
+                <li>Chi phí bảo trì, sửa chữa</li>
+                <li>Chi phí nhân sự</li>
+            </ul>
+
+            <h4>4. Báo cáo tổng hợp:</h4>
+            <ul>
+                <li>Tổng thu</li>
+                <li>Tổng chi</li>
+                <li>Lợi nhuận/lỗ</li>
+            </ul>
+        </div>
+
+        <!-- XUẤT BÁO CÁO -->
+        <div class="section">
+            <h2 id="export-reports">📄 Xuất Báo cáo</h2>
+            
+            <h3>Các định dạng hỗ trợ:</h3>
+            <ul>
+                <li><strong>Excel (.xlsx):</strong> Dễ chỉnh sửa, phân tích thêm</li>
+                <li><strong>PDF (.pdf):</strong> In ấn, lưu trữ chính thức</li>
+                <li><strong>CSV (.csv):</strong> Nhập vào hệ thống khác</li>
+            </ul>
+
+            <h3>Các bước xuất báo cáo:</h3>
+            <ol>
+                <li>Chọn loại báo cáo cần xuất</li>
+                <li>Thiết lập bộ lọc (thời gian, loại...)</li>
+                <li>Click nút <strong>Xuất báo cáo</strong></li>
+                <li>Chọn định dạng file</li>
+                <li>Click <strong>Tải xuống</strong></li>
+            </ol>
+
+            <div class="note">
+                <strong>💡 Lưu ý:</strong> Báo cáo lớn có thể mất vài phút để tạo.
+            </div>
+        </div>
+
+        <!-- BÁO CÁO ĐỊNH KỲ -->
+        <div class="section">
+            <h2 id="scheduled-reports">📅 Báo cáo Định kỳ</h2>
+            
+            <h3>Thiết lập báo cáo tự động:</h3>
+            <ol>
+                <li>Vào <strong>Cài đặt</strong> → <strong>Báo cáo định kỳ</strong></li>
+                <li>Click <strong>Tạo báo cáo mới</strong></li>
+                <li>Cấu hình:
+                    <ul>
+                        <li>Loại báo cáo</li>
+                        <li>Tần suất (hàng ngày/tuần/tháng)</li>
+                        <li>Thời gian gửi</li>
+                        <li>Email nhận báo cáo</li>
+                    </ul>
+                </li>
+                <li>Click <strong>Lưu</strong></li>
+            </ol>
+
+            <h3>Các báo cáo định kỳ phổ biến:</h3>
+            <ul>
+                <li><strong>Báo cáo hàng ngày:</strong> Tổng quan hoạt động trong ngày</li>
+                <li><strong>Báo cáo hàng tuần:</strong> Thống kê mượn/trả, độc giả mới</li>
+                <li><strong>Báo cáo hàng tháng:</strong> Báo cáo tổng hợp cho ban giám đốc</li>
+                <li><strong>Báo cáo hàng quý:</strong> Phân tích xu hướng, đề xuất cải tiến</li>
+            </ul>
+        </div>
+
+        <!-- API LIÊN QUAN -->
+        <div class="section">
+            <h2 id="api-reference">API liên quan</h2>
+            <div class="code-block">
+                <h4>GET /api/stats/overview</h4>
+                <p>Lấy thống kê tổng quan</p>
+                
+                <h4>GET /api/stats/books</h4>
+                <p>Lấy thống kê sách</p>
+                
+                <h4>GET /api/stats/readers</h4>
+                <p>Lấy thống kê độc giả</p>
+                
+                <h4>GET /api/stats/borrows</h4>
+                <p>Lấy thống kê mượn/trả</p>
+                
+                <h4>GET /api/stats/financial</h4>
+                <p>Lấy thống kê tài chính</p>
+                
+                <h4>POST /api/reports/export</h4>
+                <p>Xuất báo cáo</p>
+                
+                <h4>GET /api/reports/scheduled</h4>
+                <p>Lấy danh sách báo cáo định kỳ</p>
+            </div>
+        </div>
+
+        <!-- XỬ LÝ SỰ CỐ -->
+        <div class="section">
+            <h2 id="troubleshooting">Xử lý sự cố</h2>
+            
+            <h3>❌ Số liệu không chính xác</h3>
+            <p><strong>Nguyên nhân:</strong></p>
+            <ul>
+                <li>Dữ liệu chưa đồng bộ</li>
+                <li>Bộ lọc thời gian không đúng</li>
+            </ul>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Refresh trang</li>
+                <li>Kiểm tra lại bộ lọc</li>
+                <li>Liên hệ admin nếu vẫn sai</li>
+            </ul>
+
+            <h3>❌ Không xuất được báo cáo</h3>
+            <p><strong>Nguyên nhân:</strong></p>
+            <ul>
+                <li>Dữ liệu quá lớn</li>
+                <li>Lỗi server</li>
+            </ul>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Thu hẹp khoảng thời gian</li>
+                <li>Thử lại sau vài phút</li>
+                <li>Liên hệ IT support</li>
+            </ul>
+
+            <h3>❌ Biểu đồ không hiển thị</h3>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Kiểm tra kết nối Internet</li>
+                <li>Thử trình duyệt khác</li>
+                <li>Xóa cache và refresh</li>
+            </ul>
+        </div>
+
+        <!-- MẸO VÀ THỰC HÀNH TỐT -->
+        <div class="section">
+            <h2 id="best-practices">💡 Mẹo và Thực hành tốt</h2>
+            
+            <ul>
+                <li>Xem Dashboard hàng ngày để nắm bắt tình hình</li>
+                <li>Xuất báo cáo định kỳ để lưu trữ</li>
+                <li>So sánh số liệu theo thời gian để thấy xu hướng</li>
+                <li>Sử dụng biểu đồ để trình bày với lãnh đạo</li>
+                <li>Phân tích sâu để tìm cơ hội cải thiện</li>
+                <li>Chia sẻ báo cáo với các bộ phận liên quan</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><a href="index.html">← Quay lại trang chủ</a></p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+

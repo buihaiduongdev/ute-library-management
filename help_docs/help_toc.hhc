@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD><BODY>
+<OBJECT type="text/site properties">
+	<param name="ImageType" value="Folder">
+</OBJECT>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Trang chủ">
+		<param name="Local" value="index.html">
+		</OBJECT>
+	
+	<!-- XÁC THỰC & TÀI KHOẢN -->
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="🔐 Xác thực & Tài khoản">
+		</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Đăng ký & Đăng nhập">
+				<param name="Local" value="authentication.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Cập nhật thông tin cá nhân">
+				<param name="Local" value="profile_update.html">
+				</OBJECT>
+		</UL>
+	
+	<!-- QUẢN LÝ ĐỘC GIẢ -->
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="👥 Quản lý Độc giả">
+		</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Quản lý thông tin độc giả">
+				<param name="Local" value="reader_management.html">
+				</OBJECT>
+				<UL>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Xem thông tin cá nhân">
+						<param name="Local" value="reader_management.html#1">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Xem thông tin thẻ thư viện">
+						<param name="Local" value="reader_management.html#2">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Xem tổng quan mượn sách">
+						<param name="Local" value="reader_management.html#3">
+						</OBJECT>
+				</UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Xem thông tin thẻ">
+				<param name="Local" value="card_info.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Gia hạn thẻ thư viện">
+				<param name="Local" value="card_renewal.html">
+				</OBJECT>
+		</UL>
+	
+	<!-- QUẢN LÝ SÁCH -->
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="📚 Quản lý Sách">
+		</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Quản lý Sách">
+				<param name="Local" value="book_management.html">
+				</OBJECT>
+				<UL>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Xem danh sách sách">
+						<param name="Local" value="book_management.html#view-books">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Thêm sách mới">
+						<param name="Local" value="book_management.html#add-book">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Chỉnh sửa thông tin sách">
+						<param name="Local" value="book_management.html#edit-book">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Xóa sách">
+						<param name="Local" value="book_management.html#delete-book">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Tìm kiếm sách">
+						<param name="Local" value="book_management.html#search-book">
+						</OBJECT>
+				</UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Tìm kiếm Sách">
+				<param name="Local" value="book_search.html">
+				</OBJECT>
+				<UL>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Tìm kiếm cơ bản">
+						<param name="Local" value="book_search.html#basic-search">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Tìm kiếm nâng cao">
+						<param name="Local" value="book_search.html#advanced-search">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Bộ lọc">
+						<param name="Local" value="book_search.html#filters">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Xem chi tiết sách">
+						<param name="Local" value="book_search.html#book-details">
+						</OBJECT>
+				</UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Quản lý Tác giả, Thể loại, NXB">
+				<param name="Local" value="author_genre_publisher.html">
+				</OBJECT>
+				<UL>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Quản lý Tác giả">
+						<param name="Local" value="author_genre_publisher.html#author-management">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Quản lý Thể loại">
+						<param name="Local" value="author_genre_publisher.html#genre-management">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Quản lý Nhà xuất bản">
+						<param name="Local" value="author_genre_publisher.html#publisher-management">
+						</OBJECT>
+				</UL>
+		</UL>
+	
+	<!-- MƯỢN & TRẢ SÁCH -->
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="📖 Mượn & Trả Sách">
+		</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Mượn và Trả Sách">
+				<param name="Local" value="borrow_return.html">
+				</OBJECT>
+				<UL>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Cho mượn sách">
+						<param name="Local" value="borrow_return.html#borrow-book">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Nhận trả sách">
+						<param name="Local" value="borrow_return.html#return-book">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Gia hạn mượn sách">
+						<param name="Local" value="borrow_return.html#renew-book">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Xem danh sách mượn">
+						<param name="Local" value="borrow_return.html#view-borrows">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Yêu cầu mượn sách">
+						<param name="Local" value="borrow_return.html#request-borrow">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Quản lý phạt">
+						<param name="Local" value="borrow_return.html#fines">
+						</OBJECT>
+				</UL>
+		</UL>
+	
+	<!-- THỐNG KÊ & BÁO CÁO -->
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="📊 Thống kê & Báo cáo">
+		</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Thống kê và Báo cáo">
+				<param name="Local" value="statistics_reports.html">
+				</OBJECT>
+				<UL>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Dashboard Tổng quan">
+						<param name="Local" value="statistics_reports.html#dashboard">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Thống kê Sách">
+						<param name="Local" value="statistics_reports.html#book-stats">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Thống kê Độc giả">
+						<param name="Local" value="statistics_reports.html#reader-stats">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Thống kê Mượn/Trả">
+						<param name="Local" value="statistics_reports.html#borrow-stats">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Thống kê Tài chính">
+						<param name="Local" value="statistics_reports.html#financial-stats">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Xuất Báo cáo">
+						<param name="Local" value="statistics_reports.html#export-reports">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Báo cáo Định kỳ">
+						<param name="Local" value="statistics_reports.html#scheduled-reports">
+						</OBJECT>
+				</UL>
+		</UL>
+	
+	<!-- QUẢN TRỊ HỆ THỐNG -->
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="⚙️ Quản trị Hệ thống">
+		</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Quản trị Hệ thống">
+				<param name="Local" value="system_admin.html">
+				</OBJECT>
+				<UL>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Quản lý Tài khoản">
+						<param name="Local" value="system_admin.html#account-management">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Phân quyền">
+						<param name="Local" value="system_admin.html#permissions">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Cấu hình Hệ thống">
+						<param name="Local" value="system_admin.html#system-config">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Nhật ký Hệ thống">
+						<param name="Local" value="system_admin.html#system-logs">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Sao lưu & Phục hồi">
+						<param name="Local" value="system_admin.html#backup-restore">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="Bảo mật">
+						<param name="Local" value="system_admin.html#security">
+						</OBJECT>
+				</UL>
+		</UL>
+	
+	<!-- TÀI LIỆU KHÁC -->
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="📚 Tài liệu Khác">
+		</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Xử lý sự cố thường gặp">
+				<param name="Local" value="troubleshooting.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Tài liệu API tham khảo">
+				<param name="Local" value="api_reference.html">
+				</OBJECT>
+				<UL>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="POST /api/auth/register">
+						<param name="Local" value="api_reference.html#api-register">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="POST /api/auth/login">
+						<param name="Local" value="api_reference.html#api-login">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="GET /api/readers/:id">
+						<param name="Local" value="api_reference.html#api-get-reader">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="PUT /api/readers/:id">
+						<param name="Local" value="api_reference.html#api-update-reader">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="GET /api/readers/:id/card-info">
+						<param name="Local" value="api_reference.html#api-card-info">
+						</OBJECT>
+					<LI> <OBJECT type="text/sitemap">
+						<param name="Name" value="GET /api/readers/:id/borrow-info">
+						<param name="Local" value="api_reference.html#api-borrow-info">
+						</OBJECT>
+				</UL>
+		</UL>
+</UL>
+</BODY></HTML>

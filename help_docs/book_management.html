@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Sách - Hướng dẫn sử dụng</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Quản lý Sách</h1>
+        
+        <div class="section">
+            <h2 id="overview">Tổng quan</h2>
+            <p>Module quản lý sách cho phép thư viện viên quản lý toàn bộ kho sách của thư viện, bao gồm thêm mới, chỉnh sửa, xóa và tìm kiếm sách.</p>
+        </div>
+
+        <div class="section">
+            <h2 id="view-books">Xem danh sách sách</h2>
+            <h3>Các bước thực hiện:</h3>
+            <ol>
+                <li>Đăng nhập với tài khoản thư viện viên</li>
+                <li>Vào menu <strong>Quản lý</strong> → <strong>Quản lý Sách</strong></li>
+                <li>Danh sách sách sẽ hiển thị với các thông tin:
+                    <ul>
+                        <li>Mã sách</li>
+                        <li>Tên sách</li>
+                        <li>Tác giả</li>
+                        <li>Thể loại</li>
+                        <li>Nhà xuất bản</li>
+                        <li>Năm xuất bản</li>
+                        <li>Số lượng có sẵn</li>
+                        <li>Trạng thái</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <div class="note">
+                <strong>💡 Lưu ý:</strong> Danh sách hỗ trợ phân trang để dễ dàng xem và quản lý khi có nhiều sách.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="add-book">Thêm sách mới</h2>
+            <h3>Các bước thực hiện:</h3>
+            <ol>
+                <li>Tại trang <strong>Quản lý Sách</strong>, click nút <strong>Thêm sách mới</strong></li>
+                <li>Điền đầy đủ thông tin sách:
+                    <ul>
+                        <li><strong>Tên sách</strong> (bắt buộc)</li>
+                        <li><strong>Tác giả</strong> (chọn từ danh sách)</li>
+                        <li><strong>Thể loại</strong> (chọn từ danh sách)</li>
+                        <li><strong>Nhà xuất bản</strong> (chọn từ danh sách)</li>
+                        <li><strong>Năm xuất bản</strong></li>
+                        <li><strong>ISBN</strong> (nếu có)</li>
+                        <li><strong>Số lượng</strong></li>
+                        <li><strong>Vị trí</strong> (vị trí lưu trữ trong thư viện)</li>
+                        <li><strong>Mô tả</strong> (tùy chọn)</li>
+                    </ul>
+                </li>
+                <li>Click <strong>Lưu</strong> để hoàn tất</li>
+            </ol>
+
+            <div class="warning">
+                <strong>⚠️ Cảnh báo:</strong>
+                <ul>
+                    <li>Tên sách không được để trống</li>
+                    <li>Số lượng phải là số nguyên dương</li>
+                    <li>Năm xuất bản phải hợp lệ</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="edit-book">Chỉnh sửa thông tin sách</h2>
+            <h3>Các bước thực hiện:</h3>
+            <ol>
+                <li>Tại danh sách sách, tìm sách cần chỉnh sửa</li>
+                <li>Click nút <strong>Chỉnh sửa</strong> (biểu tượng bút)</li>
+                <li>Cập nhật các thông tin cần thay đổi</li>
+                <li>Click <strong>Cập nhật</strong> để lưu thay đổi</li>
+            </ol>
+
+            <div class="note">
+                <strong>💡 Lưu ý:</strong> Không thể thay đổi mã sách sau khi đã tạo.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="delete-book">Xóa sách</h2>
+            <h3>Các bước thực hiện:</h3>
+            <ol>
+                <li>Tại danh sách sách, tìm sách cần xóa</li>
+                <li>Click nút <strong>Xóa</strong> (biểu tượng thùng rác)</li>
+                <li>Xác nhận xóa trong hộp thoại</li>
+            </ol>
+
+            <div class="warning">
+                <strong>⚠️ Cảnh báo:</strong>
+                <ul>
+                    <li>Không thể xóa sách đang được mượn</li>
+                    <li>Hành động xóa không thể hoàn tác</li>
+                    <li>Nên kiểm tra kỹ trước khi xóa</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="search-book">Tìm kiếm sách</h2>
+            <h3>Các bước thực hiện:</h3>
+            <ol>
+                <li>Sử dụng ô tìm kiếm ở đầu trang</li>
+                <li>Nhập từ khóa (tên sách, tác giả, ISBN...)</li>
+                <li>Kết quả tìm kiếm hiển thị ngay lập tức</li>
+            </ol>
+
+            <h3>Bộ lọc nâng cao:</h3>
+            <ul>
+                <li><strong>Theo thể loại:</strong> Lọc sách theo thể loại cụ thể</li>
+                <li><strong>Theo tác giả:</strong> Lọc sách của một tác giả</li>
+                <li><strong>Theo nhà xuất bản:</strong> Lọc sách của một NXB</li>
+                <li><strong>Theo trạng thái:</strong> Lọc sách có sẵn hoặc đã hết</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2 id="book-details">Xem chi tiết sách</h2>
+            <h3>Các bước thực hiện:</h3>
+            <ol>
+                <li>Click vào tên sách hoặc nút <strong>Chi tiết</strong></li>
+                <li>Xem đầy đủ thông tin sách bao gồm:
+                    <ul>
+                        <li>Thông tin cơ bản</li>
+                        <li>Mô tả chi tiết</li>
+                        <li>Lịch sử mượn/trả</li>
+                        <li>Số lượng hiện có</li>
+                        <li>Vị trí lưu trữ</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2 id="api-reference">API liên quan</h2>
+            <div class="code-block">
+                <h4>GET /api/books</h4>
+                <p>Lấy danh sách tất cả sách</p>
+                
+                <h4>GET /api/books/:id</h4>
+                <p>Lấy thông tin chi tiết một sách</p>
+                
+                <h4>POST /api/books</h4>
+                <p>Thêm sách mới</p>
+                
+                <h4>PUT /api/books/:id</h4>
+                <p>Cập nhật thông tin sách</p>
+                
+                <h4>DELETE /api/books/:id</h4>
+                <p>Xóa sách</p>
+                
+                <h4>GET /api/books/search</h4>
+                <p>Tìm kiếm sách</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="troubleshooting">Xử lý sự cố</h2>
+            
+            <h3>❌ Không thể thêm sách mới</h3>
+            <p><strong>Nguyên nhân:</strong></p>
+            <ul>
+                <li>Thiếu thông tin bắt buộc</li>
+                <li>Dữ liệu không hợp lệ</li>
+                <li>Không có quyền thêm sách</li>
+            </ul>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Kiểm tra tất cả trường bắt buộc đã điền</li>
+                <li>Đảm bảo dữ liệu đúng định dạng</li>
+                <li>Kiểm tra quyền tài khoản</li>
+            </ul>
+
+            <h3>❌ Không thể xóa sách</h3>
+            <p><strong>Nguyên nhân:</strong></p>
+            <ul>
+                <li>Sách đang được mượn</li>
+                <li>Sách có liên kết với dữ liệu khác</li>
+            </ul>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Đợi tất cả bản sao được trả về</li>
+                <li>Hoặc đánh dấu sách là "Ngừng lưu hành"</li>
+            </ul>
+
+            <h3>❌ Tìm kiếm không ra kết quả</h3>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Kiểm tra chính tả từ khóa</li>
+                <li>Thử tìm kiếm với từ khóa ngắn hơn</li>
+                <li>Sử dụng bộ lọc nâng cao</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><a href="index.html">← Quay lại trang chủ</a></p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+

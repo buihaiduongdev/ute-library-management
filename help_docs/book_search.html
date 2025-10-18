@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm kiếm Sách - Hướng dẫn sử dụng</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Tìm kiếm Sách</h1>
+        
+        <div class="section">
+            <h2 id="overview">Tổng quan</h2>
+            <p>Chức năng tìm kiếm sách giúp độc giả và thư viện viên nhanh chóng tìm thấy sách cần thiết trong hệ thống thư viện.</p>
+        </div>
+
+        <!-- TÌM KIẾM CƠ BẢN -->
+        <div class="section">
+            <h2 id="basic-search">🔎 Tìm kiếm Cơ bản</h2>
+            
+            <h3>Các bước thực hiện:</h3>
+            <ol>
+                <li>Vào trang <strong>Tìm kiếm Sách</strong> (từ menu hoặc trang chủ)</li>
+                <li>Nhập từ khóa vào ô tìm kiếm</li>
+                <li>Nhấn Enter hoặc click nút <strong>Tìm kiếm</strong></li>
+                <li>Xem kết quả tìm kiếm</li>
+            </ol>
+
+            <h3>Tìm kiếm theo:</h3>
+            <ul>
+                <li><strong>Tên sách:</strong> Nhập tên sách hoặc một phần tên</li>
+                <li><strong>Tác giả:</strong> Nhập tên tác giả</li>
+                <li><strong>ISBN:</strong> Nhập mã ISBN</li>
+                <li><strong>Từ khóa:</strong> Nhập từ khóa liên quan</li>
+            </ul>
+
+            <div class="note">
+                <strong>💡 Mẹo:</strong> Hệ thống tự động tìm kiếm trong tất cả các trường (tên, tác giả, mô tả...) khi bạn nhập từ khóa.
+            </div>
+        </div>
+
+        <!-- TÌM KIẾM NÂNG CAO -->
+        <div class="section">
+            <h2 id="advanced-search">🔍 Tìm kiếm Nâng cao</h2>
+            
+            <h3>Truy cập:</h3>
+            <ol>
+                <li>Click nút <strong>Tìm kiếm nâng cao</strong></li>
+                <li>Form tìm kiếm chi tiết sẽ hiển thị</li>
+            </ol>
+
+            <h3>Các tiêu chí tìm kiếm:</h3>
+            
+            <h4>1. Thông tin sách:</h4>
+            <ul>
+                <li><strong>Tên sách:</strong> Tìm chính xác hoặc gần đúng</li>
+                <li><strong>Tác giả:</strong> Chọn từ danh sách hoặc nhập tên</li>
+                <li><strong>Thể loại:</strong> Chọn một hoặc nhiều thể loại</li>
+                <li><strong>Nhà xuất bản:</strong> Chọn từ danh sách</li>
+                <li><strong>ISBN:</strong> Tìm chính xác theo mã ISBN</li>
+            </ul>
+
+            <h4>2. Năm xuất bản:</h4>
+            <ul>
+                <li><strong>Từ năm:</strong> Năm bắt đầu</li>
+                <li><strong>Đến năm:</strong> Năm kết thúc</li>
+                <li>Ví dụ: Tìm sách xuất bản từ 2020-2024</li>
+            </ul>
+
+            <h4>3. Trạng thái:</h4>
+            <ul>
+                <li><strong>Tất cả:</strong> Hiển thị tất cả sách</li>
+                <li><strong>Có sẵn:</strong> Chỉ sách còn có thể mượn</li>
+                <li><strong>Đang mượn:</strong> Sách đang được mượn</li>
+                <li><strong>Đã đặt trước:</strong> Sách có người đặt trước</li>
+            </ul>
+
+            <h4>4. Vị trí:</h4>
+            <ul>
+                <li>Tìm theo vị trí lưu trữ trong thư viện</li>
+                <li>Ví dụ: Kệ A1, Tầng 2...</li>
+            </ul>
+
+            <h3>Thực hiện tìm kiếm nâng cao:</h3>
+            <ol>
+                <li>Điền các tiêu chí cần thiết</li>
+                <li>Click <strong>Tìm kiếm</strong></li>
+                <li>Xem kết quả</li>
+                <li>Có thể điều chỉnh tiêu chí và tìm lại</li>
+            </ol>
+        </div>
+
+        <!-- BỘ LỌC -->
+        <div class="section">
+            <h2 id="filters">🎯 Bộ lọc</h2>
+            
+            <h3>Lọc kết quả tìm kiếm:</h3>
+            <p>Sau khi có kết quả tìm kiếm, bạn có thể lọc thêm:</p>
+            
+            <h4>Lọc theo thể loại:</h4>
+            <ul>
+                <li>Chọn một hoặc nhiều thể loại từ sidebar</li>
+                <li>Kết quả tự động cập nhật</li>
+            </ul>
+
+            <h4>Lọc theo tác giả:</h4>
+            <ul>
+                <li>Click vào tên tác giả</li>
+                <li>Xem tất cả sách của tác giả đó</li>
+            </ul>
+
+            <h4>Lọc theo năm:</h4>
+            <ul>
+                <li>Sử dụng slider để chọn khoảng năm</li>
+                <li>Hoặc nhập trực tiếp năm bắt đầu và kết thúc</li>
+            </ul>
+
+            <h4>Lọc theo trạng thái:</h4>
+            <ul>
+                <li>Checkbox "Chỉ hiển thị sách có sẵn"</li>
+                <li>Checkbox "Bao gồm sách đã đặt trước"</li>
+            </ul>
+        </div>
+
+        <!-- SẮP XẾP -->
+        <div class="section">
+            <h2 id="sorting">📊 Sắp xếp</h2>
+            
+            <h3>Các tùy chọn sắp xếp:</h3>
+            <ul>
+                <li><strong>Liên quan nhất:</strong> Theo độ phù hợp với từ khóa (mặc định)</li>
+                <li><strong>Tên A-Z:</strong> Sắp xếp theo tên tăng dần</li>
+                <li><strong>Tên Z-A:</strong> Sắp xếp theo tên giảm dần</li>
+                <li><strong>Năm mới nhất:</strong> Sách xuất bản gần đây</li>
+                <li><strong>Năm cũ nhất:</strong> Sách xuất bản lâu đời</li>
+                <li><strong>Phổ biến nhất:</strong> Sách được mượn nhiều</li>
+                <li><strong>Mới nhập:</strong> Sách mới thêm vào thư viện</li>
+            </ul>
+
+            <h3>Thay đổi sắp xếp:</h3>
+            <ol>
+                <li>Click vào dropdown "Sắp xếp theo"</li>
+                <li>Chọn tiêu chí sắp xếp</li>
+                <li>Kết quả tự động cập nhật</li>
+            </ol>
+        </div>
+
+        <!-- XEM KẾT QUẢ -->
+        <div class="section">
+            <h2 id="view-results">👁️ Xem Kết quả</h2>
+            
+            <h3>Hiển thị kết quả:</h3>
+            <ul>
+                <li><strong>Dạng lưới (Grid):</strong> Hiển thị dạng thẻ với ảnh bìa</li>
+                <li><strong>Dạng danh sách (List):</strong> Hiển thị chi tiết hơn</li>
+            </ul>
+
+            <h3>Thông tin hiển thị:</h3>
+            <ul>
+                <li>Ảnh bìa sách (nếu có)</li>
+                <li>Tên sách</li>
+                <li>Tác giả</li>
+                <li>Thể loại</li>
+                <li>Năm xuất bản</li>
+                <li>Trạng thái (Có sẵn/Đang mượn)</li>
+                <li>Số lượng còn lại</li>
+            </ul>
+
+            <h3>Phân trang:</h3>
+            <ul>
+                <li>Mỗi trang hiển thị 12-24 kết quả</li>
+                <li>Chuyển trang bằng nút Trước/Sau</li>
+                <li>Hoặc nhảy đến trang cụ thể</li>
+            </ul>
+        </div>
+
+        <!-- CHI TIẾT SÁCH -->
+        <div class="section">
+            <h2 id="book-details">📖 Xem Chi tiết Sách</h2>
+            
+            <h3>Truy cập:</h3>
+            <ol>
+                <li>Click vào tên sách hoặc ảnh bìa</li>
+                <li>Trang chi tiết sách sẽ mở ra</li>
+            </ol>
+
+            <h3>Thông tin chi tiết:</h3>
+            
+            <h4>Thông tin cơ bản:</h4>
+            <ul>
+                <li>Tên sách đầy đủ</li>
+                <li>Tác giả (có thể click để xem sách khác)</li>
+                <li>Thể loại (có thể click để xem sách cùng thể loại)</li>
+                <li>Nhà xuất bản</li>
+                <li>Năm xuất bản</li>
+                <li>ISBN</li>
+                <li>Số trang</li>
+                <li>Ngôn ngữ</li>
+            </ul>
+
+            <h4>Mô tả:</h4>
+            <ul>
+                <li>Tóm tắt nội dung sách</li>
+                <li>Giới thiệu tác giả</li>
+            </ul>
+
+            <h4>Tình trạng:</h4>
+            <ul>
+                <li>Tổng số bản sao</li>
+                <li>Số lượng có sẵn</li>
+                <li>Số lượng đang mượn</li>
+                <li>Vị trí lưu trữ</li>
+            </ul>
+
+            <h4>Thống kê:</h4>
+            <ul>
+                <li>Số lượt mượn</li>
+                <li>Đánh giá trung bình (nếu có)</li>
+                <li>Số lượt xem</li>
+            </ul>
+
+            <h3>Hành động:</h3>
+            <ul>
+                <li><strong>Yêu cầu mượn:</strong> Gửi yêu cầu mượn sách (Độc giả)</li>
+                <li><strong>Đặt trước:</strong> Đặt trước nếu sách hết (Độc giả)</li>
+                <li><strong>Chia sẻ:</strong> Chia sẻ link sách</li>
+                <li><strong>In thông tin:</strong> In trang chi tiết</li>
+            </ul>
+        </div>
+
+        <!-- SÁCH LIÊN QUAN -->
+        <div class="section">
+            <h2 id="related-books">📚 Sách Liên quan</h2>
+            
+            <h3>Gợi ý sách tương tự:</h3>
+            <p>Hệ thống tự động gợi ý các sách liên quan dựa trên:</p>
+            <ul>
+                <li>Cùng tác giả</li>
+                <li>Cùng thể loại</li>
+                <li>Cùng chủ đề</li>
+                <li>Độc giả khác cũng mượn</li>
+            </ul>
+
+            <h3>Xem sách liên quan:</h3>
+            <ol>
+                <li>Cuộn xuống cuối trang chi tiết sách</li>
+                <li>Xem danh sách "Sách liên quan"</li>
+                <li>Click vào sách để xem chi tiết</li>
+            </ol>
+        </div>
+
+        <!-- LƯU VÀ CHIA SẺ -->
+        <div class="section">
+            <h2 id="save-share">💾 Lưu và Chia sẻ</h2>
+            
+            <h3>Lưu tìm kiếm:</h3>
+            <ol>
+                <li>Sau khi tìm kiếm, click <strong>Lưu tìm kiếm này</strong></li>
+                <li>Đặt tên cho tìm kiếm</li>
+                <li>Click <strong>Lưu</strong></li>
+                <li>Truy cập lại từ "Tìm kiếm đã lưu"</li>
+            </ol>
+
+            <h3>Danh sách yêu thích:</h3>
+            <ol>
+                <li>Tại trang chi tiết sách, click biểu tượng ❤️</li>
+                <li>Sách được thêm vào "Danh sách yêu thích"</li>
+                <li>Xem danh sách từ menu cá nhân</li>
+            </ol>
+
+            <h3>Chia sẻ:</h3>
+            <ul>
+                <li><strong>Copy link:</strong> Sao chép link sách</li>
+                <li><strong>Email:</strong> Gửi thông tin sách qua email</li>
+                <li><strong>Mạng xã hội:</strong> Chia sẻ lên Facebook, Twitter...</li>
+            </ul>
+        </div>
+
+        <!-- API LIÊN QUAN -->
+        <div class="section">
+            <h2 id="api-reference">API liên quan</h2>
+            <div class="code-block">
+                <h4>GET /api/books/search</h4>
+                <p>Tìm kiếm sách với từ khóa</p>
+                <p>Query params: q (từ khóa), page, limit</p>
+                
+                <h4>GET /api/books/advanced-search</h4>
+                <p>Tìm kiếm nâng cao</p>
+                <p>Query params: title, author, genre, year_from, year_to, status</p>
+                
+                <h4>GET /api/books/:id</h4>
+                <p>Lấy chi tiết sách</p>
+                
+                <h4>GET /api/books/:id/related</h4>
+                <p>Lấy danh sách sách liên quan</p>
+            </div>
+        </div>
+
+        <!-- XỬ LÝ SỰ CỐ -->
+        <div class="section">
+            <h2 id="troubleshooting">Xử lý sự cố</h2>
+            
+            <h3>❌ Không tìm thấy kết quả</h3>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Kiểm tra chính tả từ khóa</li>
+                <li>Thử từ khóa ngắn hơn hoặc tổng quát hơn</li>
+                <li>Sử dụng tìm kiếm nâng cao với ít tiêu chí hơn</li>
+                <li>Bỏ bớt bộ lọc</li>
+            </ul>
+
+            <h3>❌ Kết quả không chính xác</h3>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Sử dụng tìm kiếm nâng cao</li>
+                <li>Thêm nhiều tiêu chí cụ thể hơn</li>
+                <li>Sử dụng dấu ngoặc kép cho cụm từ chính xác</li>
+            </ul>
+
+            <h3>❌ Tìm kiếm chậm</h3>
+            <p><strong>Giải pháp:</strong></p>
+            <ul>
+                <li>Kiểm tra kết nối Internet</li>
+                <li>Thử lại sau vài phút</li>
+                <li>Liên hệ IT nếu vấn đề kéo dài</li>
+            </ul>
+        </div>
+
+        <!-- MẸO TÌM KIẾM -->
+        <div class="section">
+            <h2 id="search-tips">💡 Mẹo Tìm kiếm Hiệu quả</h2>
+            
+            <h3>Sử dụng từ khóa hiệu quả:</h3>
+            <ul>
+                <li><strong>Cụ thể:</strong> "Lập trình Python" thay vì "Lập trình"</li>
+                <li><strong>Ngắn gọn:</strong> "Văn học Việt Nam" thay vì "Các tác phẩm văn học của Việt Nam"</li>
+                <li><strong>Chính xác:</strong> Kiểm tra chính tả</li>
+            </ul>
+
+            <h3>Kết hợp tiêu chí:</h3>
+            <ul>
+                <li>Tìm theo tên + tác giả để kết quả chính xác hơn</li>
+                <li>Tìm theo thể loại + năm để tìm sách mới trong lĩnh vực</li>
+            </ul>
+
+            <h3>Sử dụng bộ lọc:</h3>
+            <ul>
+                <li>Lọc "Có sẵn" nếu cần mượn ngay</li>
+                <li>Lọc theo năm nếu cần sách mới</li>
+                <li>Lọc theo thể loại để thu hẹp kết quả</li>
+            </ul>
+
+            <h3>Khám phá:</h3>
+            <ul>
+                <li>Xem "Sách liên quan" để tìm thêm sách hay</li>
+                <li>Click vào tác giả để xem tác phẩm khác</li>
+                <li>Click vào thể loại để khám phá sách cùng chủ đề</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><a href="index.html">← Quay lại trang chủ</a></p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+

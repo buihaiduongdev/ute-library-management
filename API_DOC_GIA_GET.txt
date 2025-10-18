@@ -1,0 +1,372 @@
+================================================================================
+                    CÁC API GET DÀNH CHO ĐỘC GIẢ (READERS)
+                    HỆ THỐNG QUẢN LÝ THƯ VIỆN UTE
+================================================================================
+
+Ngày tạo: 13/10/2024
+
+================================================================================
+PHẦN 1: API QUẢN LÝ THÔNG TIN ĐỘC GIẢ
+================================================================================
+
+1. GET /api/readers
+   Endpoint đầy đủ: http://localhost:5000/api/readers
+   Mô tả: Lấy danh sách tất cả độc giả
+   Quyền truy cập: Admin (role 0)
+   Headers: Authorization: Bearer {token}
+   Query Params: 
+     - page: Số trang (optional)
+     - limit: Số lượng mỗi trang (optional)
+     - search: Tìm kiếm theo tên (optional)
+   Response: Danh sách độc giả với thông tin cơ bản
+   Test cases:
+     - Lấy tất cả độc giả
+     - Lấy với pagination (page=1, limit=10)
+     - Tìm kiếm độc giả (search=nguyen)
+     - Test không có token (expect 401)
+     - Test với token của staff/reader (expect 403)
+
+2. GET /api/readers/:id
+   Endpoint đầy đủ: http://localhost:5000/api/readers/1
+   Mô tả: Lấy thông tin chi tiết của 1 độc giả
+   Quyền truy cập: Admin (role 0)
+   Headers: Authorization: Bearer {token}
+   Path Params: 
+     - id: ID của độc giả (bắt buộc)
+   Response: Thông tin đầy đủ của độc giả
+   Test cases:
+     - Lấy thông tin độc giả hợp lệ (id=1)
+     - ID không tồn tại (id=99999, expect 404)
+     - ID không hợp lệ (id=abc, expect 400)
+     - Test không có token (expect 401)
+
+3. GET /api/readers/:id/borrow-info
+   Endpoint đầy đủ: http://localhost:5000/api/readers/1/borrow-info
+   Mô tả: Lấy thông tin mượn sách của độc giả
+   Quyền truy cập: Admin hoặc Staff (role 0, 1)
+   Headers: Authorization: Bearer {token}
+   Path Params: 
+     - id: ID của độc giả (bắt buộc)
+   Response: 
+     - Số sách đang mượn
+     - Danh sách sách đang mượn
+     - Số sách quá hạn
+     - Tổng tiền phạt
+   Test cases:
+     - Lấy thông tin mượn của độc giả có sách đang mượn
+     - Lấy thông tin độc giả chưa mượn sách nào
+     - Lấy thông tin độc giả có sách quá hạn
+     - ID không tồn tại (expect 404)
+     - Test với token reader (expect 403)
+
+4. GET /api/readers/:id/card-info
+   Endpoint đầy đủ: http://localhost:5000/api/readers/1/card-info
+   Mô tả: Lấy thông tin thẻ thư viện của độc giả
+   Quyền truy cập: Admin hoặc Staff (role 0, 1)
+   Headers: Authorization: Bearer {token}
+   Path Params: 
+     - id: ID của độc giả (bắt buộc)
+   Response: 
+     - Số thẻ
+     - Ngày cấp
+     - Ngày hết hạn
+     - Trạng thái thẻ (active/expired/blocked)
+   Test cases:
+     - Lấy thông tin thẻ còn hạn
+     - Lấy thông tin thẻ hết hạn
+     - Lấy thông tin thẻ bị khóa
+     - ID không tồn tại (expect 404)
+
+================================================================================
+PHẦN 2: API THỐNG KÊ VỀ ĐỘC GIẢ
+================================================================================
+
+5. GET /api/reader-stats/borrowing-status
+   Endpoint đầy đủ: http://localhost:5000/api/reader-stats/borrowing-status
+   Mô tả: Thống kê tình trạng mượn sách của độc giả
+   Quyền truy cập: Cần đăng nhập (token)
+   Headers: Authorization: Bearer {token}
+   Response:
+     - Tổng số độc giả đang mượn sách
+     - Tổng số sách đang được mượn
+     - Số độc giả có sách quá hạn
+   Test cases:
+     - Lấy thống kê tổng quan
+     - Test response time (expect < 500ms)
+     - Test không có token (expect 401)
+
+6. GET /api/reader-stats/readers-overview
+   Endpoint đầy đủ: http://localhost:5000/api/reader-stats/readers-overview
+   Mô tả: Tổng quan về độc giả trong hệ thống
+   Quyền truy cập: Cần đăng nhập (token)
+   Headers: Authorization: Bearer {token}
+   Response:
+     - Tổng số độc giả
+     - Số độc giả mới trong tháng
+     - Số độc giả hoạt động
+     - Số độc giả không hoạt động
+   Test cases:
+     - Lấy tổng quan độc giả
+     - Kiểm tra số liệu chính xác
+     - Test performance
+
+7. GET /api/reader-stats/readers-registration-timeline
+   Endpoint đầy đủ: http://localhost:5000/api/reader-stats/readers-registration-timeline
+   Mô tả: Timeline đăng ký của độc giả theo thời gian
+   Quyền truy cập: Cần đăng nhập (token)
+   Headers: Authorization: Bearer {token}
+   Query Params:
+     - startDate: Ngày bắt đầu (optional)
+     - endDate: Ngày kết thúc (optional)
+   Response:
+     - Biểu đồ số lượng đăng ký theo ngày/tháng
+   Test cases:
+     - Lấy timeline toàn bộ
+     - Lấy timeline theo khoảng thời gian
+     - Test với date range không hợp lệ
+
+8. GET /api/reader-stats/readers-by-age
+   Endpoint đầy đủ: http://localhost:5000/api/reader-stats/readers-by-age
+   Mô tả: Thống kê độc giả theo độ tuổi
+   Quyền truy cập: Cần đăng nhập (token)
+   Headers: Authorization: Bearer {token}
+   Response:
+     - Số độc giả theo từng nhóm tuổi
+     - Phần trăm mỗi nhóm
+   Test cases:
+     - Lấy thống kê theo độ tuổi
+     - Kiểm tra tổng phần trăm = 100%
+
+9. GET /api/reader-stats/readers-by-location
+   Endpoint đầy đủ: http://localhost:5000/api/reader-stats/readers-by-location
+   Mô tả: Thống kê độc giả theo địa điểm
+   Quyền truy cập: Cần đăng nhập (token)
+   Headers: Authorization: Bearer {token}
+   Response:
+     - Số độc giả theo từng khu vực/thành phố
+   Test cases:
+     - Lấy thống kê theo địa điểm
+     - Kiểm tra data hợp lệ
+
+10. GET /api/reader-stats/top-active-readers
+    Endpoint đầy đủ: http://localhost:5000/api/reader-stats/top-active-readers
+    Mô tả: Top độc giả hoạt động nhiều nhất
+    Quyền truy cập: Cần đăng nhập (token)
+    Headers: Authorization: Bearer {token}
+    Query Params:
+      - limit: Số lượng top (default: 10)
+    Response:
+      - Danh sách top độc giả
+      - Số sách đã mượn
+      - Điểm hoạt động
+    Test cases:
+      - Lấy top 10 độc giả
+      - Lấy top 5 độc giả (limit=5)
+      - Kiểm tra sắp xếp đúng thứ tự
+
+11. GET /api/reader-stats/expiring-cards
+    Endpoint đầy đủ: http://localhost:5000/api/reader-stats/expiring-cards
+    Mô tả: Danh sách thẻ độc giả sắp hết hạn
+    Quyền truy cập: Cần đăng nhập (token)
+    Headers: Authorization: Bearer {token}
+    Query Params:
+      - days: Số ngày trước khi hết hạn (default: 30)
+    Response:
+      - Danh sách độc giả có thẻ sắp hết hạn
+      - Ngày hết hạn
+    Test cases:
+      - Lấy thẻ hết hạn trong 30 ngày
+      - Lấy thẻ hết hạn trong 7 ngày (days=7)
+      - Kiểm tra ngày hết hạn đúng
+
+12. GET /api/reader-stats/reader-borrowing-activity
+    Endpoint đầy đủ: http://localhost:5000/api/reader-stats/reader-borrowing-activity
+    Mô tả: Hoạt động mượn sách của độc giả theo thời gian
+    Quyền truy cập: Cần đăng nhập (token)
+    Headers: Authorization: Bearer {token}
+    Query Params:
+      - startDate: Ngày bắt đầu (optional)
+      - endDate: Ngày kết thúc (optional)
+    Response:
+      - Biểu đồ hoạt động mượn sách theo thời gian
+      - Số lượt mượn theo ngày/tuần/tháng
+    Test cases:
+      - Lấy hoạt động toàn bộ
+      - Lấy hoạt động theo khoảng thời gian
+      - Test performance với data lớn
+
+================================================================================
+PHẦN 3: API LIÊN QUAN ĐẾN MƯỢN SÁCH CỦA ĐỘC GIẢ
+================================================================================
+
+13. GET /api/borrow/reader/:idDG
+    Endpoint đầy đủ: http://localhost:5000/api/borrow/reader/1
+    Mô tả: Lấy lịch sử mượn sách của độc giả
+    Quyền truy cập: Tất cả user đã đăng nhập
+    Headers: Authorization: Bearer {token}
+    Path Params:
+      - idDG: ID độc giả (bắt buộc)
+    Response:
+      - Danh sách phiếu mượn
+      - Thông tin sách đã mượn
+      - Ngày mượn, ngày trả
+      - Trạng thái (đang mượn/đã trả/quá hạn)
+    Test cases:
+      - Lấy lịch sử của độc giả có nhiều phiếu mượn
+      - Lấy lịch sử độc giả chưa mượn lần nào
+      - ID không tồn tại (expect 404)
+      - Reader chỉ xem được lịch sử của mình
+
+14. GET /api/borrow/fines
+    Endpoint đầy đủ: http://localhost:5000/api/borrow/fines
+    Mô tả: Lấy danh sách phạt chưa thanh toán của độc giả
+    Quyền truy cập: Tất cả user đã đăng nhập
+    Headers: Authorization: Bearer {token}
+    Response:
+      - Danh sách phiếu phạt
+      - Số tiền phạt
+      - Lý do phạt
+      - Trạng thái thanh toán
+    Test cases:
+      - Lấy danh sách phạt của độc giả có phạt
+      - Độc giả không có phạt (empty array)
+      - Kiểm tra tính toán tiền phạt đúng
+
+15. GET /api/borrow/extendable
+    Endpoint đầy đủ: http://localhost:5000/api/borrow/extendable
+    Mô tả: Lấy danh sách sách có thể gia hạn
+    Quyền truy cập: Tất cả user đã đăng nhập
+    Headers: Authorization: Bearer {token}
+    Response:
+      - Danh sách sách đang mượn có thể gia hạn
+      - Số lần đã gia hạn
+      - Số lần còn có thể gia hạn
+    Test cases:
+      - Lấy sách có thể gia hạn
+      - Độc giả không có sách nào đang mượn
+      - Sách đã gia hạn tối đa
+
+================================================================================
+PHẦN 4: API YÊU CẦU MƯỢN SÁCH CỦA ĐỘC GIẢ
+================================================================================
+
+16. GET /api/requests/my
+    Endpoint đầy đủ: http://localhost:5000/api/requests/my
+    Mô tả: Lấy danh sách yêu cầu mượn sách của tôi
+    Quyền truy cập: Reader (độc giả)
+    Headers: Authorization: Bearer {token}
+    Query Params:
+      - status: Lọc theo trạng thái (pending/approved/rejected)
+    Response:
+      - Danh sách yêu cầu của độc giả
+      - Trạng thái yêu cầu
+      - Ngày tạo yêu cầu
+    Test cases:
+      - Lấy tất cả yêu cầu
+      - Lọc yêu cầu pending
+      - Lọc yêu cầu approved
+      - Độc giả chưa có yêu cầu nào
+
+17. GET /api/requests/:id
+    Endpoint đầy đủ: http://localhost:5000/api/requests/1
+    Mô tả: Lấy chi tiết 1 yêu cầu mượn sách
+    Quyền truy cập: Tất cả user đã đăng nhập
+    Headers: Authorization: Bearer {token}
+    Path Params:
+      - id: ID yêu cầu (bắt buộc)
+    Response:
+      - Chi tiết yêu cầu
+      - Thông tin sách
+      - Trạng thái
+      - Lý do từ chối (nếu có)
+    Test cases:
+      - Lấy chi tiết yêu cầu hợp lệ
+      - ID không tồn tại (expect 404)
+      - Reader chỉ xem được yêu cầu của mình
+
+================================================================================
+TỔNG KẾT
+================================================================================
+
+Tổng số API GET dành cho độc giả: 17 APIs
+
+Phân loại theo chức năng:
+1. Quản lý thông tin độc giả: 4 APIs
+2. Thống kê về độc giả: 8 APIs
+3. Mượn sách của độc giả: 3 APIs
+4. Yêu cầu mượn sách: 2 APIs
+
+Phân loại theo quyền truy cập:
+- Admin only: 2 APIs (readers list, reader detail)
+- Admin/Staff: 2 APIs (borrow-info, card-info)
+- All authenticated users: 13 APIs
+
+APIs quan trọng nhất cần test:
+1. GET /api/readers/:id - Thông tin chi tiết độc giả
+2. GET /api/readers/:id/borrow-info - Thông tin mượn sách
+3. GET /api/borrow/reader/:idDG - Lịch sử mượn sách
+4. GET /api/requests/my - Yêu cầu của tôi
+5. GET /api/reader-stats/top-active-readers - Top độc giả
+6. GET /api/borrow/fines - Danh sách phạt
+7. GET /api/borrow/extendable - Sách có thể gia hạn
+
+Test cases chung cho tất cả APIs:
+- Test với token hợp lệ
+- Test không có token (expect 401)
+- Test với token hết hạn (expect 401)
+- Test với quyền không đủ (expect 403)
+- Test response time (expect < 500ms)
+- Test với ID không tồn tại (expect 404)
+- Test với params không hợp lệ (expect 400)
+
+Thông số cần lưu khi test:
+- Method: GET
+- URL endpoint
+- Headers: Authorization
+- Path/Query params
+- Status code
+- Response time
+- Response body
+- Test result: PASS/FAIL
+- Notes
+
+================================================================================
+LƯU Ý QUAN TRỌNG
+================================================================================
+
+1. Để test các API này, cần login trước:
+   POST /api/auth/login
+   Body: { "username": "reader1", "password": "123456" }
+   Lưu token vào environment variable
+
+2. Một số API chỉ admin/staff mới truy cập được:
+   - GET /api/readers
+   - GET /api/readers/:id
+   Cần login với tài khoản admin để test
+
+3. Reader chỉ xem được thông tin của chính mình:
+   - GET /api/requests/my
+   - GET /api/borrow/reader/:idDG (chỉ xem ID của mình)
+
+4. Test với nhiều trường hợp:
+   - Độc giả có sách đang mượn
+   - Độc giả không có sách nào
+   - Độc giả có sách quá hạn
+   - Độc giả có phạt chưa thanh toán
+   - Độc giả có thẻ sắp hết hạn
+
+5. Kiểm tra performance:
+   - APIs thống kê có thể chậm hơn
+   - Nên test với data lớn
+   - Mục tiêu: < 500ms
+
+================================================================================
+KẾT THÚC
+================================================================================
+
+File được tạo: 13/10/2024
+Version: 1.0
+
+
+
+

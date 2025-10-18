@@ -16,6 +16,8 @@ function ReaderPage() {
 
     const form = useForm({
         initialValues: {
+            MaTK: '', 
+            MaDG: '',
             HoTen: '',
             Email: '',
             DiaChi: '',
@@ -24,14 +26,17 @@ function ReaderPage() {
         },
         validate: {
             HoTen: (value) => {
-                if (!value) return 'Họ tên không được để trống';
-                if (!/^[a-zA-Z\u00C0-\u017F\s]+$/.test(value)) return 'Họ tên chỉ được chứa chữ cái';
+                if (!value || value.trim() === '') return 'Họ tên không được để trống.';
+                // Use Unicode property escapes for robust validation
+                if (!/^[\p{L}\s]+$/u.test(value)) {
+                    return 'Họ tên chỉ được chứa chữ cái và khoảng trắng.';
+                }
                 return null;
             },
-            Email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Email không hợp lệ'),
+            Email: (value) => (/^\S+@\S+\.\S+/.test(value) ? null : 'Email không hợp lệ'),
             SoDienThoai: (value) => {
-                if (!value) return 'Số điện thoại không được để trống';
-                if (!/^0\d{9}$/.test(value)) return 'Số điện thoại phải có 10 chữ số và bắt đầu bằng 0';
+                if (!value) return 'Số điện thoại không được để trống.';
+                if (!/^0\d{9}$/.test(value)) return 'Số điện thoại phải có 10 chữ số và bắt đầu bằng 0.';
                 return null;
             },
             NgaySinh: (value) => (value ? null : 'Ngày sinh không được để trống'),
@@ -80,6 +85,8 @@ function ReaderPage() {
     const handleEdit = (reader) => {
         setEditingReader(reader);
         form.setValues({
+            MaTK: reader.MaTK || '',
+            MaDG: reader.MaDG || '',
             HoTen: reader.HoTen || '',
             Email: reader.Email || '',
             DiaChi: reader.DiaChi || '',
@@ -92,7 +99,8 @@ function ReaderPage() {
     const handleSubmit = async (values) => {
         try {
             if (editingReader) {
-                await updateReader(editingReader.IdDG, values);
+                const { MaTK, ...updateData } = values;
+                await updateReader(editingReader.IdDG, updateData);
                 notifications.show({
                     title: 'Thành công',
                     message: 'Đã cập nhật thông tin độc giả!',
@@ -110,14 +118,14 @@ function ReaderPage() {
             resetToCreateMode();
             fetchReaders();
         } catch (error) {
-            if (error.response && error.response.data && error.response.data.errors) {
+            const errorMessage = error.response?.data?.message || 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.';
+            notifications.show({
+                title: 'Lỗi',
+                message: errorMessage,
+                color: 'red',
+            });
+            if (error.response?.data?.errors) {
                 form.setErrors(error.response.data.errors);
-            } else {
-                 notifications.show({
-                    title: 'Lỗi',
-                    message: error.response.data.message || 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.',
-                    color: 'red',
-                });
             }
         }
     };
@@ -139,9 +147,10 @@ function ReaderPage() {
             setReaderToDelete(null);
             fetchReaders();
         } catch (error) {
+             const errorMessage = error.response?.data?.message || 'Không thể xóa độc giả này.';
             notifications.show({
                 title: 'Lỗi',
-                message: 'Không thể xóa độc giả. Vui lòng thử lại!',
+                message: errorMessage,
                 color: 'red',
             });
         }
@@ -164,7 +173,7 @@ function ReaderPage() {
     ));
 
     return (
-        <Container p='lg'>
+        <Container p="lg">
             <Modal 
                 opened={opened} 
                 onClose={() => { close(); resetToCreateMode(); }} 
@@ -174,11 +183,19 @@ function ReaderPage() {
             >
                 <form onSubmit={form.onSubmit(handleSubmit)}>
                     <Stack>
+                        {/* TextInput for MaTK is optional and only for creation */}
+                        {!editingReader && (
+                            <TextInput 
+                                label="Mã Tài Khoản (Tùy chọn)" 
+                                placeholder="Để trống để tự động tạo" 
+                                {...form.getInputProps('MaTK')} 
+                            />
+                        )}
                         <TextInput label="Họ Tên" placeholder="Nguyễn Văn A" {...form.getInputProps('HoTen')} required />
                         <TextInput label="Email" placeholder="example@mail.com" {...form.getInputProps('Email')} required />
                         <TextInput label="Ngày Sinh" type="date" {...form.getInputProps('NgaySinh')} required/>
                         <TextInput label="Địa chỉ" placeholder="123 Đường ABC" {...form.getInputProps('DiaChi')} required/>
-                        <TextInput label="Số Điện Thoại" placeholder="09xxxxxxx" {...form.getInputProps('SoDienThoai')} required/>
+                        <TextInput label="Số Điện Thoại" placeholder="0912345678" {...form.getInputProps('SoDienThoai')} required/>
                         <Group justify="flex-end" mt="md">
                             <Button variant="default" onClick={() => { close(); resetToCreateMode(); }}>Hủy</Button>
                             <Button type="submit">{editingReader ? 'Cập nhật' : 'Tạo mới'}</Button>
@@ -187,14 +204,14 @@ function ReaderPage() {
                 </form>
             </Modal>
 
-            <Modal opened={deleteConfirmed} onClose={closeDelete} title="Xác nhận xóa độc giả" centered>
+            <Modal opened={deleteConfirmed} onClose={closeDelete} title="Xác nhận xóa độc giả" centered size="sm">
                 <Stack>
                     <Text>Bạn có chắc chắn muốn xóa độc giả này không?</Text>
                     {readerToDelete && <Text size="sm" c="dimmed"><strong>{readerToDelete.HoTen}</strong> ({readerToDelete.MaDG})</Text>}
                     <Text size="sm" c="red">⚠️ Hành động này không thể hoàn tác.</Text>
                     <Group justify="flex-end" mt="md">
                         <Button variant="default" onClick={closeDelete}>Hủy</Button>
-                        <Button color="red" onClick={confirmDelete}>Xóa</Button>
+                        <Button color="red" onClick={confirmDelete}>Xóa</g>
                     </Group>
                 </Stack>
             </Modal>
@@ -205,7 +222,7 @@ function ReaderPage() {
             </Group>
 
             <TextInput
-                placeholder="Tìm kiếm theo mã độc giả, họ tên, email hoặc số điện thoại..."
+                placeholder="Tìm kiếm theo mã, tên, email, SĐT..."
                 leftSection={<IconSearch size={16} />}
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.currentTarget.value)}
@@ -213,21 +230,27 @@ function ReaderPage() {
                 size="md"
             />
 
-            {searchTerm && <Text size="sm" c="dimmed" mb="sm">Tìm thấy {filteredReaders.length} độc giả phù hợp với "{searchTerm}"</Text>}
+            {searchTerm && <Text size="sm" c="dimmed" mb="sm">Tìm thấy {filteredReaders.length} kết quả cho "{searchTerm}"</Text>}
             
             <Table striped highlightOnHover withTableBorder withColumnBorders>
                 <Table.Thead>
                     <Table.Tr>
-                        <Table.Th>Mã Độc giả</Table.Th>
+                        <Table.Th>Mã ĐG</Table.Th>
                         <Table.Th>Họ Tên</Table.Th>
                         <Table.Th>Email</Table.Th>
-                        <Table.Th>Ngày đăng ký</Table.Th>
+                        <Table.Th>Ngày ĐK</Table.Th>
                         <Table.Th>Trạng thái</Table.Th>
                         <Table.Th>Hành động</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                    {rows.length > 0 ? rows : <Table.Tr><Table.Td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Không có dữ liệu</Table.Td></Table.Tr>}
+                    {rows.length > 0 ? rows : (
+                        <Table.Tr>
+                            <Table.Td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>
+                                <Text>Không tìm thấy độc giả nào.</Text>
+                            </Table.Td>
+                        </Table.Tr>
+                    )}
                 </Table.Tbody>
             </Table>
         </Container>

@@ -1,0 +1,513 @@
+/* CSS cho tài liệu hướng dẫn sử dụng */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+/* Typography */
+h1 {
+    color: #2c3e50;
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+h2 {
+    color: #2980b9;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    border-left: 4px solid #3498db;
+    padding-left: 15px;
+}
+
+h3 {
+    color: #34495e;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #ecf0f1;
+    border-radius: 5px;
+    font-size: 0.9em;
+}
+
+.breadcrumb a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* Version info */
+.version-info {
+    background-color: #e8f4f8;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border-left: 4px solid #3498db;
+}
+
+.version-info p {
+    margin-bottom: 5px;
+}
+
+/* Sections */
+.section {
+    margin-bottom: 30px;
+}
+
+/* Lists */
+ul, ol {
+    margin-left: 30px;
+    margin-bottom: 15px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+.main-menu {
+    list-style: none;
+    margin-left: 0;
+}
+
+.main-menu li {
+    margin-bottom: 15px;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #3498db;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.main-menu li:hover {
+    background-color: #e3f2fd;
+    transform: translateX(5px);
+}
+
+.main-menu a {
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.1em;
+}
+
+/* Code blocks */
+.code-block {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-left: 4px solid #27ae60;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+.code-block pre {
+    margin: 10px 0 0 0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.code-block p {
+    margin-bottom: 8px;
+}
+
+.code-block code {
+    background-color: #e8e8e8;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Inline code */
+code {
+    background-color: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    color: #c7254e;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #3498db;
+    color: white;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+.data-table th {
+    background-color: #2980b9;
+}
+
+.error-table th {
+    background-color: #e74c3c;
+}
+
+.status-table th {
+    background-color: #9b59b6;
+}
+
+.status-table .good {
+    background-color: #d4edda;
+}
+
+.status-table .ok {
+    background-color: #d1ecf1;
+}
+
+.status-table .warning {
+    background-color: #fff3cd;
+}
+
+.status-table .danger {
+    background-color: #f8d7da;
+}
+
+.status-table .expired {
+    background-color: #f5c6cb;
+}
+
+/* Note boxes */
+.note, .tip, .warning, .warning-box {
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 5px;
+    border-left: 5px solid;
+}
+
+.note {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.tip {
+    background-color: #e8f5e9;
+    border-color: #4caf50;
+}
+
+.warning, .warning-box {
+    background-color: #fff3e0;
+    border-color: #ff9800;
+}
+
+.error-box {
+    background-color: #ffebee;
+    border-left: 5px solid #f44336;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 5px;
+}
+
+/* Step boxes */
+.step, .step-box {
+    background-color: #f9f9f9;
+    padding: 15px;
+    margin: 15px 0;
+    border-left: 4px solid #9b59b6;
+    border-radius: 4px;
+}
+
+/* Process */
+.process {
+    margin: 20px 0;
+}
+
+/* Status boxes */
+.status-box {
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    border: 2px solid;
+}
+
+.status-box.active {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+
+.status-box.warning {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+}
+
+.status-box.expired {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+}
+
+.status-box.suspended {
+    background-color: #e2e3e5;
+    border-color: #6c757d;
+}
+
+.status-box h3 {
+    margin-top: 0;
+}
+
+/* Contact box */
+.contact-box {
+    background-color: #e8f4f8;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #3498db;
+}
+
+/* Problem box */
+.problem-box {
+    background-color: #fff;
+    border: 2px solid #e74c3c;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.problem-box h3 {
+    color: #e74c3c;
+    margin-top: 0;
+}
+
+.solution {
+    margin-top: 15px;
+}
+
+/* Checklist */
+.checklist-box {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #6c757d;
+}
+
+.checklist-box ol {
+    list-style: none;
+    margin-left: 0;
+}
+
+.checklist-box li {
+    margin-bottom: 20px;
+}
+
+.checklist-box input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+/* Tools box */
+.tools-box {
+    background-color: #e8f5e9;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #4caf50;
+}
+
+/* API details */
+.api-detail {
+    background-color: #fafafa;
+    padding: 25px;
+    margin: 30px 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.api-detail h2 {
+    color: #2980b9;
+    margin-top: 0;
+}
+
+.api-list {
+    list-style: none;
+    margin-left: 0;
+}
+
+.api-list li {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.api-list a {
+    color: #2c3e50;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+}
+
+.api-list a:hover {
+    color: #3498db;
+}
+
+/* FAQ */
+.faq {
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+    border-left: 4px solid #6c757d;
+}
+
+.faq p {
+    margin-bottom: 8px;
+}
+
+.faq p:first-child {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Navigation buttons */
+.navigation {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid #ecf0f1;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Links */
+a {
+    color: #3498db;
+}
+
+a:hover {
+    color: #2980b9;
+}
+
+/* Subtitle */
+.subtitle {
+    color: #7f8c8d;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+/* Success/Error indicators */
+.success {
+    background-color: #d4edda !important;
+}
+
+.error {
+    background-color: #f8d7da !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+    }
+    
+    h2 {
+        font-size: 1.2em;
+    }
+    
+    .navigation {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+    
+    table {
+        font-size: 0.9em;
+    }
+    
+    th, td {
+        padding: 8px;
+    }
+}
+
+/* Print styles */
+@media print {
+    body {
+        background-color: white;
+    }
+    
+    .container {
+        box-shadow: none;
+    }
+    
+    .navigation, .breadcrumb {
+        display: none;
+    }
+    
+    .code-block {
+        page-break-inside: avoid;
+    }
+}
+
+

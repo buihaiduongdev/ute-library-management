@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý thông tin độc giả</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.html">Trang chủ</a> &gt; Quản lý thông tin độc giả
+        </div>
+
+        <h1>📋 Quản lý thông tin độc giả</h1>
+
+        <div class="section">
+            <h2>Tổng quan</h2>
+            <p>Chức năng quản lý thông tin độc giả cho phép bạn xem và cập nhật thông tin cá nhân, kiểm tra thẻ thư viện, và theo dõi tình trạng mượn sách của mình.</p>
+        </div>
+
+        <div class="section">
+            <h2>1. Xem thông tin cá nhân</h2>
+            
+            <h3>Mục đích</h3>
+            <p>Xem đầy đủ thông tin tài khoản độc giả của bạn.</p>
+
+            <h3>Cách thực hiện</h3>
+            <div class="step">
+                <p><strong>Bước 1:</strong> Đăng nhập vào hệ thống và lấy token</p>
+                <p><strong>Bước 2:</strong> Gọi API xem thông tin cá nhân</p>
+            </div>
+
+            <h3>API sử dụng</h3>
+            <div class="code-block">
+                <p><strong>Endpoint:</strong> GET /api/readers/:id</p>
+                <p><strong>URL mẫu:</strong> http://localhost:5000/api/readers/5</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Authorization: Bearer {your_token_here}</pre>
+            </div>
+
+            <h3>Thông tin trả về</h3>
+            <ul>
+                <li>ID độc giả</li>
+                <li>Họ và tên</li>
+                <li>Email</li>
+                <li>Số điện thoại</li>
+                <li>Địa chỉ</li>
+                <li>Ngày đăng ký</li>
+                <li>Trạng thái tài khoản</li>
+            </ul>
+
+            <div class="note">
+                <strong>⚠️ Lưu ý:</strong> Bạn chỉ có thể xem thông tin của chính mình. ID trong URL phải khớp với ID của bạn.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>2. Xem thông tin thẻ thư viện</h2>
+            
+            <h3>Mục đích</h3>
+            <p>Kiểm tra thông tin thẻ thư viện, ngày hết hạn, và trạng thái thẻ.</p>
+
+            <h3>API sử dụng</h3>
+            <div class="code-block">
+                <p><strong>Endpoint:</strong> GET /api/readers/:id/card-info</p>
+                <p><strong>URL mẫu:</strong> http://localhost:5000/api/readers/5/card-info</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Authorization: Bearer {your_token_here}</pre>
+            </div>
+
+            <h3>Thông tin trả về</h3>
+            <ul>
+                <li>Số thẻ thư viện</li>
+                <li>Ngày cấp thẻ</li>
+                <li>Ngày hết hạn</li>
+                <li>Trạng thái thẻ (còn hạn/hết hạn)</li>
+                <li>Số ngày còn lại (nếu còn hạn)</li>
+            </ul>
+
+            <div class="tip">
+                <strong>💡 Mẹo:</strong> Kiểm tra thẻ thư viện định kỳ để đảm bảo thẻ còn hạn. Nếu sắp hết hạn, hãy gia hạn sớm để tránh bị gián đoạn việc mượn sách.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>3. Xem tổng quan tình trạng mượn sách</h2>
+            
+            <h3>Mục đích</h3>
+            <p>Xem nhanh thông tin tổng quan về việc mượn sách của bạn.</p>
+
+            <h3>API sử dụng</h3>
+            <div class="code-block">
+                <p><strong>Endpoint:</strong> GET /api/readers/:id/borrow-info</p>
+                <p><strong>URL mẫu:</strong> http://localhost:5000/api/readers/5/borrow-info</p>
+                <p><strong>Headers:</strong></p>
+                <pre>Authorization: Bearer {your_token_here}</pre>
+            </div>
+
+            <h3>Thông tin trả về</h3>
+            <ul>
+                <li><strong>Số sách đang mượn:</strong> Tổng số sách hiện tại bạn đang mượn</li>
+                <li><strong>Số sách quá hạn:</strong> Số sách bạn chưa trả và đã quá hạn</li>
+                <li><strong>Tổng tiền phạt:</strong> Tổng số tiền phạt chưa thanh toán</li>
+                <li><strong>Giới hạn mượn:</strong> Số lượng sách tối đa được phép mượn</li>
+            </ul>
+
+            <div class="warning">
+                <strong>⚠️ Cảnh báo:</strong> Nếu có sách quá hạn hoặc tiền phạt chưa thanh toán, bạn có thể bị hạn chế mượn sách mới.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>4. Cập nhật thông tin cá nhân</h2>
+            <p>Xem chi tiết tại: <a href="profile_update.html">Hướng dẫn cập nhật thông tin cá nhân</a></p>
+        </div>
+
+        <div class="section">
+            <h2>Câu hỏi thường gặp</h2>
+            
+            <div class="faq">
+                <p><strong>Q: Tôi không thấy thông tin của mình?</strong></p>
+                <p>A: Kiểm tra lại token có hợp lệ không và ID trong URL có đúng với ID của bạn.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Tại sao tôi bị lỗi 403 Forbidden?</strong></p>
+                <p>A: Bạn có thể đang cố truy cập thông tin của người khác. Hệ thống chỉ cho phép xem thông tin của chính mình.</p>
+            </div>
+
+            <div class="faq">
+                <p><strong>Q: Làm sao biết ID của tôi?</strong></p>
+                <p>A: ID của bạn được trả về khi đăng nhập thành công. Lưu lại ID này để sử dụng cho các API sau.</p>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="index.html" class="btn">← Trở về trang chủ</a>
+            <a href="card_renewal.html" class="btn">Gia hạn thẻ →</a>
+        </div>
+    </div>
+</body>
+</html>
+
+
