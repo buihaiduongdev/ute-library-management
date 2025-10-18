@@ -31,7 +31,7 @@ function ReaderPage() {
     return 'Họ tên chỉ được chứa chữ cái';
   }
   return null;
-};
+},
             Email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Email không hợp lệ'),
             SoDienThoai: (value) => {
                 if (!value) return 'Số điện thoại không được để trống';
