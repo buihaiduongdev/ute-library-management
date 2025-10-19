@@ -2,7 +2,7 @@
     "rewrites": [
       {
         "source": "/api/:path*",
-        "destination": "http://ute-lms-be-server-env.eba-2ac2sf2k.ap-southeast-2.elasticbeanstalk.com/api/:path*"
+        "destination": "http://ute-lms-sv-env.eba-rqg2hx9c.ap-southeast-2.elasticbeanstalk.com/api/:path*"
       },
       {
         "source": "/(.*)",
