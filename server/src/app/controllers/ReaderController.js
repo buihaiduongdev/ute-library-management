@@ -10,7 +10,7 @@ const validateReaderInput = (data) => {
 
     if (!HoTen || HoTen.trim() === '') {
         errors.HoTen = 'Tên không được để trống.';
-    } else if (!/^[a-zA-Z\u00C0-\u017F\s]+$/.test(HoTen)) {
+    } else if (/[0-9!@#$%^&*()_+\-=`~[\]{};:'",.<>/?\\|]/.test(HoTen)) {
         errors.HoTen = 'Tên chỉ được chứa chữ cái và khoảng trắng.';
     }
 
