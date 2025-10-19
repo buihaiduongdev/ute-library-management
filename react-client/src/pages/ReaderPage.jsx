@@ -24,14 +24,13 @@ function ReaderPage() {
         },
         validate: {
             HoTen: (value) => {
-  if (!value) return 'Họ tên không được để trống';
-  // Chuẩn hóa chuỗi sang dạng NFC
-  const normalizedValue = value.normalize('NFC');
-  if (!/^[a-zA-Z\u00C0-\u017F\s]+$/.test(normalizedValue)) {
-    return 'Họ tên chỉ được chứa chữ cái';
-  }
-  return null;
-},
+                if (!value) return 'Họ tên không được để trống';
+                const normalizedValue = value.normalize('NFC');
+                if (/[0-9!@#$%^&*()_+\-=`~[\]{};:'",.<>/?\\|]/.test(normalizedValue)) {
+                    return 'Họ tên chỉ được chứa chữ cái';
+                }
+          return null;
+        },
             Email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Email không hợp lệ'),
             SoDienThoai: (value) => {
                 if (!value) return 'Số điện thoại không được để trống';
